@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    {% if category %}{{ category.name }}{% else %}Sản phẩm{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold animate-up">
+            {% if category %}{{ category.name }}{% else %}Khám phá công nghệ mới nhất{% endif %}
+        </h1>
+        <p class="lead text-muted animate-up" style="animation-delay: 0.1s;">
+            Trải nghiệm sự khác biệt với các thiết bị điện tử hàng đầu từ Apple, Samsung, Xiaomi.
+        </p>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar Filter -->
+        <div class="col-lg-3 mb-4">
+            <div class="glass-card p-4">
+                <h5 class="mb-3">Danh mục</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <a href="/" class="text-decoration-none {% if not category %}fw-bold text-primary{% else %}text-muted{% endif %}">
+                            Tất cả sản phẩm
+                        </a>
+                    </li>
+                    {% for c in categories %}
+                        <li class="mb-2">
+                            <a href="{{ c.get_absolute_url }}" class="text-decoration-none {% if category.slug == c.slug %}fw-bold text-primary{% else %}text-muted{% endif %}">
+                                {{ c.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <hr>
+
+                <h5 class="mb-3">Sắp xếp</h5>
+                <form action="." method="get" id="sort-form">
+                    {% if query %}<input type="hidden" name="query" value="{{ query }}">{% endif %}
+                    <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Mới nhất</option>
+                        <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Giá: Thấp đến Cao</option>
+                        <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Giá: Cao đến Thấp</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="col-lg-9">
+            {% if query %}
+                <p class="mb-4">Kết quả tìm kiếm cho: <strong>"{{ query }}"</strong></p>
+            {% endif %}
+
+            <div class="row g-4">
+                {% for product in products %}
+                    <div class="col-md-6 col-xl-4 animate-up">
+                        <div class="product-card shadow-sm">
+                            {% if product.old_price %}
+                                <span class="badge-promo">PROMO</span>
+                            {% endif %}
+                            <a href="{{ product.get_absolute_url }}">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                                {% else %}
+                                    <img src="https://via.placeholder.com/300x300?text={{ product.name }}" class="card-img-top" alt="No image">
+                                {% endif %}
+                            </a>
+                            <div class="card-body">
+                                <p class="text-muted small mb-1">{{ product.category.name }} • {{ product.brand }}</p>
+                                <h5 class="card-title mb-2">
+                                    <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-dark">{{ product.name }}</a>
+                                </h5>
+                                <div class="d-flex align-items-center mb-3">
+                                    {% if product.old_price %}
+                                        <span class="old-price">{{ product.old_price|floatformat:0 }}₫</span>
+                                    {% endif %}
+                                    <span class="price-tag">{{ product.price|floatformat:0 }}₫</span>
+                                </div>
+                                <a href="{{ product.get_absolute_url }}" class="btn btn-primary w-100">Xem chi tiết</a>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h4>Không tìm thấy sản phẩm nào</h4>
+                        <p class="text-muted">Thử tìm kiếm với từ khóa khác.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
