@@ -5,12 +5,34 @@
 
 {% block content %}
 <div class="container my-5">
-    <h1 class="mb-4 fw-bold">Tin tức công nghệ</h1>
+    <h1 class="mb-3 fw-bold">Tin tức công nghệ</h1>
+    <p class="text-muted mb-4">Cập nhật tin tức, xu hướng và mẹo công nghệ mới nhất.</p>
+
+    <form method="get" class="row g-3 mb-5">
+        <div class="col-md-6">
+            <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Tìm bài viết công nghệ...">
+        </div>
+
+        <div class="col-md-4">
+            <select name="category" class="form-select">
+                <option value="">Tất cả danh mục</option>
+                {% for category in categories %}
+                    <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Tìm</button>
+        </div>
+    </form>
 
     <div class="row">
         {% for post in posts %}
             <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100 shadow-sm">
+                <div class="card blog-card h-100 shadow-sm border-0">
                     {% if post.image %}
                         <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}" style="height: 220px; object-fit: cover;">
                     {% else %}
@@ -18,17 +40,35 @@
                     {% endif %}
 
                     <div class="card-body d-flex flex-column">
+                        {% if post.category %}
+                            <span class="badge bg-primary mb-2" style="width: fit-content;">
+                                {{ post.category.name }}
+                            </span>
+                        {% endif %}
+
                         <h5 class="card-title">{{ post.title }}</h5>
                         <p class="text-muted small mb-2">{{ post.created_at|date:"d/m/Y H:i" }}</p>
-                        <p class="card-text">
-                            {{ post.content|truncatewords:20 }}
+
+                        <p class="card-text text-muted">
+                            {% if post.excerpt %}
+                                {{ post.excerpt }}
+                            {% else %}
+                                {{ post.content|truncatewords:20 }}
+                            {% endif %}
                         </p>
-                        <a href="{{ post.get_absolute_url }}" class="btn btn-primary mt-auto">Xem chi tiết</a>
+
+                        <a href="{{ post.get_absolute_url }}" class="btn btn-outline-primary mt-auto">
+                            Xem chi tiết
+                        </a>
                     </div>
                 </div>
             </div>
         {% empty %}
-            <p>Chưa có bài viết nào.</p>
+            <div class="col-12">
+                <div class="alert alert-warning text-center">
+                    Không tìm thấy bài viết phù hợp.
+                </div>
+            </div>
         {% endfor %}
     </div>
 </div>
