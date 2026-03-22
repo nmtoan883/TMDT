@@ -165,3 +165,7 @@ body {
     max-width: 100%;
     height: auto;
 }
+.pagination .page-link {
+    border-radius: 10px;
+    margin: 0 4px;
+}

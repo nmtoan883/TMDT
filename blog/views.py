@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from django.core.paginator import Paginator
 from .models import Post, Category
 
 def post_list(request):
@@ -14,8 +15,12 @@ def post_list(request):
     if category_slug:
         posts = posts.filter(category__slug=category_slug)
 
+    paginator = Paginator(posts, 6)  # mỗi trang 6 bài
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'blog/post_list.html', {
-        'posts': posts,
+        'page_obj': page_obj,
         'categories': categories,
         'query': query,
         'selected_category': category_slug,
