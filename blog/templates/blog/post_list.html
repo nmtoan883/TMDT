@@ -29,15 +29,58 @@
         </div>
     </form>
 
+    {% if featured_post %}
+    <div class="mb-5">
+        <div class="card border-0 shadow-lg overflow-hidden">
+            {% if featured_post.image %}
+                <img src="{{ featured_post.image.url }}" class="card-img-top" alt="{{ featured_post.title }}" style="height: 360px; object-fit: cover;">
+            {% else %}
+                <img src="{% static 'img/no_image.png' %}" class="card-img-top" alt="{{ featured_post.title }}" style="height: 360px; object-fit: cover;">
+            {% endif %}
+
+            <div class="card-body p-4">
+                <span class="badge bg-danger mb-2">Nổi bật</span>
+
+                {% if featured_post.category %}
+                    <span class="badge bg-primary mb-2">{{ featured_post.category.name }}</span>
+                {% endif %}
+
+                <h3 class="fw-bold">{{ featured_post.title }}</h3>
+                <p class="text-muted mb-2">
+                    {{ featured_post.created_at|date:"d/m/Y H:i" }} • {{ featured_post.views }} lượt xem
+                </p>
+
+                <p class="text-muted">
+                    {% if featured_post.excerpt %}
+                        {{ featured_post.excerpt }}
+                    {% else %}
+                        {{ featured_post.content|truncatewords:30 }}
+                    {% endif %}
+                </p>
+
+                <a href="{{ featured_post.get_absolute_url }}" class="btn btn-primary">
+                    Đọc ngay
+                </a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
     <div class="row">
         {% for post in page_obj %}
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card blog-card h-100 shadow-sm border-0">
-                    {% if post.image %}
-                        <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}" style="height: 220px; object-fit: cover;">
-                    {% else %}
-                        <img src="{% static 'img/no_image.png' %}" class="card-img-top" alt="{{ post.title }}" style="height: 220px; object-fit: cover;">
-                    {% endif %}
+{% if post.image %}
+    <div style="height: 220px; background: #f8f9fa;" class="d-flex align-items-center justify-content-center">
+        <img src="{{ post.image.url }}" alt="{{ post.title }}"
+             style="max-height: 100%; max-width: 100%; object-fit: contain;">
+    </div>
+{% else %}
+    <div style="height: 220px; background: #f8f9fa;" class="d-flex align-items-center justify-content-center">
+        <img src="{% static 'img/no_image.png' %}" alt="{{ post.title }}"
+             style="max-height: 100%; max-width: 100%; object-fit: contain;">
+    </div>
+{% endif %}
 
                     <div class="card-body d-flex flex-column">
                         {% if post.category %}
