@@ -78,6 +78,43 @@
         </div>
     </div>
 
+    {% if recent_products %}
+<div class="mt-5">
+    <h4 class="fw-bold mb-3">Sản phẩm đã xem</h4>
+
+    <div class="row">
+        {% for item in recent_products %}
+            {% if item.id != product.id %}
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" class="card-img-top"
+                             style="height: 180px; object-fit: contain;">
+                    {% else %}
+                        <img src="{% static 'img/no_image.png' %}" class="card-img-top"
+                             style="height: 180px; object-fit: contain;">
+                    {% endif %}
+
+                    <div class="card-body text-center">
+                        <h6 class="fw-bold">{{ item.name }}</h6>
+                        <p class="text-primary mb-2">
+                            {{ item.price|floatformat:0 }}₫
+                        </p>
+
+                        <a href="{{ item.get_absolute_url }}"
+                           class="btn btn-outline-primary btn-sm">
+                            Xem lại
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
     <!-- Reviews Section -->
     <div class="row mt-5">
         <div class="col-lg-8">

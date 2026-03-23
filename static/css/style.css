@@ -169,4 +169,11 @@ body {
     border-radius: 10px;
     margin: 0 4px;
 }
+.card {
+    transition: all 0.3s ease;
+}
 
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+}

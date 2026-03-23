@@ -38,10 +38,22 @@ def product_list(request, category_slug=None):
 
 def product_detail(request, id, slug):
     product = get_object_or_404(Product, id=id, slug=slug, available=True)
+
     cart_product_form = CartAddProductForm()
-    reviews = product.reviews.all()
+
+    recent = request.session.get('recently_viewed', [])
+
+    if product.id in recent:
+        recent.remove(product.id)
+
+    recent.insert(0, product.id)
+    request.session['recently_viewed'] = recent[:6]
+
+    recent_products = list(Product.objects.filter(id__in=recent, available=True))
+    recent_products.sort(key=lambda x: recent.index(x.id))
+
     return render(request, 'core/product/detail.html', {
         'product': product,
         'cart_product_form': cart_product_form,
-        'reviews': reviews
+        'recent_products': recent_products,
     })
