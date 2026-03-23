@@ -71,19 +71,15 @@
                                 <i class="fas fa-user-circle fa-lg me-1"></i> {{ user.username }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Tài khoản</a></li>
-                                <li><a class="dropdown-item" href="#">Đơn hàng</a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="fas fa-user me-2"></i>Tài khoản</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-box me-2"></i>Đơn hàng</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form action="{% url 'logout' %}" method="post">
-                                        {% csrf_token %}
-                                        <button type="submit" class="dropdown-item">Đăng xuất</button>
-                                    </form>
-                                </li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>
                             </ul>
                         </div>
                     {% else %}
-                        <a href="{% url 'login' %}" class="btn btn-primary btn-sm">Đăng nhập</a>
+                        <a href="{% url 'account_login' %}" class="btn btn-outline-secondary btn-sm me-2">Đăng nhập</a>
+                        <a href="{% url 'account_signup' %}" class="btn btn-primary btn-sm">Đăng ký</a>
                     {% endif %}
                 </div>
             </div>

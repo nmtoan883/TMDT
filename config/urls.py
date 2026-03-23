@@ -5,8 +5,17 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # allauth (đăng nhập, đăng ký, quên mật khẩu, Google, Facebook)
+    path('accounts/', include('allauth.urls')),
+
+    # Accounts app riêng (profile, register thủ công)
+    path('user/', include('accounts.urls', namespace='accounts')),
+
+    # Cart
     path('cart/', include('cart.urls', namespace='cart')),
-    path('accounts/', include('django.contrib.auth.urls')),
+
+    # Core shop (phải đặt cuối)
     path('', include('core.urls', namespace='shop')),
 ]
 
