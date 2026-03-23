@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from .models import Category, Product, Review
 from django.db.models import Q
 from cart.forms import CartAddProductForm
+from django.shortcuts import render, redirect, get_object_or_404
+from .wishlist import Wishlist
 
 def product_list(request, category_slug=None):
     category = None
@@ -40,6 +42,8 @@ def product_detail(request, id, slug):
     product = get_object_or_404(Product, id=id, slug=slug, available=True)
 
     cart_product_form = CartAddProductForm()
+    wishlist = Wishlist(request)
+    is_favorite = product.id in wishlist
 
     recent = request.session.get('recently_viewed', [])
 
@@ -56,4 +60,27 @@ def product_detail(request, id, slug):
         'product': product,
         'cart_product_form': cart_product_form,
         'recent_products': recent_products,
+        'wishlist': wishlist,
+        'is_favorite': is_favorite,
     })
+
+def wishlist_detail(request):
+    wishlist = Wishlist(request)
+    products = wishlist.get_products()
+    return render(request, 'core/product/wishlist.html', {
+        'wishlist_products': products,
+    })
+
+
+def wishlist_add(request, product_id):
+    wishlist = Wishlist(request)
+    product = get_object_or_404(Product, id=product_id, available=True)
+    wishlist.add(product.id)
+    return redirect(product.get_absolute_url())
+
+
+def wishlist_remove(request, product_id):
+    wishlist = Wishlist(request)
+    product = get_object_or_404(Product, id=product_id, available=True)
+    wishlist.remove(product.id)
+    return redirect('shop:wishlist_detail')

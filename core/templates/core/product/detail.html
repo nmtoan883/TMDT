@@ -9,13 +9,14 @@
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
-            <li class="breadcrumb-item"><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></li>
+            <li class="breadcrumb-item">
+                <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a>
+            </li>
             <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
         </ol>
     </nav>
 
     <div class="row g-5">
-        <!-- Product Images -->
         <div class="col-lg-7">
             <div class="glass-card p-4 text-center">
                 {% if product.image %}
@@ -26,12 +27,11 @@
             </div>
         </div>
 
-        <!-- Product Info -->
         <div class="col-lg-5">
             <div class="animate-up">
                 <p class="text-primary fw-bold mb-1">{{ product.brand|upper }}</p>
                 <h1 class="display-5 fw-bold mb-3">{{ product.name }}</h1>
-                
+
                 <div class="d-flex align-items-center mb-4">
                     {% if product.old_price %}
                         <span class="old-price fs-4">{{ product.old_price|floatformat:0 }}₫</span>
@@ -60,6 +60,18 @@
                     </form>
                 </div>
 
+                <div class="mb-4">
+                    {% if is_favorite %}
+                        <a href="{% url 'shop:wishlist_remove' product.id %}" class="btn btn-danger">
+                            <i class="fas fa-heart me-2"></i>Bỏ yêu thích
+                        </a>
+                    {% else %}
+                        <a href="{% url 'shop:wishlist_add' product.id %}" class="btn btn-outline-danger">
+                            <i class="far fa-heart me-2"></i>Yêu thích
+                        </a>
+                    {% endif %}
+                </div>
+
                 <div class="d-flex gap-3 mb-5">
                     <div class="text-center p-3 border rounded flex-fill">
                         <i class="fas fa-undo-alt text-primary mb-2"></i>
@@ -79,43 +91,38 @@
     </div>
 
     {% if recent_products %}
-<div class="mt-5">
-    <h4 class="fw-bold mb-3">Sản phẩm đã xem</h4>
+        <div class="mt-5">
+            <h4 class="fw-bold mb-3">Sản phẩm đã xem</h4>
 
-    <div class="row">
-        {% for item in recent_products %}
-            {% if item.id != product.id %}
-            <div class="col-md-4 col-lg-3 mb-4">
-                <div class="card h-100 shadow-sm border-0">
-                    
-                    {% if item.image %}
-                        <img src="{{ item.image.url }}" class="card-img-top"
-                             style="height: 180px; object-fit: contain;">
-                    {% else %}
-                        <img src="{% static 'img/no_image.png' %}" class="card-img-top"
-                             style="height: 180px; object-fit: contain;">
+            <div class="row">
+                {% for item in recent_products %}
+                    {% if item.id != product.id %}
+                        <div class="col-md-4 col-lg-3 mb-4">
+                            <div class="card h-100 shadow-sm border-0">
+                                {% if item.image %}
+                                    <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}"
+                                         style="height: 180px; object-fit: contain; background: #f8f9fa;">
+                                {% else %}
+                                    <img src="{% static 'img/no_image.png' %}" class="card-img-top" alt="{{ item.name }}"
+                                         style="height: 180px; object-fit: contain; background: #f8f9fa;">
+                                {% endif %}
+
+                                <div class="card-body text-center">
+                                    <h6 class="fw-bold">{{ item.name }}</h6>
+                                    <p class="text-primary mb-2">{{ item.price|floatformat:0 }}₫</p>
+
+                                    <a href="{{ item.get_absolute_url }}" class="btn btn-outline-primary btn-sm">
+                                        Xem lại
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     {% endif %}
-
-                    <div class="card-body text-center">
-                        <h6 class="fw-bold">{{ item.name }}</h6>
-                        <p class="text-primary mb-2">
-                            {{ item.price|floatformat:0 }}₫
-                        </p>
-
-                        <a href="{{ item.get_absolute_url }}"
-                           class="btn btn-outline-primary btn-sm">
-                            Xem lại
-                        </a>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
-            {% endif %}
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
+        </div>
+    {% endif %}
 
-    <!-- Reviews Section -->
     <div class="row mt-5">
         <div class="col-lg-8">
             <h3 class="mb-4">Đánh giá sản phẩm</h3>
@@ -138,13 +145,12 @@
                 <p class="text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
             {% endfor %}
         </div>
-        
-        <!-- Google Maps Placeholder -->
+
         <div class="col-lg-4">
             <h3 class="mb-4">Vị trí cửa hàng</h3>
             <div class="glass-card overflow-hidden" style="height: 300px;">
-                <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.924403919934!2d105.818318!3d21.036683!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDAyJzEyLjEiTiAxMDXCsDQ5JzA1LjkiRQ!5e0!3m2!1sen!2s!4v1620000000000!5m2!1sen!2s" 
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.924403919934!2d105.818318!3d21.036683!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDAyJzEyLjEiTiAxMDXCsDQ5JzA1LjkiRQ!5e0!3m2!1sen!2s!4v1620000000000!5m2!1sen!2s"
                     width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy">
                 </iframe>
             </div>
