@@ -50,9 +50,28 @@
                         <a class="nav-link" href="#">Liên hệ</a>
                     </li>
                 </ul>
-                <form class="d-flex me-3" action="/" method="get">
-                    <div class="input-group">
-                        <input class="form-control" type="search" name="query" placeholder="Tìm sản phẩm..." aria-label="Search">
+                <form class="d-flex me-3 navbar-search-form" action="/" method="get" role="search">
+                    <div class="input-group flex-nowrap">
+                        <div class="position-relative flex-grow-1" style="min-width: 140px;">
+                            <input
+                                id="navbar-search-input"
+                                class="form-control"
+                                type="search"
+                                name="query"
+                                placeholder="Tìm sản phẩm..."
+                                aria-label="Tìm sản phẩm"
+                                autocomplete="off"
+                                data-suggestions-url="{% url 'shop:search_suggestions' %}"
+                                {% if request.GET.query %}value="{{ request.GET.query }}"{% endif %}
+                            >
+                            <div
+                                id="navbar-search-suggestions"
+                                class="search-suggestions-panel list-group shadow-sm z-3"
+                                role="listbox"
+                                aria-label="Gợi ý tìm kiếm"
+                                hidden
+                            ></div>
+                        </div>
                         <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
                     </div>
                 </form>
@@ -155,6 +174,122 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/main.js' %}"></script>
+    <script>
+    (function () {
+        // --- Cấu hình gợi ý tìm kiếm (navbar) ---
+        var DEBOUNCE_MS = 300;
+        var MIN_QUERY_LEN = 2;
+
+        var input = document.getElementById('navbar-search-input');
+        var panel = document.getElementById('navbar-search-suggestions');
+        if (!input || !panel) return;
+
+        var apiUrl = input.getAttribute('data-suggestions-url');
+        var wrap = input.closest('.position-relative');
+        var debounceTimer = null;
+        var abortController = null;
+
+        function escapeHtml(text) {
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatPrice(value) {
+            return new Intl.NumberFormat('vi-VN').format(value) + '₫';
+        }
+
+        function hideSuggestions() {
+            panel.hidden = true;
+            panel.innerHTML = '';
+        }
+
+        function renderSuggestions(items) {
+            panel.innerHTML = '';
+            if (!items.length) {
+                hideSuggestions();
+                return;
+            }
+
+            items.forEach(function (item) {
+                var imgSrc = item.image || 'https://via.placeholder.com/48x48?text=+';
+                var a = document.createElement('a');
+                a.href = item.url;
+                a.className =
+                    'list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-2 search-suggestion-item';
+                a.setAttribute('role', 'option');
+                a.innerHTML =
+                    '<img src="' +
+                    escapeHtml(imgSrc) +
+                    '" alt="" class="search-suggestion-thumb flex-shrink-0 rounded border" width="48" height="48" loading="lazy">' +
+                    '<div class="flex-grow-1 min-w-0">' +
+                    '<div class="fw-medium text-truncate">' +
+                    escapeHtml(item.name) +
+                    '</div>' +
+                    '<div class="small text-primary">' +
+                    escapeHtml(formatPrice(item.price)) +
+                    '</div></div>';
+                panel.appendChild(a);
+            });
+
+            panel.hidden = false;
+        }
+
+        function fetchSuggestions() {
+            var q = input.value.trim();
+
+            // Bước 1: Không gọi API nếu từ khóa quá ngắn (tiết kiệm tài nguyên)
+            if (q.length < MIN_QUERY_LEN) {
+                if (abortController) abortController.abort();
+                hideSuggestions();
+                return;
+            }
+
+            // Bước 2: Hủy request trước đó nếu vẫn đang chờ
+            if (abortController) abortController.abort();
+            abortController = new AbortController();
+
+            var url = apiUrl + '?q=' + encodeURIComponent(q);
+
+            // Bước 3: Gọi API bằng fetch
+            fetch(url, {
+                signal: abortController.signal,
+                headers: { Accept: 'application/json' },
+            })
+                .then(function (res) {
+                    if (!res.ok) return;
+                    return res.json();
+                })
+                .then(function (data) {
+                    if (!data) return;
+                    renderSuggestions(data.suggestions || []);
+                })
+                .catch(function (err) {
+                    if (err.name === 'AbortError') return;
+                });
+        }
+
+        function onInput() {
+            // Debounce: chỉ gửi request sau khi người dùng ngừng gõ ~300ms
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(fetchSuggestions, DEBOUNCE_MS);
+        }
+
+        // Lắng nghe gõ phím trên ô tìm kiếm
+        input.addEventListener('input', onInput);
+
+        // Đóng danh sách khi click ra ngoài vùng ô + panel
+        document.addEventListener('click', function (e) {
+            if (wrap && !wrap.contains(e.target)) {
+                hideSuggestions();
+            }
+        });
+
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') hideSuggestions();
+        });
+    })();
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

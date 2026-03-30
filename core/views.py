@@ -1,7 +1,45 @@
 from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
 from .models import Category, Product, Review
 from django.db.models import Q
 from cart.forms import CartAddProductForm
+
+SUGGESTION_QUERY_MIN_LEN = 2
+SUGGESTION_MAX_RESULTS = 8
+SUGGESTION_QUERY_MAX_LEN = 100
+
+
+@require_GET
+def search_suggestions(request):
+    """
+    Gợi ý tìm kiếm theo tên sản phẩm (JSON).
+    Chỉ đọc các cột cần thiết qua .only() để giảm tải DB.
+    """
+    q = (request.GET.get('q') or '').strip()[:SUGGESTION_QUERY_MAX_LEN]
+    if len(q) < SUGGESTION_QUERY_MIN_LEN:
+        return JsonResponse({'suggestions': []})
+
+    products = (
+        Product.objects.filter(available=True, name__icontains=q)
+        .only('id', 'name', 'price', 'image', 'slug')
+        .order_by('name')[:SUGGESTION_MAX_RESULTS]
+    )
+
+    suggestions = []
+    for p in products:
+        image_url = request.build_absolute_uri(p.image.url) if p.image else ''
+        suggestions.append(
+            {
+                'id': p.id,
+                'name': p.name,
+                'price': float(p.price),
+                'image': image_url,
+                'url': p.get_absolute_url(),
+            }
+        )
+
+    return JsonResponse({'suggestions': suggestions})
 
 def product_list(request, category_slug=None):
     category = None
