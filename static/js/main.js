@@ -1,4 +1,8 @@
 // E-ELECTRO - Main JavaScript File
+/**
+ * Script chung toàn site (tùy chỉnh thêm sau).
+ * Gợi ý tìm kiếm trên navbar được xử lý trong templates/base.html.
+ */
 
 document.addEventListener('DOMContentLoaded', function () {
     // Tự động ẩn thông báo (alerts) sau 4 giây

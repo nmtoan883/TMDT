@@ -17,6 +17,7 @@ urlpatterns = [
 
     # Core shop (phải đặt cuối)
     path('', include('core.urls', namespace='shop')),
+    path('coupon/', include('coupon.urls')),
 ]
 
 if settings.DEBUG:
