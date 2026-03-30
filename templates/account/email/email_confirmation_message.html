@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Xác nhận Email</title>
+    <!-- Gắn file CSS gắn ngoài chuẩn (Dùng đường dẫn tuyệt đối vì Email không hiểu /static/) -->
+    <link rel="stylesheet" type="text/css" href="http://{{ current_site.domain }}/static/css/email.css">
+</head>
+<body>
+    <table class="wrapper" cellpadding="0" cellspacing="0">
+        <tr>
+            <td align="center">
+                <table class="container" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td class="header header-primary">
+                            <h1>E-ELECTRO</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="content">
+                            <h2>Xin chào {{ user.username|default:"bạn" }},</h2>
+                            <p>
+                                Cảm ơn bạn đã tạo tài khoản! Để bắt đầu mua sắm và sử dụng các dịch vụ của E-ELECTRO, vui lòng xác nhận địa chỉ email bằng cách nhấn vào nút bên dưới:
+                            </p>
+                            <div class="button-wrapper">
+                                <a href="{{ activate_url }}" class="button btn-primary">XÁC NHẬN EMAIL</a>
+                            </div>
+                            <p class="fallback">
+                                Nếu nút không hoạt động, bạn có thể sao chép và dán liên kết sau vào trình duyệt:<br>
+                                <a href="{{ activate_url }}" class="text-primary">{{ activate_url }}</a>
+                            </p>
+                            <hr class="divider">
+                            <p class="footer-note">
+                                Nếu bạn không đăng ký tài khoản tại E-ELECTRO, vui lòng bỏ qua email này.
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="footer">
+                            <p>&copy; 2026 E-ELECTRO. Tất cả các quyền được bảo lưu.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
