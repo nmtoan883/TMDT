@@ -9,6 +9,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('core.urls', namespace='shop')),
     path('coupon/', include('coupon.urls')),
+    path('orders/', include('orders.urls')),
 ]
 
 if settings.DEBUG:
