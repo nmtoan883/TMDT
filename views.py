@@ -100,7 +100,7 @@ def checkout(request):
                     item.product.save()
 
                 # Xóa giỏ hàng sau khi đặt thành công
-                # cart_items.delete()  # Bỏ comment khi ghép với nhóm C
+           
 
         except Exception as e:
             messages.error(request, 'Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!')
