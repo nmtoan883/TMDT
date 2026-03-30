@@ -32,11 +32,10 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    # Giả sử nhóm C tạo model Product trong app 'products'
-    # Nếu tên app khác thì đổi 'products.Product' thành đúng tên
+ 
     product = models.ForeignKey('products.Product', on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField()
-    # Lưu giá tại thời điểm mua (vì sau này giá có thể thay đổi)
+ 
     price = models.DecimalField(max_digits=12, decimal_places=0)
 
     def get_subtotal(self):
