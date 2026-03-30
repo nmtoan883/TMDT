@@ -1,0 +1,29 @@
+# Python
+*.py[cod]
+*$py.class
+__pycache__/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Thư mục môi trường ảo Python
+venv/
+env/
+ENV/
+.env
+
+# Thư mục chứa file do người dùng upload, không nên đẩy lên git
+media/
+
+# Các thư mục cấu hình IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Hệ điều hành
+.DS_Store
+Thumbs.db

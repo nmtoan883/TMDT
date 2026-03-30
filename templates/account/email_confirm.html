@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load account %}
+
+{% block title %}Xác nhận Email - E-ELECTRO{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5 text-center">
+            <div class="glass-card p-5 animate-up">
+                {% if confirmation %}
+                    {% user_display confirmation.email_address.user as user_display %}
+                    <i class="fas fa-check-circle fa-4x text-success mb-4"></i>
+                    <h2 class="fw-bold">Xác nhận tài khoản của bạn</h2>
+                    <p class="text-muted mt-3">
+                        Vui lòng nhấn nút bên dưới để xác nhận địa chỉ email <strong>{{ confirmation.email_address.email }}</strong> cho tài khoản của bạn.
+                    </p>
+                    <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary px-5 py-3 mt-4 fw-bold shadow">
+                            <i class="fas fa-clipboard-check me-2"></i>Xác nhận ngay
+                        </button>
+                    </form>
+                {% else %}
+                    <i class="fas fa-exclamation-triangle fa-4x text-danger mb-4"></i>
+                    <h2 class="fw-bold">Trương trình báo lỗi!</h2>
+                    <p class="text-muted mt-3">
+                        Đường dẫn xác nhận email này đã hết hạn, hoặc không hợp lệ.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

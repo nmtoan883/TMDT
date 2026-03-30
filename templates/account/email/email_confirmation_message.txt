@@ -1,0 +1,11 @@
+Chào {{ user.username|default:"bạn" }},
+
+Cảm ơn bạn đã đăng ký tài khoản tại E-ELECTRO.
+Vui lòng copy và dán liên kết dưới đây vào trình duyệt để xác nhận địa chỉ email của bạn:
+
+{{ activate_url }}
+
+Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.
+
+Trân trọng,
+Đội ngũ E-ELECTRO

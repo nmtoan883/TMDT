@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 
-{% block title %}Đăng ký - E-ELECTRO{% endblock %}
+{% block title %}Đăng ký tài khoản - E-ELECTRO{% endblock %}
 
 {% block content %}
 <div class="container my-5">
@@ -14,6 +14,15 @@
                     <p class="text-muted">Chỉ mất 1 phút để đăng ký.</p>
                 </div>
 
+                <!-- Hiển thị lỗi form tổng quan -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            <p class="mb-0">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
                 <form method="post" action="{% url 'account_signup' %}" novalidate>
                     {% csrf_token %}
                     {{ form|crispy }}
@@ -22,13 +31,12 @@
                     </button>
                 </form>
 
-                <div class="text-center mt-4">
-                    <p class="text-muted">
-                        Đã có tài khoản?
-                        <a href="{% url 'account_login' %}" class="text-primary text-decoration-none fw-bold">
-                            Đăng nhập
-                        </a>
-                    </p>
+                <hr class="my-4">
+                <div class="text-center">
+                    <span class="text-muted">Đã có tài khoản? </span>
+                    <a href="{% url 'account_login' %}" class="text-primary fw-bold text-decoration-none">
+                        Đăng nhập
+                    </a>
                 </div>
             </div>
         </div>

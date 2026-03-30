@@ -1,0 +1,104 @@
+/* Stylesheet cho các mẫu Email Giao dịch (Xác nhận tài khoản, Đổi Mật Khẩu, v.v...) */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f6;
+    margin: 0;
+    padding: 0;
+}
+.wrapper {
+    width: 100%;
+    background-color: #f4f7f6;
+    padding: 40px 0;
+}
+.container {
+    width: 600px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+.header {
+    padding: 30px;
+    text-align: center;
+}
+.header-primary {
+    background-color: #4361ee;
+}
+.header-danger {
+    background-color: #f72585;
+}
+.header h1 {
+    color: #ffffff;
+    margin: 0;
+    font-size: 28px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+.content {
+    padding: 40px;
+}
+.content h2 {
+    color: #333333;
+    margin-top: 0;
+}
+.content p {
+    color: #555555;
+    line-height: 1.6;
+    font-size: 16px;
+}
+.button-wrapper {
+    text-align: center;
+    margin: 35px 0;
+}
+.button {
+    color: #ffffff !important;
+    text-decoration: none;
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 50px;
+    display: inline-block;
+}
+.btn-primary {
+    background-color: #4361ee;
+}
+.btn-danger {
+    background-color: #f72585;
+}
+.fallback {
+    color: #777777;
+    font-size: 14px;
+    line-height: 1.5;
+}
+.fallback a {
+    word-break: break-all;
+}
+.text-primary {
+    color: #4361ee !important;
+}
+.text-danger {
+    color: #f72585 !important;
+}
+.divider {
+    border: 0;
+    border-top: 1px solid #eeeeee;
+    margin: 30px 0;
+}
+.footer-note {
+    color: #888888;
+    font-size: 14px;
+    margin: 0;
+}
+.footer {
+    background-color: #f9f9f9;
+    padding: 20px;
+    text-align: center;
+    border-top: 1px solid #eeeeee;
+}
+.footer p {
+    color: #999999;
+    font-size: 13px;
+    margin: 0;
+}

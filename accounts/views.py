@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import UserRegistrationForm, UserEditForm
+from django.contrib.auth.models import User
+from allauth.account.models import EmailAddress
+
+from .forms import UserRegistrationForm
 
 def register(request):
     """Xử lý đăng ký tài khoản mới."""
@@ -21,19 +23,4 @@ def register(request):
     else:
         form = UserRegistrationForm()
 
-    return render(request, 'accounts/register.html', {'form': form})
 
-
-@login_required
-def profile(request):
-    """Hiển thị và cập nhật thông tin cá nhân."""
-    if request.method == 'POST':
-        form = UserEditForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Thông tin cá nhân đã được cập nhật.')
-            return redirect('accounts:profile')
-    else:
-        form = UserEditForm(instance=request.user)
-
-    return render(request, 'accounts/profile.html', {'form': form})

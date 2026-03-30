@@ -44,15 +44,3 @@ class UserRegistrationForm(forms.ModelForm):
         if password and password.isdigit():
             raise ValidationError('Mật khẩu không được chỉ toàn số.')
         return password
-
-
-class UserEditForm(forms.ModelForm):
-    """Form chỉnh sửa thông tin cá nhân."""
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'email']
-        labels = {
-            'first_name': 'Họ',
-            'last_name': 'Tên',
-            'email': 'Email',
-        }

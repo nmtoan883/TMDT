@@ -150,7 +150,7 @@ LOGOUT_REDIRECT_URL = '/'
 # ============================================================
 # SITE FRAMEWORK (required by allauth)
 # ============================================================
-SITE_ID = 1
+SITE_ID = 2
 
 # ============================================================
 # AUTHENTICATION BACKENDS
@@ -163,10 +163,11 @@ AUTHENTICATION_BACKENDS = [
 # ============================================================
 # DJANGO-ALLAUTH SETTINGS
 # ============================================================
-ACCOUNT_LOGIN_METHODS = {'email'}       # Đăng nhập bằng Email
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
-ACCOUNT_EMAIL_VERIFICATION = 'none'    # 'mandatory' khi production
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_PASSWORD_MIN_LENGTH = 8
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -181,13 +182,11 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 # ============================================================
-# EMAIL CONFIGURATION (dùng console khi development)
+# EMAIL CONFIGURATION (SMTP Gmail)
 # ============================================================
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# Khi production, thay bằng SMTP:
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your_email@gmail.com'
-# EMAIL_HOST_PASSWORD = 'your_app_password'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'nmtoan883@gmail.com'
+EMAIL_HOST_PASSWORD = 'mtby cvyx qswa aegh'
