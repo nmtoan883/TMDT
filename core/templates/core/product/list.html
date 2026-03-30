@@ -22,8 +22,127 @@
         <!-- Sidebar Filter -->
         <div class="col-lg-3 mb-4">
             <div class="glass-card p-4">
+                <h5 class="mb-3">Bộ lọc sản phẩm</h5>
+
+                <form action="." method="get" class="mb-4" id="product-filter-form">
+                    {% if query %}<input type="hidden" name="query" value="{{ query }}">{% endif %}
+
+                    <!-- Price Range -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-semibold mb-0">Giá</label>
+                            <span class="small text-muted">
+                                <span id="price-min-label">{{ min_price }}</span>₫ -
+                                <span id="price-max-label">{{ max_price }}</span>₫
+                            </span>
+                        </div>
+
+                        <input
+                            type="range"
+                            class="form-range mb-2"
+                            id="price-min-range"
+                            min="{{ price_min_bound }}"
+                            max="{{ price_max_bound }}"
+                            value="{{ min_price }}"
+                            step="100000"
+                        >
+
+                        <input
+                            type="range"
+                            class="form-range"
+                            id="price-max-range"
+                            min="{{ price_min_bound }}"
+                            max="{{ price_max_bound }}"
+                            value="{{ max_price }}"
+                            step="100000"
+                        >
+
+                        <!-- Hidden values used by GET submission -->
+                        <input type="hidden" name="min_price" id="min_price_input" value="{{ min_price }}">
+                        <input type="hidden" name="max_price" id="max_price_input" value="{{ max_price }}">
+                    </div>
+
+                    <!-- Brand -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Hãng sản xuất</label>
+                        <div class="d-grid gap-1">
+                            {% for b in brand_options %}
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input product-filter-checkbox"
+                                        type="checkbox"
+                                        name="brands"
+                                        value="{{ b }}"
+                                        id="brand-{{ forloop.counter }}"
+                                        {% if b in brands_selected %}checked{% endif %}
+                                    >
+                                    <label class="form-check-label small" for="brand-{{ forloop.counter }}">{{ b }}</label>
+                                </div>
+                            {% empty %}
+                                <div class="small text-muted">Không có dữ liệu hãng.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- RAM -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Dung lượng RAM</label>
+                        <div class="d-grid gap-1">
+                            {% for r in ram_options %}
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input product-filter-checkbox"
+                                        type="checkbox"
+                                        name="rams"
+                                        value="{{ r }}"
+                                        id="ram-{{ forloop.counter }}"
+                                        {% if r in rams_selected %}checked{% endif %}
+                                    >
+                                    <label class="form-check-label small" for="ram-{{ forloop.counter }}">{{ r }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- ROM -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Bộ nhớ (ROM)</label>
+                        <div class="d-grid gap-1">
+                            {% for rom in rom_options %}
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input product-filter-checkbox"
+                                        type="checkbox"
+                                        name="roms"
+                                        value="{{ rom }}"
+                                        id="rom-{{ forloop.counter }}"
+                                        {% if rom in roms_selected %}checked{% endif %}
+                                    >
+                                    <label class="form-check-label small" for="rom-{{ forloop.counter }}">{{ rom }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Sắp xếp</label>
+                        <select name="sort" class="form-select form-select-sm product-filter-select" onchange="this.form.submit()">
+                            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Mới nhất</option>
+                            <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Giá: Thấp đến Cao</option>
+                            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Giá: Cao đến Thấp</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-sm w-100 mt-2" id="filter-submit-btn">
+                        Lọc
+                    </button>
+                </form>
+
+                <!-- Category navigation -->
+                <hr class="my-4">
                 <h5 class="mb-3">Danh mục</h5>
-                <ul class="list-unstyled">
+                <ul class="list-unstyled mb-0">
                     <li class="mb-2">
                         <a href="/" class="text-decoration-none {% if not category %}fw-bold text-primary{% else %}text-muted{% endif %}">
                             Tất cả sản phẩm
@@ -31,24 +150,79 @@
                     </li>
                     {% for c in categories %}
                         <li class="mb-2">
-                            <a href="{{ c.get_absolute_url }}" class="text-decoration-none {% if category.slug == c.slug %}fw-bold text-primary{% else %}text-muted{% endif %}">
+                            <a href="{{ c.get_absolute_url }}" class="text-decoration-none {% if category and category.slug == c.slug %}fw-bold text-primary{% else %}text-muted{% endif %}">
                                 {{ c.name }}
                             </a>
                         </li>
                     {% endfor %}
                 </ul>
 
-                <hr>
+                <script>
+                    (function () {
+                        var form = document.getElementById('product-filter-form');
+                        if (!form) return;
 
-                <h5 class="mb-3">Sắp xếp</h5>
-                <form action="." method="get" id="sort-form">
-                    {% if query %}<input type="hidden" name="query" value="{{ query }}">{% endif %}
-                    <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
-                        <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Mới nhất</option>
-                        <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Giá: Thấp đến Cao</option>
-                        <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Giá: Cao đến Thấp</option>
-                    </select>
-                </form>
+                        var minRange = document.getElementById('price-min-range');
+                        var maxRange = document.getElementById('price-max-range');
+                        var minInput = document.getElementById('min_price_input');
+                        var maxInput = document.getElementById('max_price_input');
+                        var minLabel = document.getElementById('price-min-label');
+                        var maxLabel = document.getElementById('price-max-label');
+
+                        if (!minRange || !maxRange || !minInput || !maxInput) return;
+
+                        function syncPriceUI() {
+                            var minVal = parseInt(minRange.value, 10);
+                            var maxVal = parseInt(maxRange.value, 10);
+
+                            // Ensure min <= max.
+                            if (minVal > maxVal) {
+                                minVal = maxVal;
+                                minRange.value = String(minVal);
+                            }
+                            if (maxVal < minVal) {
+                                maxVal = minVal;
+                                maxRange.value = String(maxVal);
+                            }
+
+                            minInput.value = String(minVal);
+                            maxInput.value = String(maxVal);
+
+                            if (minLabel) minLabel.textContent = String(minVal);
+                            if (maxLabel) maxLabel.textContent = String(maxVal);
+                        }
+
+                        // Debounce helper to avoid spamming submits.
+                        var debounceTimer = null;
+                        function debounceSubmit() {
+                            clearTimeout(debounceTimer);
+                            debounceTimer = setTimeout(function () {
+                                form.submit();
+                            }, 300);
+                        }
+
+                        // Initial sync (safe in case template values differ).
+                        syncPriceUI();
+
+                        // Price slider events.
+                        minRange.addEventListener('input', function () {
+                            syncPriceUI();
+                            debounceSubmit();
+                        });
+                        maxRange.addEventListener('input', function () {
+                            syncPriceUI();
+                            debounceSubmit();
+                        });
+
+                        // Checkbox events.
+                        var checkboxes = form.querySelectorAll('.product-filter-checkbox');
+                        checkboxes.forEach(function (cb) {
+                            cb.addEventListener('change', function () {
+                                debounceSubmit();
+                            });
+                        });
+                    })();
+                </script>
             </div>
         </div>
 

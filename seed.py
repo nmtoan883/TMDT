@@ -42,7 +42,7 @@ def seed_data():
             'brand': 'Apple',
             'price': 34990000,
             'old_price': 36990000,
-            'description': 'iPhone 15 Pro Max với khung viền Titan siêu bền, chip A17 Pro mạnh mẽ nhất.'
+            'description': 'iPhone 15 Pro Max với khung viền Titan siêu bền, chip A17 Pro mạnh mẽ nhất. 8GB RAM, 256GB ROM.'
         },
         {
             'category': cats['Smartphone'],
@@ -50,14 +50,14 @@ def seed_data():
             'brand': 'Samsung',
             'price': 29990000,
             'old_price': 33990000,
-            'description': 'Galaxy S24 Ultra tích hợp AI thông minh, camera 200MP xuất sắc.'
+            'description': 'Galaxy S24 Ultra tích hợp AI thông minh, camera 200MP xuất sắc. 8GB RAM, 256GB ROM.'
         },
         {
             'category': cats['Smartphone'],
             'name': 'Xiaomi 14 Ultra',
             'brand': 'Xiaomi',
             'price': 25990000,
-            'description': 'Xiaomi 14 Ultra với ống kính Leica, mang lại trải nghiệm nhiếp ảnh chuyên nghiệp.'
+            'description': 'Xiaomi 14 Ultra với ống kính Leica, mang lại trải nghiệm nhiếp ảnh chuyên nghiệp. 16GB RAM, 512GB ROM.'
         },
         {
             'category': cats['Laptop'],
@@ -65,14 +65,14 @@ def seed_data():
             'brand': 'Apple',
             'price': 27990000,
             'old_price': 29990000,
-            'description': 'MacBook Air với chip M3 hoàn toàn mới, siêu mỏng nhẹ, pin cả ngày.'
+            'description': 'MacBook Air với chip M3 hoàn toàn mới, siêu mỏng nhẹ, pin cả ngày. 8GB RAM, 256GB ROM.'
         },
         {
             'category': cats['Laptop'],
             'name': 'ASUS ROG Zephyrus G14',
             'brand': 'Asus',
             'price': 45990000,
-            'description': 'Laptop gaming mạnh mẽ và linh hoạt nhất thế giới.'
+            'description': 'Laptop gaming mạnh mẽ và linh hoạt nhất thế giới. 16GB RAM, 512GB ROM.'
         },
         {
             'category': cats['Tai nghe'],
