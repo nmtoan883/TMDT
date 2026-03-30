@@ -146,3 +146,37 @@ body {
     font-weight: 600;
     z-index: 10;
 }
+
+/* Gợi ý tìm kiếm (navbar): absolute dưới ô input, Bootstrap list-group + z-3 */
+.search-suggestions-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 2px;
+    max-height: 320px;
+    overflow-y: auto;
+    border-radius: 0.375rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+}
+
+.search-suggestion-thumb {
+    object-fit: contain;
+    background: #f5f5f7;
+}
+
+.search-suggestions-panel .search-suggestion-item {
+    border: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    font-size: 0.9rem;
+}
+
+.search-suggestions-panel .search-suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.search-suggestions-panel .search-suggestion-item:hover,
+.search-suggestions-panel .search-suggestion-item:focus {
+    background-color: var(--accent-color);
+}
