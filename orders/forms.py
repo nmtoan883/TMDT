@@ -1,0 +1,34 @@
+from django import forms
+
+from .models import Order
+
+
+class OrderCreateForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = [
+            'first_name',
+            'last_name',
+            'email',
+            'address',
+            'province',
+            'district',
+            'ward',
+            'postal_code',
+        ]
+        labels = {
+            'first_name': 'Ho',
+            'last_name': 'Ten',
+            'email': 'Email',
+            'address': 'So nha, ten duong',
+            'province': 'Tinh/Thanh pho',
+            'district': 'Quan/Huyen',
+            'ward': 'Phuong/Xa',
+            'postal_code': 'Ma buu dien',
+        }
+
+        widgets = {
+            'province': forms.Select(choices=[('', 'Chon tinh/thanh pho')]),
+            'district': forms.Select(choices=[('', 'Chon quan/huyen')]),
+            'ward': forms.Select(choices=[('', 'Chon phuong/xa')]),
+        }

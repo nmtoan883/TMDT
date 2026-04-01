@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -42,8 +43,6 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.facebook',
     'crispy_forms',
     'crispy_bootstrap5',
     # Local apps
@@ -92,8 +91,8 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'sqlite_memory_backend',
+        'NAME': BASE_DIR / os.environ.get('SQLITE_DB_NAME', 'dev.sqlite3'),
     }
 }
 
@@ -167,7 +166,7 @@ AUTHENTICATION_BACKENDS = [
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_PASSWORD_MIN_LENGTH = 8
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -189,5 +188,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'Nhap email'
-EMAIL_HOST_PASSWORD = 'Nhập Mk Appassword'
+EMAIL_HOST_USER = 'dohoaianh@bapquocthai.id.vn'
+EMAIL_HOST_PASSWORD = 'Thai2005@'
