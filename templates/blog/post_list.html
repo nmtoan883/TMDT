@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog công nghệ</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class="section">
+    <div class="container">
+        <h2>Tin tức / Blog công nghệ</h2>
+
+        <div class="row">
+            {% for post in posts %}
+                <div class="col-md-4">
+                    <div class="product" style="padding:20px;">
+                        <div class="product-body">
+                            <h3 class="product-name">
+                                <a href="{% url 'post_detail' post.slug %}">{{ post.title }}</a>
+                            </h3>
+                            <p>{{ post.summary|truncatewords:25 }}</p>
+                            <small>{{ post.created_at }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>Chưa có bài viết nào.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+</body>
+</html>
