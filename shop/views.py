@@ -1,10 +1,8 @@
 from django.shortcuts import render
 from coupons.models import Coupon
 
-
 def home(request):
     return render(request, 'shop/home.html')
-
 
 def cart(request):
     cart_total = 2940.00
@@ -35,3 +33,6 @@ def cart(request):
         'applied_coupon': applied_coupon,
     }
     return render(request, 'shop/checkout.html', context)
+
+def contact(request):
+    return render(request, 'shop/contact.html')
