@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Theo doi don hang #{{ order.id }} - E-ELECTRO{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">Theo doi don hang #{{ order.id }}</h1>
+            <p class="text-muted mb-0">Cap nhat trang thai va thong tin giao hang.</p>
+        </div>
+        <a href="{% url 'orders:order_history' %}" class="btn btn-outline-secondary">Quay lai lich su</a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="glass-card p-4 h-100">
+                <h2 class="h5 fw-bold mb-3">Trang thai don hang</h2>
+                <div class="mb-3">
+                    <span class="badge text-bg-{{ order.get_status_label_class }} fs-6">{{ order.get_status_display }}</span>
+                </div>
+                <ul class="list-unstyled mb-0">
+                    <li class="py-2 border-bottom"><strong>Ngay dat:</strong> {{ order.created|date:"d/m/Y H:i" }}</li>
+                    <li class="py-2 border-bottom"><strong>Khach hang:</strong> {{ order.first_name }} {{ order.last_name }}</li>
+                    <li class="py-2 border-bottom"><strong>Email:</strong> {{ order.email }}</li>
+                    <li class="py-2 border-bottom"><strong>Dia chi:</strong> {{ order.full_address }}</li>
+                    <li class="py-2"><strong>Khu vuc:</strong> {{ order.province_display }} - {{ order.postal_code }}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="glass-card p-4">
+                <h2 class="h5 fw-bold mb-3">San pham trong don</h2>
+                {% for item in order.items.all %}
+                    <div class="d-flex justify-content-between align-items-start py-3 border-bottom">
+                        <div class="me-3">
+                            <div class="fw-semibold">{{ item.product.name }}</div>
+                            <div class="small text-muted">So luong: {{ item.quantity }}</div>
+                        </div>
+                        <div class="text-end">
+                            <div>{{ item.price|floatformat:0 }} VND</div>
+                            <div class="fw-bold">{{ item.get_cost|floatformat:0 }} VND</div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="d-flex justify-content-between pt-3">
+                    <span class="fw-bold">Tong thanh toan</span>
+                    <span class="fw-bold text-primary">{{ order.get_total_cost|floatformat:0 }} VND</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

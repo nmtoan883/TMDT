@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}ịch sử mua hàng - E-ELECTRO{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">Lịch sử mua hàng</h1>
+            <p class="text-muted mb-0">Theo dõi các đơn hàng bạn đã đặt.</p>
+        </div>
+        <a href="/" class="btn btn-outline-secondary">Tiếp tục mua sắm</a>
+    </div>
+
+    {% if orders %}
+        <div class="row g-4">
+            {% for order in orders %}
+                <div class="col-12">
+                    <div class="glass-card p-4">
+                        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
+                            <div>
+                                <div class="small text-muted">Đơn Hàng #{{ order.id }}</div>
+                                <div class="fw-bold">Ngay dat: {{ order.created|date:"d/m/Y H:i" }}</div>
+                            </div>
+                            <div class="text-lg-end">
+                                <span class="badge text-bg-{{ order.get_status_label_class }}">{{ order.get_status_display }}</span>
+                                <div class="fw-bold mt-2">{{ order.get_total_cost|floatformat:0 }} VND</div>
+                            </div>
+                        </div>
+                        <div class="small text-muted mb-3">
+                            {% for item in order.items.all %}
+                                {{ item.product.name }} x{{ item.quantity }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </div>
+                        <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-primary btn-sm">Theo dõi đơn hàng</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="glass-card p-5 text-center">
+            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+            <h2 class="h4 fw-bold">Bạn chưa có đơn hàng nào</h2>
+            <p class="text-muted">Sau khi đặt hàng, lịch sử mua hàng sẽ hiển thị tại đây.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Dat hang - E-ELECTRO{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="glass-card p-4 p-lg-5">
+                <h1 class="h3 fw-bold mb-4">Thong tin dat hang</h1>
+                <form method="post" novalidate data-address-form>
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form.first_name|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.last_name|as_crispy_field }}
+                        </div>
+                    </div>
+                    {{ form.email|as_crispy_field }}
+                    {{ form.address|as_crispy_field }}
+                    <div class="row">
+                        <div class="col-md-4">
+                            {{ form.province|as_crispy_field }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.district|as_crispy_field }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.ward|as_crispy_field }}
+                        </div>
+                    </div>
+                    {{ form.postal_code|as_crispy_field }}
+                    <button type="submit" class="btn btn-primary px-4 py-2">
+                        <i class="fas fa-check-circle me-2"></i>Xac nhan dat hang
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="glass-card p-4">
+                <h2 class="h5 fw-bold mb-3">Tom tat don hang</h2>
+                {% for item in cart %}
+                    <div class="d-flex justify-content-between align-items-start py-2 border-bottom">
+                        <div class="me-3">
+                            <div class="fw-semibold">{{ item.product.name }}</div>
+                            <div class="small text-muted">So luong: {{ item.quantity }}</div>
+                        </div>
+                        <div class="fw-semibold">{{ item.total_price|floatformat:0 }} VND</div>
+                    </div>
+                {% endfor %}
+                <div class="d-flex justify-content-between pt-3">
+                    <span class="fw-bold">Tong tien</span>
+                    <span class="fw-bold text-primary">{{ cart.get_total_price_after_discount|floatformat:0 }} VND</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var form = document.querySelector('[data-address-form]');
+    if (!form) return;
+
+    var provinceSelect = form.querySelector('#id_province');
+    var districtSelect = form.querySelector('#id_district');
+    var wardSelect = form.querySelector('#id_ward');
+    if (!provinceSelect || !districtSelect || !wardSelect) return;
+
+    var apiBase = 'https://provinces.open-api.vn/api/v1';
+    var initialProvince = provinceSelect.value;
+    var initialDistrict = districtSelect.value;
+    var initialWard = wardSelect.value;
+
+    function setOptions(select, items, placeholder, selectedValue) {
+        select.innerHTML = '';
+        var placeholderOption = document.createElement('option');
+        placeholderOption.value = '';
+        placeholderOption.textContent = placeholder;
+        select.appendChild(placeholderOption);
+
+        items.forEach(function (item) {
+            var option = document.createElement('option');
+            option.value = item.name;
+            option.textContent = item.name;
+            option.dataset.code = item.code;
+            if (selectedValue && selectedValue === item.name) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+    }
+
+    function clearSelect(select, placeholder) {
+        setOptions(select, [], placeholder, '');
+    }
+
+    function getSelectedCode(select) {
+        var option = select.options[select.selectedIndex];
+        return option ? option.dataset.code : '';
+    }
+
+    function fetchJson(url) {
+        return fetch(url, { headers: { Accept: 'application/json' } }).then(function (response) {
+            if (!response.ok) throw new Error('Request failed');
+            return response.json();
+        });
+    }
+
+    function loadWards(districtCode, selectedWard) {
+        if (!districtCode) {
+            clearSelect(wardSelect, 'Chon phuong/xa');
+            return Promise.resolve();
+        }
+        return fetchJson(apiBase + '/d/' + districtCode + '?depth=2').then(function (data) {
+            setOptions(wardSelect, data.wards || [], 'Chon phuong/xa', selectedWard || '');
+        });
+    }
+
+    function loadDistricts(provinceCode, selectedDistrict, selectedWard) {
+        if (!provinceCode) {
+            clearSelect(districtSelect, 'Chon quan/huyen');
+            clearSelect(wardSelect, 'Chon phuong/xa');
+            return Promise.resolve();
+        }
+        return fetchJson(apiBase + '/p/' + provinceCode + '?depth=2').then(function (data) {
+            setOptions(districtSelect, data.districts || [], 'Chon quan/huyen', selectedDistrict || '');
+            return loadWards(getSelectedCode(districtSelect), selectedWard || '');
+        });
+    }
+
+    provinceSelect.addEventListener('change', function () {
+        loadDistricts(getSelectedCode(provinceSelect), '', '');
+    });
+
+    districtSelect.addEventListener('change', function () {
+        loadWards(getSelectedCode(districtSelect), '');
+    });
+
+    fetchJson(apiBase + '/?depth=1')
+        .then(function (data) {
+            setOptions(provinceSelect, data || [], 'Chon tinh/thanh pho', initialProvince || '');
+            return loadDistricts(getSelectedCode(provinceSelect), initialDistrict || '', initialWard || '');
+        })
+        .catch(function () {
+            console.error('Khong the tai du lieu dia chi');
+        });
+})();
+</script>
+{% endblock %}
