@@ -190,3 +190,20 @@ form .btn input[type="submit"]{
 .error-msg { color: red; text-align: center; margin-bottom: 15px; }
 .or-divider { margin: 10px 0; color: #666; font-size: 13px; }
 .social-icon { margin-right: 8px; }
+
+/* Utilities for Reset/Logout pages */
+.form-desc { text-align: center; color: #666; margin-bottom: 20px; font-size: 14px; }
+.form-desc-large { text-align: center; color: #666; margin: 20px 0; font-size: 15px; line-height: 1.6; }
+.form-desc-bold { text-align: center; color: #666; margin: 20px 0; font-size: 16px; }
+
+.title-reduced { font-size: 26px; }
+.title-success { font-size: 26px; color: #1a75ff; }
+.success-msg { text-align: center; color: #28a745; margin: 20px 0; font-size: 16px; font-weight: bold; }
+.success-icon { display: block; margin-bottom: 15px; }
+
+/* Django Form Rendering Tweaks */
+.form-inner form .field input { width: 100%; }
+.field label { display: none; }
+.mt-15 { margin-top: 15px; }
+.mt-20 { margin-top: 20px; }
+.mt-30 { margin-top: 30px; }
