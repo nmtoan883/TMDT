@@ -150,16 +150,3 @@ def product_create(request):
         form = ProductForm()
 
     return render(request, 'product/create.html', {'form': form})
-@login_required
-@require_POST
-def add_to_wishlist(request, product_id):
-    print("CALLED ADD WISHLIST")  # 👈 debug
-
-    product = get_object_or_404(Product, id=product_id)
-
-    Wishlist.objects.get_or_create(
-        user=request.user,
-        product=product
-    )
-
-    return redirect('shop:wishlist_list')
