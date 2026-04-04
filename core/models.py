@@ -72,3 +72,14 @@ class Policy(models.Model):
 
     def __str__(self):
         return self.title
+class Wishlist(models.Model):
+    user = models.ForeignKey(User, related_name='wishlist_items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='wishlist_items', on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')
+        ordering = ['-created']
+
+    def __str__(self):
+        return f'{self.user.username} - {self.product.name}'

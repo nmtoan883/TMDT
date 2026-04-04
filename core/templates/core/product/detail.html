@@ -5,111 +5,129 @@
 {% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
-            <li class="breadcrumb-item"><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
-        </ol>
-    </nav>
-
-    <div class="row g-5">
-        <!-- Product Images -->
-        <div class="col-lg-7">
-            <div class="glass-card p-4 text-center">
-                {% if product.image %}
-                    <img src="{{ product.image.url }}" class="img-fluid rounded animate-up" alt="{{ product.name }}" style="max-height: 500px;">
-                {% else %}
-                    <img src="https://via.placeholder.com/600x600?text={{ product.name }}" class="img-fluid rounded" alt="No image">
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Product Info -->
-        <div class="col-lg-5">
-            <div class="animate-up">
-                <p class="text-primary fw-bold mb-1">{{ product.brand|upper }}</p>
-                <h1 class="display-5 fw-bold mb-3">{{ product.name }}</h1>
-                
-                <div class="d-flex align-items-center mb-4">
-                    {% if product.old_price %}
-                        <span class="old-price fs-4">{{ product.old_price|floatformat:0 }}₫</span>
-                    {% endif %}
-                    <span class="price-tag fs-2">{{ product.price|floatformat:0 }}₫</span>
-                </div>
-
-                <div class="mb-4">
-                    <h5>Thông số & Mô tả</h5>
-                    <p class="text-muted">{{ product.description|linebreaks }}</p>
-                </div>
-
-                <div class="glass-card p-4 mb-4">
-                    <form action="{% url 'cart:cart_add' product.id %}" method="post">
-                        {% csrf_token %}
-                        <div class="row align-items-end">
-                            <div class="col-6">
-                                {{ cart_product_form.quantity|as_crispy_field }}
-                            </div>
-                            <div class="col-6">
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="d-flex gap-3 mb-5">
-                    <div class="text-center p-3 border rounded flex-fill">
-                        <i class="fas fa-undo-alt text-primary mb-2"></i>
-                        <p class="small mb-0">7 ngày đổi trả</p>
-                    </div>
-                    <div class="text-center p-3 border rounded flex-fill">
-                        <i class="fas fa-shield-alt text-primary mb-2"></i>
-                        <p class="small mb-0">12 tháng bảo hành</p>
-                    </div>
-                    <div class="text-center p-3 border rounded flex-fill">
-                        <i class="fas fa-truck text-primary mb-2"></i>
-                        <p class="small mb-0">Giao hàng miễn phí</p>
-                    </div>
-                </div>
+<div id="breadcrumb" class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="breadcrumb-tree">
+                    <li><a href="{% url 'shop:product_list' %}">Home</a></li>
+                    <li><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></li>
+                    <li class="active">{{ product.name }}</li>
+                </ul>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Reviews Section -->
-    <div class="row mt-5">
-        <div class="col-lg-8">
-            <h3 class="mb-4">Đánh giá sản phẩm</h3>
-            {% for review in reviews %}
-                <div class="card border-0 shadow-sm mb-3">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between mb-2">
-                            <h6 class="mb-0">{{ review.user.username }}</h6>
-                            <span class="text-muted small">{{ review.created|date:"d/m/Y" }}</span>
-                        </div>
-                        <div class="text-warning mb-2">
-                            {% for i in "12345" %}
-                                <i class="{% if forloop.counter <= review.rating %}fas{% else %}far{% endif %} fa-star"></i>
-                            {% endfor %}
-                        </div>
-                        <p class="card-text">{{ review.comment }}</p>
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5 col-md-push-2">
+                <div id="product-main-img">
+                    <div class="product-preview">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="{% static 'img/product01.png' %}" alt="{{ product.name }}">
+                        {% endif %}
                     </div>
                 </div>
-            {% empty %}
-                <p class="text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
-            {% endfor %}
-        </div>
-        
-        <!-- Google Maps Placeholder -->
-        <div class="col-lg-4">
-            <h3 class="mb-4">Vị trí cửa hàng</h3>
-            <div class="glass-card overflow-hidden" style="height: 300px;">
-                <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.924403919934!2d105.818318!3d21.036683!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDAyJzEyLjEiTiAxMDXCsDQ5JzA1LjkiRQ!5e0!3m2!1sen!2s!4v1620000000000!5m2!1sen!2s" 
-                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy">
-                </iframe>
+            </div>
+
+            <div class="col-md-2 col-md-pull-5">
+                <div id="product-imgs">
+                    <div class="product-preview">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="{% static 'img/product01.png' %}" alt="{{ product.name }}">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="product-details">
+                    <h2 class="product-name">{{ product.name }}</h2>
+
+                    <div>
+                        <div class="product-rating">
+                            {% for i in "12345" %}
+                                <i class="fa fa-star"></i>
+                            {% endfor %}
+                        </div>
+                        <a class="review-link" href="#">{{ reviews.count }} Review(s)</a>
+                    </div>
+
+                    <div>
+                        <h3 class="product-price">
+                            {{ product.price|floatformat:0 }}₫
+                        </h3>
+                        <span class="product-available">In Stock</span>
+                    </div>
+
+                    <p>
+                        {{ product.description|truncatewords:40 }}
+                    </p>
+
+                    <div class="add-to-cart" style="margin-top: 30px;">
+                        <form action="{% url 'cart:cart_add' product.id %}" method="post">
+                            {% csrf_token %}
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    {{ cart_product_form.quantity|as_crispy_field }}
+                                </div>
+
+                                <div class="col-md-8">
+                                    <button type="submit" class="add-to-cart-btn" style="width: 100%;">
+                                        <i class="fa fa-shopping-cart"></i>
+                                        Add to cart
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        {% if user.is_authenticated %}
+                            {% if is_in_wishlist %}
+                                <a href="{% url 'shop:remove_from_wishlist' product.id %}"
+                                   class="primary-btn"
+                                   style="display:block; text-align:center; background:#D10024; color:white;">
+                                    <i class="fa fa-heart"></i>
+                                    Remove from wishlist
+                                </a>
+                            {% else %}
+                                <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit"
+            class="primary-btn"
+            style="width:100%; background:white; color:#D10024; border:1px solid #D10024;">
+        <i class="fa fa-heart-o"></i>
+        Add to wishlist
+    </button>
+</form>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'account_login' %}"
+                               class="primary-btn"
+                               style="display:block; text-align:center;">
+                                Login to add wishlist
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <ul class="product-links" style="margin-top: 30px;">
+                        <li>Category:</li>
+                        <li><a href="#">{{ product.category.name }}</a></li>
+                    </ul>
+
+                    <ul class="product-links">
+                        <li>Brand:</li>
+                        <li><a href="#">{{ product.brand }}</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

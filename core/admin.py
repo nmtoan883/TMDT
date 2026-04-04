@@ -1,6 +1,8 @@
 from django.contrib import admin
 from .models import Category, Product, Review, Contact, Policy
+from .models import Wishlist
 
+admin.site.register(Wishlist)
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug']
