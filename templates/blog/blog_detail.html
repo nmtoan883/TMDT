@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="section">
+    <div class="container">
+        <div style="margin-bottom: 20px;">
+            <a href="/" style="color:#666;">Trang chủ</a>
+            <span> / </span>
+            <a href="{% url 'blog_list' %}" style="color:#666;">Blog</a>
+            <span> / </span>
+            <span>{{ post.title }}</span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <h1 style="font-weight:700; line-height:1.4;">{{ post.title }}</h1>
+
+                <p style="color:#999; margin: 15px 0 20px;">
+                    {% if post.category %}{{ post.category.name }} • {% endif %}
+                    {{ post.created_at|date:"d/m/Y" }} •
+                    {{ post.author }} •
+                    {{ post.views }} lượt xem
+                </p>
+
+                {% if post.image %}
+                <img src="{{ post.image.url }}" alt="{{ post.title }}"
+                     style="width:100%; max-height:460px; object-fit:cover; margin-bottom:25px; border-radius:6px;">
+                {% endif %}
+
+                {% if post.summary %}
+                <div style="background:#f8f8f8; padding:20px; border-left:4px solid #D10024; margin-bottom:25px;">
+                    <strong>Tóm tắt:</strong> {{ post.summary }}
+                </div>
+                {% endif %}
+
+                <div style="font-size:16px; line-height:1.9; color:#333;">
+                    {{ post.content|linebreaks }}
+                </div>
+
+                {% if related_posts %}
+                <div style="margin-top: 50px;">
+                    <h3 style="margin-bottom: 20px;">Bài viết liên quan</h3>
+                    <div class="row">
+                        {% for item in related_posts %}
+                        <div class="col-md-4">
+                            <div class="product" style="border:1px solid #eee;">
+                                {% if item.image %}
+                                <img src="{{ item.image.url }}" alt="{{ item.title }}"
+                                     style="width:100%; height:180px; object-fit:cover;">
+                                {% endif %}
+                                <div class="product-body" style="text-align:left;">
+                                    <h3 class="product-name">
+                                        <a href="{% url 'blog_detail' item.slug %}">{{ item.title }}</a>
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-4">
+                <div class="product" style="padding:20px; border:1px solid #eee;">
+                    <h4 style="margin-bottom:15px;">Bài viết mới</h4>
+                    {% for item in latest_posts %}
+                    <div style="margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #f0f0f0;">
+                        <a href="{% url 'blog_detail' item.slug %}" style="font-weight:600; color:#2B2D42;">
+                            {{ item.title }}
+                        </a>
+                        <div style="font-size:13px; color:#999; margin-top:5px;">
+                            {{ item.created_at|date:"d/m/Y" }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
