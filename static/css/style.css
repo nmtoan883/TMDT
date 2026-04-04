@@ -2151,12 +2151,14 @@ textarea.input {
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
+  max-width: 980px;
+  margin: 0 auto 45px auto;
+  width: 100%;
   background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
   padding: 35px;
   border-radius: 18px;
   border: 1px solid rgba(209, 0, 36, 0.12);
   box-shadow: 0 10px 30px rgba(35, 47, 63, 0.08);
-  margin-bottom: 45px;
 }
 
 .review-form h3 {
@@ -2165,21 +2167,35 @@ textarea.input {
   font-size: 22px;
 }
 
-.review-form .form-group {
+.review-form .form-row {
+  display: grid;
+  gap: 10px;
   margin-bottom: 18px;
 }
 
-.review-form label {
-  display: inline-block;
-  margin-bottom: 8px;
-  font-weight: 700;
+.review-form .form-row label {
+  display: block;
   color: #2B2D42;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.review-form .form-help {
+  display: block;
+  margin-top: 6px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.review-form label {
+  margin-bottom: 0;
 }
 
 .review-form select,
 .review-form textarea,
-.review-form input[type="file"] {
-  width: 100%;
+.review-form input[type="file"],
+.review-form .review-control {
+  width: 100% !important;
   min-height: 48px;
   border: 1px solid #E4E7ED;
   background: #FFFFFF;
@@ -2195,13 +2211,15 @@ textarea.input {
   resize: vertical;
 }
 
-.review-form input[type="file"] {
+.review-form input[type="file"],
+.review-form .review-control[type="file"] {
   padding: 12px 10px;
 }
 
 .review-form select:focus,
 .review-form textarea:focus,
-.review-form input[type="file"]:focus {
+.review-form input[type="file"]:focus,
+.review-form .review-control:focus {
   outline: none;
   border-color: #D10024;
   box-shadow: 0 0 0 4px rgba(209, 0, 36, 0.08);
@@ -2282,12 +2300,23 @@ textarea.input {
   color: #404a57;
 }
 
+.review-image-wrap {
+  width: fit-content;
+  max-width: 280px;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid #E4E7ED;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
 .review .review-image {
-  width: 100%;
-  max-width: 360px;
-  border-radius: 16px;
+  width: 100% !important;
+  max-width: 280px !important;
+  max-height: 210px !important;
+  height: auto !important;
+  display: block;
   object-fit: cover;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.1);
+  border-radius: 18px;
 }
 
 .no-reviews {

@@ -11,6 +11,12 @@ class ReviewForm(forms.ModelForm):
         model = Review
         fields = ['rating', 'comment', 'image']
         widgets = {
-            'rating': forms.Select(choices=[(i, str(i)) for i in range(1, 6)]),
-            'comment': forms.Textarea(attrs={'rows': 4}),
+            'rating': forms.Select(
+                choices=[(i, str(i)) for i in range(1, 6)],
+                attrs={'class': 'review-control'}
+            ),
+            'comment': forms.Textarea(
+                attrs={'rows': 4, 'class': 'review-control', 'placeholder': 'Viết cảm nhận của bạn...'}
+            ),
+            'image': forms.ClearableFileInput(attrs={'class': 'review-control'})
         }
