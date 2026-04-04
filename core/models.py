@@ -84,8 +84,31 @@ class ContactMessage(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-        verbose_name = 'Liên hệ'
-        verbose_name_plural = 'Liên hệ'
+        verbose_name = 'Tin nhắn liên hệ'
+        verbose_name_plural = 'Tin nhắn liên hệ'
 
     def __str__(self):
         return f"{self.full_name} - {self.subject}"
+    
+class ContactInfo(models.Model):
+    title = models.CharField(max_length=200, default='Liên hệ với chúng tôi')
+    description = models.TextField(blank=True)
+
+    address = models.CharField(max_length=255)
+    hotline = models.CharField(max_length=20)
+    email = models.EmailField()
+    working_hours = models.CharField(max_length=255, blank=True)
+
+    map_embed_url = models.TextField(
+        help_text='Dán link Google Maps embed'
+    )
+
+    support_1 = models.CharField(max_length=255, blank=True)
+    support_2 = models.CharField(max_length=255, blank=True)
+    support_3 = models.CharField(max_length=255, blank=True)
+    support_4 = models.CharField(max_length=255, blank=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "Thông tin liên hệ"

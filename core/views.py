@@ -7,6 +7,7 @@ from cart.forms import CartAddProductForm
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from .forms import ContactForm
+from .models import ContactInfo
 
 SUGGESTION_QUERY_MIN_LEN = 2
 SUGGESTION_MAX_RESULTS = 8
@@ -97,4 +98,9 @@ def contact_view(request):
     else:
         form = ContactForm()
 
-    return render(request, 'contact.html', {'form': form})
+    contact_info = ContactInfo.objects.first()
+
+    return render(request, 'contact.html', {
+        'form': form,
+        'contact_info': contact_info,
+    })
