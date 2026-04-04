@@ -4,6 +4,9 @@ from django.views.decorators.http import require_GET
 from .models import Category, Product, Review
 from django.db.models import Q
 from cart.forms import CartAddProductForm
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .forms import ContactForm
 
 SUGGESTION_QUERY_MIN_LEN = 2
 SUGGESTION_MAX_RESULTS = 8
@@ -83,3 +86,15 @@ def product_detail(request, id, slug):
         'cart_product_form': cart_product_form,
         'reviews': reviews
     })
+
+def contact_view(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Gửi liên hệ thành công! Chúng tôi sẽ phản hồi sớm nhất.')
+            return redirect('contact')
+    else:
+        form = ContactForm()
+
+    return render(request, 'contact.html', {'form': form})

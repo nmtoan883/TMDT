@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+
+        <div style="margin-bottom: 20px;">
+            <a href="/" style="color:#666;">Trang chủ</a>
+            <span> / </span>
+            <span>Liên hệ</span>
+        </div>
+
+        <div style="
+            background: linear-gradient(135deg, #2B2D42, #1e1f2f);
+            color: #fff;
+            padding: 50px 40px;
+            border-radius: 10px;
+            margin-bottom: 35px;
+        ">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1 style="font-size: 36px; font-weight: 700; margin-bottom: 15px; color:#fff;">
+                        Liên hệ với chúng tôi
+                    </h1>
+                    <p style="font-size: 16px; line-height: 1.8; color: #f1f1f1; margin-bottom: 20px;">
+                        Nếu bạn cần hỗ trợ về đơn hàng, sản phẩm, bảo hành hoặc hợp tác, hãy để lại thông tin.
+                        Đội ngũ của chúng tôi sẽ phản hồi nhanh nhất có thể.
+                    </p>
+
+                    <button onclick="showPhonePopup()" class="primary-btn" style="border:none;">
+                        📞 Gọi ngay
+                    </button>
+                </div>
+
+                <div class="col-md-4 text-right">
+                    <div style="font-size: 70px; opacity: 0.15; font-weight: 700; margin-top: 10px;">
+                        CONTACT
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-success" style="margin-bottom: 20px; border-radius: 6px;">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row" style="margin-bottom: 30px;">
+            <div class="col-md-4">
+                <div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:25px; min-height:160px; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
+                    <h4 style="margin-bottom: 12px;">Địa chỉ</h4>
+                    <p style="color:#666; line-height:1.8; margin:0;">
+                        1734 Stonecoal Road, Hà Nội
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:25px; min-height:160px; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
+                    <h4 style="margin-bottom: 12px;">Hotline</h4>
+                    <p style="color:#666; line-height:1.8; margin:0;">
+                        0395 939 056<br>
+                        08:00 - 21:00 mỗi ngày
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:25px; min-height:160px; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
+                    <h4 style="margin-bottom: 12px;">Email</h4>
+                    <p style="color:#666; line-height:1.8; margin:0;">
+                        support@tmdtstore.com<br>
+                        Hỗ trợ nhanh trong 24h
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-bottom: 35px;">
+            <div class="col-md-5">
+                <div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:30px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); height:100%;">
+                    <h3 style="margin-bottom: 20px;">Thông tin liên hệ</h3>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong>Địa chỉ:</strong>
+                        <p style="margin: 6px 0 0; color:#666;">1734 Stonecoal Road, Hà Nội</p>
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong>Điện thoại:</strong>
+                        <p style="margin: 6px 0 0; color:#666;">0395 939 056</p>
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong>Email:</strong>
+                        <p style="margin: 6px 0 0; color:#666;">support@tmdtstore.com</p>
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong>Giờ làm việc:</strong>
+                        <p style="margin: 6px 0 0; color:#666;">08:00 - 21:00, Thứ 2 - Chủ nhật</p>
+                    </div>
+
+                    <hr>
+
+                    <h4 style="margin: 20px 0 12px;">Hỗ trợ nhanh</h4>
+                    <ul style="padding-left: 18px; color:#666; line-height: 2;">
+                        <li>Tư vấn sản phẩm phù hợp</li>
+                        <li>Hỗ trợ đơn hàng và vận chuyển</li>
+                        <li>Giải đáp chính sách bảo hành</li>
+                        <li>Hợp tác truyền thông, marketing</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-7">
+                <div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:30px; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
+                    <h3 style="margin-bottom: 20px;">Gửi tin nhắn cho chúng tôi</h3>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group" style="margin-bottom: 18px;">
+                                    {{ form.full_name }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group" style="margin-bottom: 18px;">
+                                    {{ form.email }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group" style="margin-bottom: 18px;">
+                                    {{ form.phone }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group" style="margin-bottom: 18px;">
+                                    {{ form.subject }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 18px;">
+                            {{ form.message }}
+                        </div>
+
+                        <button type="submit" class="primary-btn" style="border:none; padding: 12px 28px; border-radius: 30px;">
+                            Gửi liên hệ
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-bottom: 35px;">
+            <div class="col-md-12">
+                <div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:20px; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
+                    <h3 style="margin-bottom: 15px;">Bản đồ cửa hàng</h3>
+                    <iframe
+                        src="https://www.google.com/maps?q=Đại học Giao Thông Vận Tải TPHCM%20Vietnam&z=14&output=embed"
+                        width="100%"
+                        height="420"
+                        style="border:0; border-radius:8px;"
+                        allowfullscreen=""
+                        loading="lazy">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:30px; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
+                    <h3 style="margin-bottom: 25px;">Câu hỏi thường gặp</h3>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div style="padding:20px; background:#fafafa; border-radius:8px; min-height:140px;">
+                                <h4 style="font-size:18px;">Bao lâu sẽ được phản hồi?</h4>
+                                <p style="color:#666;">Thông thường trong vòng 24 giờ làm việc.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div style="padding:20px; background:#fafafa; border-radius:8px; min-height:140px;">
+                                <h4 style="font-size:18px;">Có hỗ trợ đổi trả không?</h4>
+                                <p style="color:#666;">Có. Chúng tôi hỗ trợ đổi trả theo chính sách của cửa hàng.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div style="padding:20px; background:#fafafa; border-radius:8px; min-height:140px;">
+                                <h4 style="font-size:18px;">Có thể liên hệ hợp tác không?</h4>
+                                <p style="color:#666;">Có. Bạn có thể gửi thông tin hợp tác qua form liên hệ.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Popup gọi điện -->
+<div id="phonePopup" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    z-index:9999;
+    align-items:center;
+    justify-content:center;
+">
+    <div style="
+        background:#fff;
+        padding:30px;
+        border-radius:12px;
+        width:360px;
+        max-width:90%;
+        text-align:center;
+        box-shadow:0 10px 30px rgba(0,0,0,0.2);
+        position:relative;
+    ">
+        <button onclick="closePhonePopup()" style="
+            position:absolute;
+            top:10px;
+            right:12px;
+            border:none;
+            background:transparent;
+            font-size:22px;
+            cursor:pointer;
+            color:#999;
+        ">
+            ×
+        </button>
+
+        <div style="
+            width:70px;
+            height:70px;
+            margin:0 auto 15px;
+            border-radius:50%;
+            background:#fff1f3;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:30px;
+        ">
+            📞
+        </div>
+
+        <h3 style="margin-bottom:10px; color:#2B2D42;">Gọi ngay cho chúng tôi</h3>
+        <p style="color:#666; margin-bottom:20px; line-height:1.7;">
+            Hotline hỗ trợ khách hàng, tư vấn sản phẩm và giải đáp đơn hàng.
+        </p>
+
+        <a href="tel:+84395939056" class="primary-btn" style="display:block; margin-bottom:12px; border-radius:30px;">
+            0395 939 056
+        </a>
+
+        <p style="font-size:13px; color:#999; margin-bottom:0;">
+            Thời gian hỗ trợ: 08:00 - 21:00 mỗi ngày
+        </p>
+    </div>
+</div>
+
+<script>
+function showPhonePopup() {
+    document.getElementById("phonePopup").style.display = "flex";
+}
+
+function closePhonePopup() {
+    document.getElementById("phonePopup").style.display = "none";
+}
+
+window.onclick = function(event) {
+    const popup = document.getElementById("phonePopup");
+    if (event.target === popup) {
+        popup.style.display = "none";
+    }
+}
+</script>
+{% endblock %}
