@@ -45,6 +45,7 @@ class Review(models.Model):
     user = models.ForeignKey(User, related_name='reviews', on_delete=models.CASCADE)
     rating = models.PositiveIntegerField(choices=[(i, str(i)) for i in range(1, 6)])
     comment = models.TextField()
+    image = models.ImageField(upload_to='reviews/%Y/%m/%d', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

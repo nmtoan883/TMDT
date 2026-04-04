@@ -17,7 +17,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ['product', 'user', 'rating', 'created']
+    list_display = ['product', 'user', 'rating', 'created', 'image']
     list_filter = ['rating', 'created']
 
 @admin.register(Contact)

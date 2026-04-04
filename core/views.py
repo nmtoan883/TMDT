@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .forms import ProductForm
+from .forms import ProductForm, ReviewForm
 from .models import Category, Product, Review, Wishlist
 from cart.forms import CartAddProductForm
 from django.views.decorators.http import require_POST
@@ -85,6 +85,16 @@ def product_detail(request, id, slug):
     cart_product_form = CartAddProductForm()
     reviews = product.reviews.all()
 
+    review_form = ReviewForm()
+    if request.method == 'POST' and request.user.is_authenticated:
+        review_form = ReviewForm(request.POST, request.FILES)
+        if review_form.is_valid():
+            review = review_form.save(commit=False)
+            review.product = product
+            review.user = request.user
+            review.save()
+            return redirect(product.get_absolute_url())
+
     is_in_wishlist = False
 
     if request.user.is_authenticated:
@@ -97,6 +107,7 @@ def product_detail(request, id, slug):
         'product': product,
         'cart_product_form': cart_product_form,
         'reviews': reviews,
+        'review_form': review_form,
         'is_in_wishlist': is_in_wishlist
     })
 
