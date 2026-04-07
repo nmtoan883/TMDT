@@ -28,7 +28,11 @@ class OrderCreateForm(forms.ModelForm):
         }
 
         widgets = {
-            'province': forms.Select(choices=[('', 'Chon tinh/thanh pho')]),
-            'district': forms.Select(choices=[('', 'Chon quan/huyen')]),
-            'ward': forms.Select(choices=[('', 'Chon phuong/xa')]),
+            'first_name': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Ho'}),
+            'last_name': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Ten'}),
+            'email': forms.EmailInput(attrs={'class': 'input', 'placeholder': 'Email'}),
+            'address': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Dia chi'}),
+            'province': forms.Select(choices=[('', 'Chon tinh/thanh pho')], attrs={'class': 'input'}),
+            'district': forms.Select(choices=[('', 'Chon quan/huyen')], attrs={'class': 'input'}),
+            'ward': forms.Select(choices=[('', 'Chon phuong/xa')], attrs={'class': 'input'}),
         }

@@ -55,7 +55,7 @@ def order_create(request):
     else:
         form = OrderCreateForm(initial=initial)
 
-    return render(request, 'orders/create.html', {'cart': cart, 'form': form})
+    return render(request, 'checkout.html', {'cart': cart, 'form': form})
 
 
 @login_required
