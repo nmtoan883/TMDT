@@ -1,275 +1,684 @@
 {% extends "base.html" %}
 {% load static %}
-
-{% block title %}
-    {% if category %}{{ category.name }}{% else %}Sản phẩm{% endif %}
-{% endblock %}
-
+{% block title %}Trang chủ E-Electro{% endblock %}
+{% block breadcrumb %}{% endblock %}
 {% block content %}
-<div class="hero-section text-center">
-    <div class="container">
-        <h1 class="display-4 fw-bold animate-up">
-            {% if category %}{{ category.name }}{% else %}Khám phá công nghệ mới nhất{% endif %}
-        </h1>
-        <p class="lead text-muted animate-up" style="animation-delay: 0.1s;">
-            Trải nghiệm sự khác biệt với các thiết bị điện tử hàng đầu từ Apple, Samsung, Xiaomi.
-        </p>
-    </div>
-</div>
+<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<!-- shop -->
+					<div class="col-md-4 col-xs-6">
+						<div class="shop">
+							<div class="shop-img">
+								<img src="{% static 'img/shop01.png' %}" alt="">
+							</div>
+							<div class="shop-body">
+								<h3>Laptop<br>Collection</h3>
+								<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
+							</div>
+						</div>
+					</div>
+					<!-- /shop -->
 
-<div class="container my-5">
-    <div class="row">
-        <!-- Sidebar Filter -->
-        <div class="col-lg-3 mb-4">
-            <div class="glass-card p-4">
-                <h5 class="mb-3">Bộ lọc sản phẩm</h5>
+					<!-- shop -->
+					<div class="col-md-4 col-xs-6">
+						<div class="shop">
+							<div class="shop-img">
+								<img src="{% static 'img/shop03.png' %}" alt="">
+							</div>
+							<div class="shop-body">
+								<h3>Accessories<br>Collection</h3>
+								<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
+							</div>
+						</div>
+					</div>
+					<!-- /shop -->
 
-                <form action="." method="get" class="mb-4" id="product-filter-form">
-                    {% if query %}<input type="hidden" name="query" value="{{ query }}">{% endif %}
+					<!-- shop -->
+					<div class="col-md-4 col-xs-6">
+						<div class="shop">
+							<div class="shop-img">
+								<img src="{% static 'img/shop02.png' %}" alt="">
+							</div>
+							<div class="shop-body">
+								<h3>Cameras<br>Collection</h3>
+								<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
+							</div>
+						</div>
+					</div>
+					<!-- /shop -->
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
 
-                    <!-- Price Range -->
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="form-label fw-semibold mb-0">Giá</label>
-                            <span class="small text-muted">
-                                <span id="price-min-label">{{ min_price }}</span>₫ -
-                                <span id="price-max-label">{{ max_price }}</span>₫
-                            </span>
-                        </div>
+		<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
 
-                        <input
-                            type="range"
-                            class="form-range mb-2"
-                            id="price-min-range"
-                            min="{{ price_min_bound }}"
-                            max="{{ price_max_bound }}"
-                            value="{{ min_price }}"
-                            step="100000"
-                        >
+					<!-- section title -->
+					<div class="col-md-12">
+						<div class="section-title">
+							<h3 class="title">New Products</h3>
+							<div class="section-nav">
+								<ul class="section-tab-nav tab-nav">
+									<li class="active"><a data-toggle="tab" href="#tab1">Laptops</a></li>
+									<li><a data-toggle="tab" href="#tab1">Smartphones</a></li>
+									<li><a data-toggle="tab" href="#tab1">Cameras</a></li>
+									<li><a data-toggle="tab" href="#tab1">Accessories</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<!-- /section title -->
 
-                        <input
-                            type="range"
-                            class="form-range"
-                            id="price-max-range"
-                            min="{{ price_min_bound }}"
-                            max="{{ price_max_bound }}"
-                            value="{{ max_price }}"
-                            step="100000"
-                        >
+					<!-- Products tab & slick -->
+					<div class="col-md-12">
+						<div class="row">
+							<div class="products-tabs">
+								<!-- tab -->
+								<div id="tab1" class="tab-pane active">
+									<div class="products-slick" data-nav="#slick-nav-1">
+										{% for product in products %}
+										<!-- product -->
+										<div class="product">
+											<div class="product-img">
+												{% if product.image %}
+													<img src="{{ product.image.url }}" alt="{{ product.name }}">
+												{% else %}
+													<img src="{% static 'img/product01.png' %}" alt="{{ product.name }}">
+												{% endif %}
+												<div class="product-label">
+													{% if product.old_price %}
+														<span class="sale">SALE</span>
+													{% endif %}
+													<span class="new">NEW</span>
+												</div>
+											</div>
+											<div class="product-body">
+												<p class="product-category">{{ product.category.name }}</p>
+												<h3 class="product-name"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
+												<h4 class="product-price">{{ product.price|floatformat:0 }}₫ 
+													{% if product.old_price %}
+														<del class="product-old-price">{{ product.old_price|floatformat:0 }}₫</del>
+													{% endif %}
+												</h4>
+												<div class="product-rating">
+													{% for i in "12345" %}
+														<i class="fa fa-star"></i>
+													{% endfor %}
+												</div>
+												<div class="product-btns">
+													{% if user.is_authenticated %}
+														<form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" style="display:inline;">
+															{% csrf_token %}
+															<button type="submit" class="add-to-wishlist" style="border:none; background:none;"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+														</form>
+													{% else %}
+														<a href="{% url 'account_login' %}"><button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button></a>
+													{% endif %}
+													<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+													<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+												</div>
+											</div>
+											<div class="add-to-cart">
+												<form action="{% url 'cart:cart_add' product.id %}" method="post">
+													{% csrf_token %}
+													<button type="submit" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+												</form>
+											</div>
+										</div>
+										<!-- /product -->
+										{% endfor %}
+									</div>
+									<div id="slick-nav-1" class="products-slick-nav"></div>
+								</div>
+								<!-- /tab -->
+							</div>
+						</div>
+					</div>
+					<!-- Products tab & slick -->
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
 
-                        <!-- Hidden values used by GET submission -->
-                        <input type="hidden" name="min_price" id="min_price_input" value="{{ min_price }}">
-                        <input type="hidden" name="max_price" id="max_price_input" value="{{ max_price }}">
-                    </div>
+		<!-- HOT DEAL SECTION -->
+		<div id="hot-deal" class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<div class="col-md-12">
+						<div class="hot-deal">
+							<ul class="hot-deal-countdown">
+								<li>
+									<div>
+										<h3>02</h3>
+										<span>Days</span>
+									</div>
+								</li>
+								<li>
+									<div>
+										<h3>10</h3>
+										<span>Hours</span>
+									</div>
+								</li>
+								<li>
+									<div>
+										<h3>34</h3>
+										<span>Mins</span>
+									</div>
+								</li>
+								<li>
+									<div>
+										<h3>60</h3>
+										<span>Secs</span>
+									</div>
+								</li>
+							</ul>
+							<h2 class="text-uppercase">hot deal this week</h2>
+							<p>New Collection Up to 50% OFF</p>
+							<a class="primary-btn cta-btn" href="#">Shop now</a>
+						</div>
+					</div>
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /HOT DEAL SECTION -->
 
-                    <!-- Brand -->
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Hãng sản xuất</label>
-                        <div class="d-grid gap-1">
-                            {% for b in brand_options %}
-                                <div class="form-check">
-                                    <input
-                                        class="form-check-input product-filter-checkbox"
-                                        type="checkbox"
-                                        name="brands"
-                                        value="{{ b }}"
-                                        id="brand-{{ forloop.counter }}"
-                                        {% if b in brands_selected %}checked{% endif %}
-                                    >
-                                    <label class="form-check-label small" for="brand-{{ forloop.counter }}">{{ b }}</label>
-                                </div>
-                            {% empty %}
-                                <div class="small text-muted">Không có dữ liệu hãng.</div>
-                            {% endfor %}
-                        </div>
-                    </div>
+		<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
 
-                    <!-- RAM -->
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Dung lượng RAM</label>
-                        <div class="d-grid gap-1">
-                            {% for r in ram_options %}
-                                <div class="form-check">
-                                    <input
-                                        class="form-check-input product-filter-checkbox"
-                                        type="checkbox"
-                                        name="rams"
-                                        value="{{ r }}"
-                                        id="ram-{{ forloop.counter }}"
-                                        {% if r in rams_selected %}checked{% endif %}
-                                    >
-                                    <label class="form-check-label small" for="ram-{{ forloop.counter }}">{{ r }}</label>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
+					<!-- section title -->
+					<div class="col-md-12">
+						<div class="section-title">
+							<h3 class="title">Top selling</h3>
+							<div class="section-nav">
+								<ul class="section-tab-nav tab-nav">
+									<li class="active"><a data-toggle="tab" href="#tab2">Laptops</a></li>
+									<li><a data-toggle="tab" href="#tab2">Smartphones</a></li>
+									<li><a data-toggle="tab" href="#tab2">Cameras</a></li>
+									<li><a data-toggle="tab" href="#tab2">Accessories</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<!-- /section title -->
 
-                    <!-- ROM -->
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Bộ nhớ (ROM)</label>
-                        <div class="d-grid gap-1">
-                            {% for rom in rom_options %}
-                                <div class="form-check">
-                                    <input
-                                        class="form-check-input product-filter-checkbox"
-                                        type="checkbox"
-                                        name="roms"
-                                        value="{{ rom }}"
-                                        id="rom-{{ forloop.counter }}"
-                                        {% if rom in roms_selected %}checked{% endif %}
-                                    >
-                                    <label class="form-check-label small" for="rom-{{ forloop.counter }}">{{ rom }}</label>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
+					<!-- Products tab & slick -->
+					<div class="col-md-12">
+						<div class="row">
+							<div class="products-tabs">
+								<!-- tab -->
+								<div id="tab2" class="tab-pane fade in active">
+									<div class="products-slick" data-nav="#slick-nav-2">
+										<!-- product -->
+										<div class="product">
+											<div class="product-img">
+												<img src="{% static 'img/product06.png' %}" alt="">
+												<div class="product-label">
+													<span class="sale">-30%</span>
+													<span class="new">NEW</span>
+												</div>
+											</div>
+											<div class="product-body">
+												<p class="product-category">Category</p>
+												<h3 class="product-name"><a href="#">product name goes here</a></h3>
+												<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+												<div class="product-rating">
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star"></i>
+												</div>
+												<div class="product-btns">
+													<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+													<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+													<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+												</div>
+											</div>
+											<div class="add-to-cart">
+												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+											</div>
+										</div>
+										<!-- /product -->
 
-                    <!-- Sort -->
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Sắp xếp</label>
-                        <select name="sort" class="form-select form-select-sm product-filter-select" onchange="this.form.submit()">
-                            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Mới nhất</option>
-                            <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Giá: Thấp đến Cao</option>
-                            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Giá: Cao đến Thấp</option>
-                        </select>
-                    </div>
+										<!-- product -->
+										<div class="product">
+											<div class="product-img">
+												<img src="{% static 'img/product07.png' %}" alt="">
+												<div class="product-label">
+													<span class="new">NEW</span>
+												</div>
+											</div>
+											<div class="product-body">
+												<p class="product-category">Category</p>
+												<h3 class="product-name"><a href="#">product name goes here</a></h3>
+												<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+												<div class="product-rating">
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star-o"></i>
+												</div>
+												<div class="product-btns">
+													<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+													<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+													<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+												</div>
+											</div>
+											<div class="add-to-cart">
+												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+											</div>
+										</div>
+										<!-- /product -->
 
-                    <button type="submit" class="btn btn-primary btn-sm w-100 mt-2" id="filter-submit-btn">
-                        Lọc
-                    </button>
-                </form>
+										<!-- product -->
+										<div class="product">
+											<div class="product-img">
+												<img src="{% static 'img/product08.png' %}" alt="">
+												<div class="product-label">
+													<span class="sale">-30%</span>
+												</div>
+											</div>
+											<div class="product-body">
+												<p class="product-category">Category</p>
+												<h3 class="product-name"><a href="#">product name goes here</a></h3>
+												<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+												<div class="product-rating">
+												</div>
+												<div class="product-btns">
+													<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+													<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+													<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+												</div>
+											</div>
+											<div class="add-to-cart">
+												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+											</div>
+										</div>
+										<!-- /product -->
 
-                <!-- Category navigation -->
-                <hr class="my-4">
-                <h5 class="mb-3">Danh mục</h5>
-                <ul class="list-unstyled mb-0">
-                    <li class="mb-2">
-                        <a href="/" class="text-decoration-none {% if not category %}fw-bold text-primary{% else %}text-muted{% endif %}">
-                            Tất cả sản phẩm
-                        </a>
-                    </li>
-                    {% for c in categories %}
-                        <li class="mb-2">
-                            <a href="{{ c.get_absolute_url }}" class="text-decoration-none {% if category and category.slug == c.slug %}fw-bold text-primary{% else %}text-muted{% endif %}">
-                                {{ c.name }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
+										<!-- product -->
+										<div class="product">
+											<div class="product-img">
+												<img src="{% static 'img/product09.png' %}" alt="">
+											</div>
+											<div class="product-body">
+												<p class="product-category">Category</p>
+												<h3 class="product-name"><a href="#">product name goes here</a></h3>
+												<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+												<div class="product-rating">
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star"></i>
+												</div>
+												<div class="product-btns">
+													<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+													<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+													<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+												</div>
+											</div>
+											<div class="add-to-cart">
+												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+											</div>
+										</div>
+										<!-- /product -->
 
-                <script>
-                    (function () {
-                        var form = document.getElementById('product-filter-form');
-                        if (!form) return;
+										<!-- product -->
+										<div class="product">
+											<div class="product-img">
+												<img src="{% static 'img/product01.png' %}" alt="">
+											</div>
+											<div class="product-body">
+												<p class="product-category">Category</p>
+												<h3 class="product-name"><a href="#">product name goes here</a></h3>
+												<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+												<div class="product-rating">
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star"></i>
+													<i class="fa fa-star"></i>
+												</div>
+												<div class="product-btns">
+													<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+													<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+													<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+												</div>
+											</div>
+											<div class="add-to-cart">
+												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+											</div>
+										</div>
+										<!-- /product -->
+									</div>
+									<div id="slick-nav-2" class="products-slick-nav"></div>
+								</div>
+								<!-- /tab -->
+							</div>
+						</div>
+					</div>
+					<!-- /Products tab & slick -->
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
 
-                        var minRange = document.getElementById('price-min-range');
-                        var maxRange = document.getElementById('price-max-range');
-                        var minInput = document.getElementById('min_price_input');
-                        var maxInput = document.getElementById('max_price_input');
-                        var minLabel = document.getElementById('price-min-label');
-                        var maxLabel = document.getElementById('price-max-label');
+		<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<div class="col-md-4 col-xs-6">
+						<div class="section-title">
+							<h4 class="title">Top selling</h4>
+							<div class="section-nav">
+								<div id="slick-nav-3" class="products-slick-nav"></div>
+							</div>
+						</div>
 
-                        if (!minRange || !maxRange || !minInput || !maxInput) return;
+						<div class="products-widget-slick" data-nav="#slick-nav-3">
+							<div>
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product07.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
 
-                        function syncPriceUI() {
-                            var minVal = parseInt(minRange.value, 10);
-                            var maxVal = parseInt(maxRange.value, 10);
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product08.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
 
-                            // Ensure min <= max.
-                            if (minVal > maxVal) {
-                                minVal = maxVal;
-                                minRange.value = String(minVal);
-                            }
-                            if (maxVal < minVal) {
-                                maxVal = minVal;
-                                maxRange.value = String(maxVal);
-                            }
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product09.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- product widget -->
+							</div>
 
-                            minInput.value = String(minVal);
-                            maxInput.value = String(maxVal);
+							<div>
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product01.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
 
-                            if (minLabel) minLabel.textContent = String(minVal);
-                            if (maxLabel) maxLabel.textContent = String(maxVal);
-                        }
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product02.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
 
-                        // Debounce helper to avoid spamming submits.
-                        var debounceTimer = null;
-                        function debounceSubmit() {
-                            clearTimeout(debounceTimer);
-                            debounceTimer = setTimeout(function () {
-                                form.submit();
-                            }, 300);
-                        }
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product03.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- product widget -->
+							</div>
+						</div>
+					</div>
 
-                        // Initial sync (safe in case template values differ).
-                        syncPriceUI();
+					<div class="col-md-4 col-xs-6">
+						<div class="section-title">
+							<h4 class="title">Top selling</h4>
+							<div class="section-nav">
+								<div id="slick-nav-4" class="products-slick-nav"></div>
+							</div>
+						</div>
 
-                        // Price slider events.
-                        minRange.addEventListener('input', function () {
-                            syncPriceUI();
-                            debounceSubmit();
-                        });
-                        maxRange.addEventListener('input', function () {
-                            syncPriceUI();
-                            debounceSubmit();
-                        });
+						<div class="products-widget-slick" data-nav="#slick-nav-4">
+							<div>
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product04.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
 
-                        // Checkbox events.
-                        var checkboxes = form.querySelectorAll('.product-filter-checkbox');
-                        checkboxes.forEach(function (cb) {
-                            cb.addEventListener('change', function () {
-                                debounceSubmit();
-                            });
-                        });
-                    })();
-                </script>
-            </div>
-        </div>
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product05.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
 
-        <!-- Product Grid -->
-        <div class="col-lg-9">
-            {% if query %}
-                <p class="mb-4">Kết quả tìm kiếm cho: <strong>"{{ query }}"</strong></p>
-            {% endif %}
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product06.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- product widget -->
+							</div>
 
-            <div class="row g-4">
-                {% for product in products %}
-                    <div class="col-md-6 col-xl-4 animate-up">
-                        <div class="product-card shadow-sm">
-                            {% if product.old_price %}
-                                <span class="badge-promo">PROMO</span>
-                            {% endif %}
-                            <a href="{{ product.get_absolute_url }}">
-                                {% if product.image %}
-                                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-                                {% else %}
-                                    <img src="https://via.placeholder.com/300x300?text={{ product.name }}" class="card-img-top" alt="No image">
-                                {% endif %}
-                            </a>
-                            <div class="card-body">
-                                <p class="text-muted small mb-1">{{ product.category.name }} • {{ product.brand }}</p>
-                                <h5 class="card-title mb-2">
-                                    <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-dark">{{ product.name }}</a>
-                                </h5>
-                                <div class="d-flex align-items-center mb-3">
-                                    {% if product.old_price %}
-                                        <span class="old-price">{{ product.old_price|floatformat:0 }}₫</span>
-                                    {% endif %}
-                                    <span class="price-tag">{{ product.price|floatformat:0 }}₫</span>
-                                </div>
-                                <a href="{{ product.get_absolute_url }}" class="btn btn-primary w-100">Xem chi tiết</a>
-                            </div>
-                        </div>
-                    </div>
-                {% empty %}
-                    <div class="col-12 text-center py-5">
-                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                        <h4>Không tìm thấy sản phẩm nào</h4>
-                        <p class="text-muted">Thử tìm kiếm với từ khóa khác.</p>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-</div>
+							<div>
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product07.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
+
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product08.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
+
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product09.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- product widget -->
+							</div>
+						</div>
+					</div>
+
+					<div class="clearfix visible-sm visible-xs"></div>
+
+					<div class="col-md-4 col-xs-6">
+						<div class="section-title">
+							<h4 class="title">Top selling</h4>
+							<div class="section-nav">
+								<div id="slick-nav-5" class="products-slick-nav"></div>
+							</div>
+						</div>
+
+						<div class="products-widget-slick" data-nav="#slick-nav-5">
+							<div>
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product01.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
+
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product02.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
+
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product03.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- product widget -->
+							</div>
+
+							<div>
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product04.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
+
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product05.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
+
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product06.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- product widget -->
+							</div>
+						</div>
+					</div>
+
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
 {% endblock %}
