@@ -28,27 +28,27 @@ class ContactForm(forms.ModelForm):
             'full_name': forms.TextInput(attrs={
                 'class': 'input',
                 'placeholder': 'Họ và tên',
-                'style': 'height:46px; border-radius:6px;'
+                'class': 'auto-extracted-style-58',
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'input',
                 'placeholder': 'Email',
-                'style': 'height:46px; border-radius:6px;'
+                'class': 'auto-extracted-style-59',
             }),
             'phone': forms.TextInput(attrs={
                 'class': 'input',
                 'placeholder': 'Số điện thoại',
-                'style': 'height:46px; border-radius:6px;'
+                'class': 'auto-extracted-style-60',
             }),
             'subject': forms.TextInput(attrs={
                 'class': 'input',
                 'placeholder': 'Chủ đề',
-                'style': 'height:46px; border-radius:6px;'
+                'class': 'auto-extracted-style-61',
             }),
             'message': forms.Textarea(attrs={
                 'class': 'input',
                 'placeholder': 'Nhập nội dung liên hệ...',
                 'rows': 6,
-                'style': 'border-radius:6px; padding-top:12px;'
+                'class': 'auto-extracted-style-62',
             }),
         }
