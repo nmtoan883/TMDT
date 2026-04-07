@@ -49,9 +49,12 @@
 						<li><a href="#"><i class="fa fa-map-marker"></i> 1734 Stonecoal Road</a></li>
 					</ul>
 					<ul class="header-links pull-right">
-						<li><a href="#"><i class="fa fa-dollar"></i> USD</a></li>
+						<li><a href="#"><i class="fa fa-money"></i> VNĐ</a></li>
 						{% if user.is_authenticated %}
-						<li><a href="{% url 'accounts:dashboard' %}"><i class="fa fa-user-o"></i> Tải khoản: {{ user.username }}</a></li>
+						{% if user.is_staff or user.is_superuser %}
+						<li><a href="/admin/"><i class="fa fa-cog"></i> Quản trị Admin</a></li>
+						{% endif %}
+						<li><a href="{% url 'accounts:dashboard' %}"><i class="fa fa-user-o"></i> Tài khoản: {{ user.username }}</a></li>
 						<li><a href="{% url 'account_logout' %}"><i class="fa fa-sign-out"></i> Đăng xuất</a></li>
 						{% else %}
 						<li><a href="{% url 'account_login' %}"><i class="fa fa-user-o"></i> Đăng nhập</a></li>
