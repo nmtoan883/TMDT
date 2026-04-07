@@ -9,6 +9,29 @@ from .forms import OrderCreateForm
 from .models import Order, OrderItem
 
 
+from django.db import transaction
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
+
+def _send_confirmation_email(order):
+    try:
+        subject = f'[ShopTech] Xác nhận đơn hàng #{order.id}'
+        html_message = render_to_string('orders/email_invoice.html', {
+            'order': order,
+            'order_items': order.items.all(),
+        })
+        send_mail(
+            subject=subject,
+            message=f'Đơn hàng #{order.id} của bạn đã được xác nhận. Tổng tiền: {order.get_total_cost()}đ',
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[order.email],
+            html_message=html_message,
+            fail_silently=True,
+        )
+    except Exception as e:
+        print(f'[EMAIL ERROR] Không gửi được email cho đơn #{order.id}: {e}')
+
 @login_required
 def order_create(request):
     cart = Cart(request)
@@ -24,34 +47,52 @@ def order_create(request):
 
     profile = getattr(request.user, 'customer_profile', None)
     if profile is not None:
-        initial.update(
-            {
-                'address': profile.address,
-                'province': profile.province or profile.city,
-                'district': profile.district,
-                'ward': profile.ward,
-                'postal_code': profile.postal_code,
-            }
-        )
+        initial.update({
+            'address': profile.address,
+            'province': profile.province or profile.city,
+            'district': profile.district,
+            'ward': profile.ward,
+            'postal_code': profile.postal_code,
+        })
 
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
         if form.is_valid():
-            order = form.save(commit=False)
-            order.user = request.user
-            order.city = order.province
-            order.save()
+            # Check stock before processing
             for item in cart:
-                OrderItem.objects.create(
-                    order=order,
-                    product=item['product'],
-                    price=item['price'],
-                    quantity=item['quantity'],
-                )
-            cart.clear()
-            request.session['coupon_id'] = None
-            messages.success(request, f'Da tao don hang #{order.id} thanh cong.')
-            return redirect('orders:order_detail', order_id=order.id)
+                if item['product'].stock < item['quantity']:
+                    messages.error(
+                        request,
+                        f'Sản phẩm "{item["product"].name}" chỉ còn {item["product"].stock} cái trong kho, không đủ số lượng!'
+                    )
+                    return render(request, 'checkout.html', {'cart': cart, 'form': form})
+
+            try:
+                with transaction.atomic():
+                    order = form.save(commit=False)
+                    order.user = request.user
+                    order.city = order.province
+                    order.save()
+                    
+                    for item in cart:
+                        OrderItem.objects.create(
+                            order=order,
+                            product=item['product'],
+                            price=item['price'],
+                            quantity=item['quantity'],
+                        )
+                        # Deduct stock
+                        item['product'].stock -= item['quantity']
+                        item['product'].save()
+
+                    cart.clear()
+
+                _send_confirmation_email(order)
+                messages.success(request, f'Da tao don hang #{order.id} thanh cong.')
+                return redirect('orders:order_detail', order_id=order.id)
+            except Exception as e:
+                messages.error(request, 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại!')
+                print(f'[ORDER ERROR] {e}')
     else:
         form = OrderCreateForm(initial=initial)
 
