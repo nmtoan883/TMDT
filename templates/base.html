@@ -130,7 +130,7 @@
 												</div>
 												<div class="product-body">
 													<h3 class="product-name"><a href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a></h3>
-													<h4 class="product-price"><span class="qty">{{ item.quantity }}x</span>${{ item.price }}</h4>
+													<h4 class="product-price"><span class="qty">{{ item.quantity }}x</span>{{ item.price }} VNĐ</h4>
 												</div>
 												<form action="{% url 'cart:cart_remove' item.product.id %}" method="post" style="display:inline;">
 													{% csrf_token %}
@@ -145,7 +145,7 @@
 										</div>
 										<div class="cart-summary">
 											<small>{{ cart|length }} Item(s) selected</small>
-											<h5>SUBTOTAL: ${{ cart.get_total_price }}</h5>
+											<h5>SUBTOTAL: {{ cart.get_total_price }} VNĐ</h5>
 										</div>
 										<div class="cart-btns">
 											<a href="{% url 'cart:cart_detail' %}">View Cart</a>

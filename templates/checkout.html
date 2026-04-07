@@ -71,14 +71,14 @@
                             {% for item in cart %}
                             <div class="order-col" style="margin-bottom:10px;">
                                 <div>{{ item.quantity }}x {{ item.product.name }}</div>
-                                <div>${{ item.total_price }}</div>
+                                <div>{{ item.total_price }} VNĐ</div>
                             </div>
                             {% endfor %}
                         </div>
 
                         <div class="order-col">
                             <div><strong>TỔNG TIỀN</strong></div>
-                            <div><strong class="order-total">${{ cart.get_total_price }}</strong></div>
+                            <div><strong class="order-total">{{ cart.get_total_price }} VNĐ</strong></div>
                         </div>
                     </div>
 
