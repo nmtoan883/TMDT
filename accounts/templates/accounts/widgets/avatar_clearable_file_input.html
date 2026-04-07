@@ -1,0 +1,21 @@
+<div class="avatar-upload-widget">
+    {% if widget.is_initial %}
+        <div class="avatar-upload-current">
+            <span class="avatar-upload-label">Ảnh hiện tại</span>
+            <a href="{{ widget.value.url }}" target="_blank" rel="noopener" class="avatar-upload-link">
+                {{ widget.value.name|default:"Xem ảnh" }}
+            </a>
+        </div>
+        {% if not widget.required %}
+            <label for="{{ widget.checkbox_id }}" class="avatar-upload-clear">
+                <input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}">
+                <span>Xóa ảnh hiện tại</span>
+            </label>
+        {% endif %}
+    {% endif %}
+
+    <div class="avatar-upload-picker">
+        <span class="avatar-upload-label">{% if widget.is_initial %}Chọn ảnh mới{% else %}Tải ảnh lên{% endif %}</span>
+        <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
+    </div>
+</div>

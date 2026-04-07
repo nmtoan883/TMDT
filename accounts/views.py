@@ -1,4 +1,4 @@
-from django.contrib import messages
+﻿from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
@@ -18,7 +18,7 @@ def register(request):
             new_user.set_password(form.cleaned_data['password'])
             new_user.save()
             login(request, new_user, backend='django.contrib.auth.backends.ModelBackend')
-            messages.success(request, f'Chao mung {new_user.username}! Tai khoan cua ban da duoc tao thanh cong.')
+            messages.success(request, f'Chào mừng {new_user.username}! Tài khoản của bạn đã được tạo thành công.')
             return redirect('shop:product_list')
     else:
         form = UserRegistrationForm()
@@ -33,7 +33,10 @@ def dashboard(request):
         profile.province = profile.city
         profile.save(update_fields=['province'])
 
+    is_editing = request.GET.get('edit') == '1'
+
     if request.method == 'POST':
+        is_editing = True
         user_form = UserUpdateForm(request.POST, instance=request.user)
         profile_form = CustomerProfileForm(request.POST, request.FILES, instance=profile)
         if user_form.is_valid() and profile_form.is_valid():
@@ -54,5 +57,6 @@ def dashboard(request):
             'user_form': user_form,
             'profile_form': profile_form,
             'profile': profile,
+            'is_editing': is_editing,
         },
     )

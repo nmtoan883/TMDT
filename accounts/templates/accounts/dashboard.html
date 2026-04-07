@@ -1,87 +1,765 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% load crispy_forms_tags %}
 
-{% block title %}Tai khoan cua toi - E-ELECTRO{% endblock %}
+{% block title %}Tài khoản của tôi - E-ELECTRO{% endblock %}
+
+{% block extra_css %}
+<style>
+.account-shell {
+    padding: 10px 0 30px;
+}
+
+.account-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 36px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #15161d 0%, #1e1f29 55%, #2b2d42 100%);
+    color: #fff;
+    box-shadow: 0 24px 50px rgba(21, 22, 29, 0.18);
+    margin-bottom: 30px;
+}
+
+.account-hero:before,
+.account-hero:after {
+    content: "";
+    position: absolute;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.account-hero:before {
+    width: 260px;
+    height: 260px;
+    top: -110px;
+    right: -70px;
+}
+
+.account-hero:after {
+    width: 170px;
+    height: 170px;
+    bottom: -80px;
+    left: 45%;
+}
+
+.account-hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+.account-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+.account-hero-title {
+    color: #fff;
+    font-size: 34px;
+    line-height: 1.2;
+    margin-bottom: 10px;
+}
+
+.account-hero-copy {
+    color: rgba(255, 255, 255, 0.78);
+    max-width: 640px;
+    margin-bottom: 0;
+}
+
+.account-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 28px;
+}
+
+.account-meta-card {
+    border-radius: 14px;
+    padding: 16px 18px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.account-meta-label {
+    display: block;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+}
+
+.account-meta-value {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.account-panel {
+    height: 100%;
+    border: 1px solid #e4e7ed;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 14px 40px rgba(43, 45, 66, 0.08);
+}
+
+.account-sidebar {
+    padding: 28px;
+}
+
+.account-avatar {
+    width: 136px;
+    height: 136px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #fff;
+    box-shadow: 0 14px 34px rgba(43, 45, 66, 0.18);
+}
+
+.account-avatar-fallback {
+    width: 136px;
+    height: 136px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f3f4f8 0%, #e4e7ed 100%);
+    color: #d10024;
+    border: 5px solid #fff;
+    box-shadow: 0 14px 34px rgba(43, 45, 66, 0.12);
+}
+
+.account-name {
+    margin: 18px 0 6px;
+    font-size: 28px;
+}
+
+.account-username {
+    color: #8d99ae;
+    margin-bottom: 24px;
+}
+
+.account-summary {
+    display: grid;
+    gap: 12px;
+}
+
+.account-summary-item {
+    padding: 14px 16px;
+    border: 1px solid #e4e7ed;
+    border-radius: 14px;
+    background: #fbfbfc;
+}
+
+.account-summary-item span {
+    display: block;
+}
+
+.account-summary-item .label {
+    color: #8d99ae;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 7px;
+}
+
+.account-summary-item .value {
+    color: #2b2d42;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+.account-content {
+    padding: 28px;
+}
+
+.account-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.account-eyebrow {
+    display: inline-block;
+    color: #d10024;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.account-section-title {
+    margin-bottom: 10px;
+    font-size: 28px;
+}
+
+.account-section-copy {
+    color: #8d99ae;
+    margin-bottom: 0;
+}
+
+.account-quick-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 18px 0 24px;
+}
+
+.account-quick-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid #dfe3ec;
+    background: #fff;
+    color: #2b2d42;
+    font-weight: 700;
+}
+
+.account-quick-link:hover,
+.account-quick-link:focus {
+    border-color: #d10024;
+    color: #d10024;
+}
+
+.account-alert {
+    border-radius: 14px;
+    border: none;
+    margin-bottom: 22px;
+}
+
+.account-view-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.account-view-card {
+    border: 1px solid #e4e7ed;
+    border-radius: 16px;
+    padding: 20px;
+    background: linear-gradient(180deg, #fff 0%, #fcfcfd 100%);
+}
+
+.account-view-card.wide {
+    grid-column: 1 / -1;
+}
+
+.account-view-card .label {
+    color: #8d99ae;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.account-view-card .value {
+    color: #2b2d42;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+.account-view-card .muted {
+    color: #8d99ae;
+}
+
+.account-edit-panel {
+    border: 1px solid #e4e7ed;
+    border-radius: 16px;
+    padding: 24px;
+    background: #fbfbfc;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.account-edit-panel .form-control,
+.account-edit-panel .form-select,
+.account-edit-panel select,
+.account-edit-panel input,
+.account-edit-panel textarea {
+    min-height: 46px;
+    border-radius: 12px;
+    border: 1px solid #dfe3ec;
+    box-shadow: none;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: #2b2d42;
+}
+
+.account-edit-panel textarea {
+    min-height: 120px;
+}
+
+.account-edit-panel .form-control:focus,
+.account-edit-panel .form-select:focus,
+.account-edit-panel select:focus,
+.account-edit-panel input:focus,
+.account-edit-panel textarea:focus {
+    border-color: #d10024;
+    box-shadow: 0 0 0 4px rgba(209, 0, 36, 0.08);
+}
+
+.account-edit-panel label {
+    color: #2b2d42;
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.account-edit-panel .form-group,
+.account-edit-panel .mb-3,
+.account-edit-panel .form-text,
+.account-edit-panel .invalid-feedback,
+.account-edit-panel .helptext,
+.account-edit-panel small,
+.account-edit-panel .custom-file,
+.account-edit-panel .custom-file-label {
+    font-family: 'Montserrat', sans-serif;
+}
+
+.account-edit-panel .form-group input[type="file"] {
+    display: none;
+}
+
+.account-edit-panel input::placeholder,
+.account-edit-panel textarea::placeholder {
+    color: #8d99ae;
+    opacity: 1;
+}
+
+.account-edit-panel select option {
+    font-family: 'Montserrat', sans-serif;
+}
+
+.avatar-field {
+    margin-top: 8px;
+}
+
+.avatar-field-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.avatar-field-title {
+    color: #2b2d42;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.avatar-field-note {
+    color: #8d99ae;
+    font-size: 13px;
+}
+
+.avatar-field-body {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 16px 18px;
+    border: 1px solid #dfe3ec;
+    border-radius: 16px;
+    background: #fff;
+}
+
+.avatar-field-preview {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex: 0 0 72px;
+    box-shadow: 0 10px 24px rgba(43, 45, 66, 0.16);
+}
+
+.avatar-field-fallback {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 72px;
+    color: #d10024;
+    background: linear-gradient(135deg, #f3f4f8 0%, #e4e7ed 100%);
+}
+
+.avatar-field-actions {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.avatar-file-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar-file-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: #d10024;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.avatar-file-trigger:hover,
+.avatar-file-trigger:focus {
+    color: #fff;
+    background: #d10024;
+}
+
+.avatar-file-name {
+    color: #8d99ae;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.avatar-file-row input[type="file"] {
+    display: none;
+}
+
+.avatar-clear-row {
+    margin-top: 12px;
+}
+
+.avatar-clear-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: #2b2d42;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.avatar-clear-toggle input {
+    min-height: auto !important;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+}
+
+.avatar-field .invalid-feedback,
+.avatar-field .text-danger {
+    display: block;
+    margin-top: 8px;
+}
+
+@media (max-width: 767px) {
+    .avatar-field-body {
+        align-items: flex-start;
+    }
+}
+
+.account-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.account-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 11px 24px;
+    border-radius: 999px;
+    border: 1px solid #cfd6e4;
+    color: #2b2d42;
+    background: #fff;
+    font-weight: 700;
+}
+
+.account-btn-outline:hover,
+.account-btn-outline:focus {
+    border-color: #d10024;
+    color: #d10024;
+}
+
+@media (max-width: 991px) {
+    .account-meta-grid,
+    .account-view-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .account-hero {
+        padding: 28px 22px;
+    }
+}
+
+@media (max-width: 767px) {
+    .account-toolbar {
+        flex-direction: column;
+    }
+
+    .account-sidebar,
+    .account-content {
+        padding: 22px;
+    }
+
+    .account-hero-title {
+        font-size: 28px;
+    }
+
+    .account-section-title,
+    .account-name {
+        font-size: 24px;
+    }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
+<div class="account-shell">
+    <div class="account-hero">
+        <span class="account-badge"><i class="fa fa-user-o"></i> Tài khoản của tôi</span>
+        <div class="account-meta-grid">
+            <div class="account-meta-card">
+                <span class="account-meta-label">Trạng thái</span>
+                <span class="account-meta-value">{% if is_editing %}Đang chỉnh sửa{% else %}Sẵn sàng giao hàng{% endif %}</span>
+            </div>
+            <div class="account-meta-card">
+                <span class="account-meta-label">Tài khoản</span>
+                <span class="account-meta-value">@{{ request.user.username }}</span>
+            </div>
+            <div class="account-meta-card">
+                <span class="account-meta-label">Cập nhật gần nhất</span>
+                <span class="account-meta-value">{{ profile.updated_at|date:"d/m/Y H:i" }}</span>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-4">
         <div class="col-lg-4">
-            <div class="glass-card p-4 h-100">
+            <div class="account-panel account-sidebar">
                 <div class="text-center">
                     {% if profile.avatar %}
-                        <img src="{{ profile.avatar.url }}" alt="{{ profile.full_name }}" class="rounded-circle shadow-sm mb-3" style="width: 132px; height: 132px; object-fit: cover;">
+                        <img src="{{ profile.avatar.url }}" alt="{{ profile.full_name }}" class="account-avatar mb-3">
                     {% else %}
-                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center shadow-sm mb-3" style="width: 132px; height: 132px;">
-                            <i class="fas fa-user fa-3x text-primary"></i>
+                        <div class="account-avatar-fallback mb-3">
+                            <i class="fa fa-user fa-3x"></i>
                         </div>
                     {% endif %}
-                    <h2 class="h4 fw-bold mb-1">{{ profile.full_name }}</h2>
-                    <p class="text-muted mb-3">@{{ request.user.username }}</p>
+                    <h2 class="account-name">{{ profile.full_name }}</h2>
+                    <p class="account-username">@{{ request.user.username }}</p>
                 </div>
 
-                <div class="border rounded-4 p-3 bg-white bg-opacity-50">
-                    <div class="d-flex justify-content-between py-2 border-bottom">
-                        <span class="text-muted">Email</span>
-                        <span class="fw-semibold text-break ms-3">{{ request.user.email|default:"Chua cap nhat" }}</span>
+                <div class="account-summary">
+                    <div class="account-summary-item">
+                        <span class="label">Email</span>
+                        <span class="value">{{ request.user.email|default:"Chưa cập nhật" }}</span>
                     </div>
-                    <div class="d-flex justify-content-between py-2 border-bottom">
-                        <span class="text-muted">So dien thoai</span>
-                        <span class="fw-semibold ms-3">{{ profile.phone|default:"Chua cap nhat" }}</span>
+                    <div class="account-summary-item">
+                        <span class="label">Số điện thoại</span>
+                        <span class="value">{{ profile.phone|default:"Chưa cập nhật" }}</span>
                     </div>
-                    <div class="d-flex justify-content-between py-2 border-bottom">
-                        <span class="text-muted">Dia chi</span>
-                        <span class="fw-semibold text-end ms-3">{{ profile.full_address|default:"Chua cap nhat" }}</span>
+                    <div class="account-summary-item">
+                        <span class="label">Địa chỉ giao hàng</span>
+                        <span class="value">{{ profile.full_address|default:"Chưa cập nhật" }}</span>
                     </div>
-                    <div class="d-flex justify-content-between pt-2">
-                        <span class="text-muted">Ma buu dien</span>
-                        <span class="fw-semibold ms-3">{{ profile.postal_code|default:"Chua cap nhat" }}</span>
+                    <div class="account-summary-item">
+                        <span class="label">Mã bưu điện</span>
+                        <span class="value">{{ profile.postal_code|default:"Chưa cập nhật" }}</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-8">
-            <div class="glass-card p-4 p-lg-5">
-                <div class="mb-4">
-                    <h1 class="h3 fw-bold mb-2">Dashboard</h1>
-                    <p class="text-muted mb-0">Cap nhat thong tin ca nhan, dia chi giao hang va anh dai dien.</p>
+            <div class="account-panel account-content">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} account-alert">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="account-toolbar">
+                    <div>
+                        <span class="account-eyebrow">Trung tâm tài khoản</span>
+                        <h3 class="account-section-title">Dashboard</h3>
+                        <p class="account-section-copy">
+                            {% if is_editing %}
+                                Điều chỉnh thông tin để đơn hàng và giao hàng chính xác hơn.
+                            {% else %}
+                                Xem nhanh toàn bộ thông tin tài khoản và chỉ mở chế độ sửa khi cần.
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if not is_editing %}
+                        <a href="?edit=1" class="primary-btn">
+                            <i class="fas fa-pen me-2"></i>Chỉnh sửa
+                        </a>
+                    {% endif %}
                 </div>
 
-                <form method="post" enctype="multipart/form-data" novalidate data-address-form>
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-6">
-                            {{ user_form.first_name|as_crispy_field }}
+                {% if not is_editing %}
+                    <div class="account-quick-links">
+                        <a href="{% url 'orders:order_history' %}" class="account-quick-link">
+                            <i class="fa fa-shopping-bag"></i>
+                            <span>Lịch sử mua hàng</span>
+                        </a>
+                        <a href="{% url 'orders:order_history' %}" class="account-quick-link">
+                            <i class="fa fa-truck"></i>
+                            <span>Theo dõi đơn hàng</span>
+                        </a>
+                    </div>
+                {% endif %}
+
+                {% if is_editing %}
+                    <form method="post" enctype="multipart/form-data" novalidate data-address-form class="account-edit-panel">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ user_form.first_name|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ user_form.last_name|as_crispy_field }}
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            {{ user_form.last_name|as_crispy_field }}
+
+                        {{ user_form.email|as_crispy_field }}
+                        {{ profile_form.phone|as_crispy_field }}
+                        {{ profile_form.address|as_crispy_field }}
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                {{ profile_form.province|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.district|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ profile_form.ward|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        {{ profile_form.postal_code|as_crispy_field }}
+                        <div class="avatar-field">
+                            <div class="avatar-field-header">
+                                <div>
+                                    <div class="avatar-field-title">Ảnh đại diện</div>
+                                    <div class="avatar-field-note">PNG, JPG hoặc WEBP. Nên dùng ảnh vuông để hiển thị đẹp hơn.</div>
+                                </div>
+                            </div>
+                            <div class="avatar-field-body">
+                                {% if profile.avatar %}
+                                    <img src="{{ profile.avatar.url }}" alt="{{ profile.full_name }}" class="avatar-field-preview">
+                                {% else %}
+                                    <div class="avatar-field-fallback">
+                                        <i class="fa fa-user fa-2x"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="avatar-field-actions">
+                                    <div class="avatar-file-row">
+                                        <label for="id_avatar" class="avatar-file-trigger">Chọn ảnh mới</label>
+                                        <input type="file" name="avatar" id="id_avatar" accept="image/*">
+                                        <span class="avatar-file-name" data-avatar-file-name>Chưa chọn tệp nào</span>
+                                    </div>
+                                    {% if profile.avatar %}
+                                        <div class="avatar-clear-row">
+                                            <label class="avatar-clear-toggle" for="avatar-clear-checkbox">
+                                                <input type="checkbox" id="avatar-clear-checkbox" name="avatar-clear">
+                                                <span>Xóa ảnh hiện tại</span>
+                                            </label>
+                                        </div>
+                                    {% endif %}
+                                    {% if profile_form.avatar.errors %}
+                                        <div class="text-danger">
+                                            {% for error in profile_form.avatar.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="account-actions">
+                            <button type="submit" class="primary-btn">
+                                <i class="fas fa-save me-2"></i>Lưu thay đổi
+                            </button>
+                            <a href="{% url 'accounts:dashboard' %}" class="account-btn-outline">
+                                Hủy
+                            </a>
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="account-view-grid">
+                        <div class="account-view-card">
+                            <div class="label">Họ</div>
+                            <div class="value">{{ request.user.first_name|default:"Chưa cập nhật" }}</div>
+                        </div>
+                        <div class="account-view-card">
+                            <div class="label">Tên</div>
+                            <div class="value">{{ request.user.last_name|default:"Chưa cập nhật" }}</div>
+                        </div>
+                        <div class="account-view-card">
+                            <div class="label">Email</div>
+                            <div class="value">{{ request.user.email|default:"Chưa cập nhật" }}</div>
+                        </div>
+                        <div class="account-view-card">
+                            <div class="label">Số điện thoại</div>
+                            <div class="value">{{ profile.phone|default:"Chưa cập nhật" }}</div>
+                        </div>
+                        <div class="account-view-card wide">
+                            <div class="label">Địa chỉ nhà</div>
+                            <div class="value {% if not profile.address %}muted{% endif %}">{{ profile.address|default:"Chưa cập nhật" }}</div>
+                        </div>
+                        <div class="account-view-card">
+                            <div class="label">Tỉnh/Thành phố</div>
+                            <div class="value {% if not profile.province_display %}muted{% endif %}">{{ profile.province_display|default:"Chưa cập nhật" }}</div>
+                        </div>
+                        <div class="account-view-card">
+                            <div class="label">Quận/Huyện</div>
+                            <div class="value {% if not profile.district %}muted{% endif %}">{{ profile.district|default:"Chưa cập nhật" }}</div>
+                        </div>
+                        <div class="account-view-card">
+                            <div class="label">Phường/Xã</div>
+                            <div class="value {% if not profile.ward %}muted{% endif %}">{{ profile.ward|default:"Chưa cập nhật" }}</div>
+                        </div>
+                        <div class="account-view-card">
+                            <div class="label">Mã bưu điện</div>
+                            <div class="value {% if not profile.postal_code %}muted{% endif %}">{{ profile.postal_code|default:"Chưa cập nhật" }}</div>
                         </div>
                     </div>
-
-                    {{ user_form.email|as_crispy_field }}
-                    {{ profile_form.phone|as_crispy_field }}
-                    {{ profile_form.address|as_crispy_field }}
-
-                    <div class="row">
-                        <div class="col-md-4">
-                            {{ profile_form.province|as_crispy_field }}
-                        </div>
-                        <div class="col-md-4">
-                            {{ profile_form.district|as_crispy_field }}
-                        </div>
-                        <div class="col-md-4">
-                            {{ profile_form.ward|as_crispy_field }}
-                        </div>
-                    </div>
-
-                    {{ profile_form.postal_code|as_crispy_field }}
-                    {{ profile_form.avatar|as_crispy_field }}
-
-                    <button type="submit" class="btn btn-primary px-4 py-2">
-                        <i class="fas fa-save me-2"></i>Luu thay doi
-                    </button>
-                </form>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -93,6 +771,16 @@
 (function () {
     var form = document.querySelector('[data-address-form]');
     if (!form) return;
+
+    var avatarInput = form.querySelector('#id_avatar');
+    var avatarFileName = form.querySelector('[data-avatar-file-name]');
+    if (avatarInput && avatarFileName) {
+        avatarInput.addEventListener('change', function () {
+            avatarFileName.textContent = avatarInput.files && avatarInput.files.length
+                ? avatarInput.files[0].name
+                : 'Chưa chọn tệp nào';
+        });
+    }
 
     var provinceSelect = form.querySelector('#id_province');
     var districtSelect = form.querySelector('#id_district');
@@ -141,22 +829,22 @@
 
     function loadWards(districtCode, selectedWard) {
         if (!districtCode) {
-            clearSelect(wardSelect, 'Chon phuong/xa');
+            clearSelect(wardSelect, 'Chọn phường/xã');
             return Promise.resolve();
         }
         return fetchJson(apiBase + '/d/' + districtCode + '?depth=2').then(function (data) {
-            setOptions(wardSelect, data.wards || [], 'Chon phuong/xa', selectedWard || '');
+            setOptions(wardSelect, data.wards || [], 'Chọn phường/xã', selectedWard || '');
         });
     }
 
     function loadDistricts(provinceCode, selectedDistrict, selectedWard) {
         if (!provinceCode) {
-            clearSelect(districtSelect, 'Chon quan/huyen');
-            clearSelect(wardSelect, 'Chon phuong/xa');
+            clearSelect(districtSelect, 'Chọn quận/huyện');
+            clearSelect(wardSelect, 'Chọn phường/xã');
             return Promise.resolve();
         }
         return fetchJson(apiBase + '/p/' + provinceCode + '?depth=2').then(function (data) {
-            setOptions(districtSelect, data.districts || [], 'Chon quan/huyen', selectedDistrict || '');
+            setOptions(districtSelect, data.districts || [], 'Chọn quận/huyện', selectedDistrict || '');
             return loadWards(getSelectedCode(districtSelect), selectedWard || '');
         });
     }
@@ -171,11 +859,11 @@
 
     fetchJson(apiBase + '/?depth=1')
         .then(function (data) {
-            setOptions(provinceSelect, data || [], 'Chon tinh/thanh pho', initialProvince || '');
+            setOptions(provinceSelect, data || [], 'Chọn tỉnh/thành phố', initialProvince || '');
             return loadDistricts(getSelectedCode(provinceSelect), initialDistrict || '', initialWard || '');
         })
         .catch(function () {
-            console.error('Khong the tai du lieu dia chi');
+            console.error('Không thể tải dữ liệu địa chỉ');
         });
 })();
 </script>

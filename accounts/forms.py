@@ -1,4 +1,4 @@
-from django import forms
+﻿from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
@@ -7,41 +7,41 @@ from .models import CustomerProfile
 
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(
-        label='Mat khau',
-        widget=forms.PasswordInput(attrs={'placeholder': 'It nhat 8 ky tu'}),
+        label='Mật khẩu',
+        widget=forms.PasswordInput(attrs={'placeholder': 'Ít nhất 8 ký tự'}),
         min_length=8,
     )
     password2 = forms.CharField(
-        label='Xac nhan mat khau',
-        widget=forms.PasswordInput(attrs={'placeholder': 'Nhap lai mat khau'}),
+        label='Xác nhận mật khẩu',
+        widget=forms.PasswordInput(attrs={'placeholder': 'Nhập lại mật khẩu'}),
     )
 
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email']
         labels = {
-            'username': 'Ten dang nhap',
-            'first_name': 'Ho',
-            'last_name': 'Ten',
+            'username': 'Tên đăng nhập',
+            'first_name': 'Họ',
+            'last_name': 'Tên',
             'email': 'Email',
         }
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
-            raise ValidationError('Email nay da duoc su dung. Vui long dung email khac.')
+            raise ValidationError('Email này đã được sử dụng. Vui lòng dùng email khác.')
         return email
 
     def clean_password2(self):
         cd = self.cleaned_data
         if cd.get('password') != cd.get('password2'):
-            raise ValidationError('Hai mat khau khong khop nhau.')
+            raise ValidationError('Hai mật khẩu không khớp nhau.')
         return cd.get('password2')
 
     def clean_password(self):
         password = self.cleaned_data.get('password')
         if password and password.isdigit():
-            raise ValidationError('Mat khau khong duoc chi toan so.')
+            raise ValidationError('Mật khẩu không được chỉ toàn số.')
         return password
 
 
@@ -65,7 +65,7 @@ class UserUpdateForm(forms.ModelForm):
         if self.user is not None:
             qs = qs.exclude(pk=self.user.pk)
         if email and qs.exists():
-            raise ValidationError('Email nay da duoc su dung.')
+            raise ValidationError('Email này đã được sử dụng.')
         return email
 
 

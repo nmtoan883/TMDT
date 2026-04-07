@@ -106,7 +106,7 @@ def order_history(request):
         .prefetch_related('items__product')
         .order_by('-created')
     )
-    return render(request, 'orders/history.html', {'orders': orders})
+    return render(request, 'orders/history_v2.html', {'orders': orders})
 
 
 @login_required
@@ -116,7 +116,7 @@ def order_detail(request, order_id):
         id=order_id,
         user=request.user,
     )
-    return render(request, 'orders/detail.html', {'order': order})
+    return render(request, 'orders/detail_v2.html', {'order': order})
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
