@@ -73,6 +73,7 @@ class Policy(models.Model):
 
     def __str__(self):
         return self.title
+
 class Wishlist(models.Model):
     user = models.ForeignKey(User, related_name='wishlist_items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, related_name='wishlist_items', on_delete=models.CASCADE)
@@ -84,3 +85,43 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f'{self.user.username} - {self.product.name}'
+
+class ContactMessage(models.Model):
+    full_name = models.CharField(max_length=150)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True)
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Tin nhắn liên hệ'
+        verbose_name_plural = 'Tin nhắn liên hệ'
+
+    def __str__(self):
+        return f"{self.full_name} - {self.subject}"
+    
+class ContactInfo(models.Model):
+    title = models.CharField(max_length=200, default='Liên hệ với chúng tôi')
+    description = models.TextField(blank=True)
+
+    address = models.CharField(max_length=255)
+    hotline = models.CharField(max_length=20)
+    email = models.EmailField()
+    working_hours = models.CharField(max_length=255, blank=True)
+
+    map_embed_url = models.TextField(
+        help_text='Dán link Google Maps embed'
+    )
+
+    support_1 = models.CharField(max_length=255, blank=True)
+    support_2 = models.CharField(max_length=255, blank=True)
+    support_3 = models.CharField(max_length=255, blank=True)
+    support_4 = models.CharField(max_length=255, blank=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "Thông tin liên hệ"

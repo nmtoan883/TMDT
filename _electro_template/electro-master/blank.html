@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -13,20 +12,20 @@
  		<link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">
 
  		<!-- Bootstrap -->
- 		<link type="text/css" rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+ 		<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css"/>
 
  		<!-- Slick -->
- 		<link type="text/css" rel="stylesheet" href="{% static 'css/slick.css' %}"/>
- 		<link type="text/css" rel="stylesheet" href="{% static 'css/slick-theme.css' %}"/>
+ 		<link type="text/css" rel="stylesheet" href="css/slick.css"/>
+ 		<link type="text/css" rel="stylesheet" href="css/slick-theme.css"/>
 
  		<!-- nouislider -->
- 		<link type="text/css" rel="stylesheet" href="{% static 'css/nouislider.min.css' %}"/>
+ 		<link type="text/css" rel="stylesheet" href="css/nouislider.min.css"/>
 
  		<!-- Font Awesome Icon -->
- 		<link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+ 		<link rel="stylesheet" href="css/font-awesome.min.css">
 
  		<!-- Custom stlylesheet -->
- 		<link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}"/>
+ 		<link type="text/css" rel="stylesheet" href="css/style.css"/>
 
  		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
  		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -34,7 +33,7 @@
  		  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
  		  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
  		<![endif]-->
-		{% block extra_css %}{% endblock %}
+
     </head>
 	<body>
 		<!-- HEADER -->
@@ -49,12 +48,7 @@
 					</ul>
 					<ul class="header-links pull-right">
 						<li><a href="#"><i class="fa fa-dollar"></i> USD</a></li>
-						{% if user.is_authenticated %}
-						<li><a href="{% url 'accounts:dashboard' %}"><i class="fa fa-user-o"></i> Tải khoản: {{ user.username }}</a></li>
-						<li><a href="{% url 'account_logout' %}"><i class="fa fa-sign-out"></i> Đăng xuất</a></li>
-						{% else %}
-						<li><a href="{% url 'account_login' %}"><i class="fa fa-user-o"></i> Đăng nhập</a></li>
-						{% endif %}
+						<li><a href="#"><i class="fa fa-user-o"></i> My Account</a></li>
 					</ul>
 				</div>
 			</div>
@@ -69,8 +63,8 @@
 						<!-- LOGO -->
 						<div class="col-md-3">
 							<div class="header-logo">
-								<a href="{% url 'shop:product_list' %}" class="logo">
-									<img src="{% static 'img/logo.png' %}" alt="">
+								<a href="#" class="logo">
+									<img src="./img/logo.png" alt="">
 								</a>
 							</div>
 						</div>
@@ -97,14 +91,10 @@
 							<div class="header-ctn">
 								<!-- Wishlist -->
 								<div>
-									<a href="{% url 'shop:wishlist_list' %}">
-										<i class="fa fa-heart"></i>
+									<a href="#">
+										<i class="fa fa-heart-o"></i>
 										<span>Your Wishlist</span>
-										{% if user.is_authenticated %}
-											<div class="qty">{{ user.wishlist_items.count }}</div>
-										{% else %}
-											<div class="qty">0</div>
-										{% endif %}
+										<div class="qty">2</div>
 									</a>
 								</div>
 								<!-- /Wishlist -->
@@ -120,7 +110,7 @@
 										<div class="cart-list">
 											<div class="product-widget">
 												<div class="product-img">
-													<img src="{% static 'img/product01.png' %}" alt="">
+													<img src="./img/product01.png" alt="">
 												</div>
 												<div class="product-body">
 													<h3 class="product-name"><a href="#">product name goes here</a></h3>
@@ -131,7 +121,7 @@
 
 											<div class="product-widget">
 												<div class="product-img">
-													<img src="{% static 'img/product02.png' %}" alt="">
+													<img src="./img/product02.png" alt="">
 												</div>
 												<div class="product-body">
 													<h3 class="product-name"><a href="#">product name goes here</a></h3>
@@ -145,8 +135,8 @@
 											<h5>SUBTOTAL: $2940.00</h5>
 										</div>
 										<div class="cart-btns">
-											<a href="{% url 'cart:cart_detail' %}">View Cart</a>
-											<a href="{% url 'orders:order_create' %}">Checkout  <i class="fa fa-arrow-circle-right"></i></a>
+											<a href="#">View Cart</a>
+											<a href="#">Checkout  <i class="fa fa-arrow-circle-right"></i></a>
 										</div>
 									</div>
 								</div>
@@ -187,12 +177,6 @@
 						<li><a href="#">Smartphones</a></li>
 						<li><a href="#">Cameras</a></li>
 						<li><a href="#">Accessories</a></li>
-						<li class="{% if '/blog/' in request.path %}active{% endif %}">
-    						<a href="{% url 'blog_list' %}">Blog</a>
-						</li>
-						<li class="{% if '/contact/' in request.path %}active{% endif %}">
-    						<a href="{% url 'contact' %}">Contact</a>
-						</li>
 					</ul>
 					<!-- /NAV -->
 				</div>
@@ -202,30 +186,38 @@
 		</nav>
 		<!-- /NAVIGATION -->
 
-		
 		<!-- BREADCRUMB -->
-		{% block breadcrumb %}
 		<div id="breadcrumb" class="section">
+			<!-- container -->
 			<div class="container">
+				<!-- row -->
 				<div class="row">
 					<div class="col-md-12">
-						<h3 class="breadcrumb-header">{% block title %}Trang chủ{% endblock %}</h3>
+						<h3 class="breadcrumb-header">Regular Page</h3>
+						<ul class="breadcrumb-tree">
+							<li><a href="#">Home</a></li>
+							<li class="active">Blank</li>
+						</ul>
 					</div>
 				</div>
+				<!-- /row -->
 			</div>
+			<!-- /container -->
 		</div>
-		{% endblock %}
 		<!-- /BREADCRUMB -->
 
-        <!-- SECTION -->
-        <div class="section">
-            <div class="container">
-                {% block content %}
-                {% endblock %}
-            </div>
-        </div>
-        <!-- /SECTION -->
-
+		<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
 
 		<!-- NEWSLETTER -->
 		<div id="newsletter" class="section">
@@ -362,13 +354,12 @@
 		<!-- /FOOTER -->
 
 		<!-- jQuery Plugins -->
-		<script src="{% static 'js/jquery.min.js' %}"></script>
-		<script src="{% static 'js/bootstrap.min.js' %}"></script>
-		<script src="{% static 'js/slick.min.js' %}"></script>
-		<script src="{% static 'js/nouislider.min.js' %}"></script>
-		<script src="{% static 'js/jquery.zoom.min.js' %}"></script>
-		<script src="{% static 'js/main.js' %}"></script>
-		{% block extra_js %}{% endblock %}
+		<script src="js/jquery.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/slick.min.js"></script>
+		<script src="js/nouislider.min.js"></script>
+		<script src="js/jquery.zoom.min.js"></script>
+		<script src="js/main.js"></script>
 
 	</body>
 </html>

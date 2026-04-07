@@ -11,12 +11,13 @@ urlpatterns = [
     path('cart/', include('cart.urls', namespace='cart')),
     path('orders/', include('orders.urls', namespace='orders')),
     path('blog/', include('blog.urls')),
+    path('contact/', views.contact_view, name='contact'),
     path('', views.product_list, name='product_list'),
     path('search-suggestions/', views.search_suggestions, name='search_suggestions'),
     path('<slug:category_slug>/', views.product_list, name='product_list_by_category'),
     path('', include('core.urls', namespace='shop')),
     path('coupon/', include('coupon.urls')),
-    path('orders/', include('orders.urls')),
+
 ]
 
 if settings.DEBUG:

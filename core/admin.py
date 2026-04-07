@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, Review, Contact, Policy
-from .models import Wishlist
+from .models import Category, Product, Review, Contact, Policy, Wishlist, ContactMessage, ContactInfo
 
 admin.site.register(Wishlist)
 @admin.register(Category)
@@ -27,3 +26,9 @@ class ContactAdmin(admin.ModelAdmin):
 @admin.register(Policy)
 class PolicyAdmin(admin.ModelAdmin):
     list_display = ['title', 'policy_type']
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'email', 'phone', 'subject', 'is_read', 'created_at')
+    list_filter = ('is_read', 'created_at')
+    search_fields = ('full_name', 'email', 'phone', 'subject')
