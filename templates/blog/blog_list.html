@@ -5,9 +5,9 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <div style="margin-bottom: 30px;">
-                    <h2 style="font-weight: 700; margin-bottom: 10px;">{{ page_title|default:"Tin tức công nghệ" }}</h2>
-                    <p style="color: #666;">
+                <div class="blog-header">
+                    <h2 class="blog-title">{{ page_title|default:"Tin tức công nghệ" }}</h2>
+                    <p class="blog-desc">
                         Cập nhật tin tức mới nhất về smartphone, laptop, AI, phụ kiện và xu hướng công nghệ.
                     </p>
                 </div>
@@ -15,35 +15,35 @@
         </div>
 
         {% if featured_post %}
-        <div class="row" style="margin-bottom: 35px;">
+        <div class="row" class="blog-featured-row">
             <div class="col-md-12">
-                <div class="product" style="padding: 20px; border: 1px solid #eee;">
+                <div class="product blog-post-card">
                     <div class="row">
                         <div class="col-md-7">
                             {% if featured_post.image %}
                             <img src="{{ featured_post.image.url }}" alt="{{ featured_post.title }}"
-                                 style="width: 100%; height: 420px; object-fit: cover; border-radius: 6px;">
+                                 class="blog-featured-img">
                             {% else %}
-                            <div style="width:100%; height:420px; background:#f5f5f5; display:flex; align-items:center; justify-content:center;">
+                            <div class="blog-img-placeholder">
                                 <span>Ảnh nổi bật</span>
                             </div>
                             {% endif %}
                         </div>
                         <div class="col-md-5">
-                            <span style="background:#D10024; color:#fff; padding:8px 12px; margin-bottom:15px; display:inline-block;">
+                            <span class="blog-featured-badge">
                                 Bài nổi bật
                             </span>
-                            <h2 style="font-weight: 700; line-height: 1.4;">
-                                <a href="{% url 'blog_detail' featured_post.slug %}" style="color:#2B2D42;">
+                            <h2 class="blog-featured-title">
+                                <a href="{% url 'blog_detail' featured_post.slug %}" class="blog-featured-link">
                                     {{ featured_post.title }}
                                 </a>
                             </h2>
-                            <p style="margin: 15px 0; color:#666;">
+                            <p class="blog-meta-info">
                                 {% if featured_post.category %}{{ featured_post.category.name }}{% endif %}
                                 • {{ featured_post.created_at|date:"d/m/Y" }}
                                 • {{ featured_post.author }}
                             </p>
-                            <p style="font-size:16px; line-height:1.8;">
+                            <p class="blog-summary">
                                 {{ featured_post.summary }}
                             </p>
                             <a href="{% url 'blog_detail' featured_post.slug %}" class="primary-btn">Đọc ngay</a>
@@ -57,7 +57,7 @@
         <div class="row">
             <div class="col-md-8">
                 {% if query %}
-                <div style="margin-bottom: 20px;">
+                <div class="mt-20">
                     <h4>Kết quả tìm kiếm cho: "{{ query }}"</h4>
                 </div>
                 {% endif %}
@@ -65,30 +65,30 @@
                 <div class="row">
                     {% for post in page_obj %}
                     <div class="col-md-6">
-                        <div class="product" style="margin-bottom: 30px; min-height: 470px; border:1px solid #eee;">
+                        <div class="product blog-post-card">
                             {% if post.image %}
                             <img src="{{ post.image.url }}" alt="{{ post.title }}"
-                                 style="width: 100%; height: 220px; object-fit: cover;">
+                                 class="blog-item-img">
                             {% else %}
-                            <div style="width:100%; height:220px; background:#f6f6f6; display:flex; align-items:center; justify-content:center;">
+                            <div class="blog-item-placeholder">
                                 <span>Chưa có ảnh</span>
                             </div>
                             {% endif %}
 
-                            <div class="product-body" style="text-align:left;">
+                            <div class="product-body blog-item-body">
                                 <p class="product-category">
                                     {% if post.category %}{{ post.category.name }}{% else %}Tin tức{% endif %}
                                 </p>
 
-                                <h3 class="product-name" style="min-height: 48px;">
+                                <h3 class="product-name blog-item-title">
                                     <a href="{% url 'blog_detail' post.slug %}">{{ post.title }}</a>
                                 </h3>
 
-                                <p style="color:#666; min-height: 66px;">
+                                <p class="blog-summary">
                                     {{ post.summary|truncatewords:20 }}
                                 </p>
 
-                                <p style="font-size:13px; color:#999;">
+                                <p class="blog-meta-info">
                                     {{ post.created_at|date:"d/m/Y" }} • {{ post.author }} • {{ post.views }} lượt xem
                                 </p>
                             </div>
@@ -106,12 +106,12 @@
                 </div>
 
                 {% if page_obj.paginator.num_pages > 1 %}
-                <div style="margin-top: 20px;">
+                <div class="mt-20">
                     {% if page_obj.has_previous %}
                     <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="primary-btn">Trang trước</a>
                     {% endif %}
 
-                    <span style="margin: 0 12px;">
+                    <span class="mx-12">
                         Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
                     </span>
 
@@ -123,18 +123,18 @@
             </div>
 
             <div class="col-md-4">
-                <div class="product" style="padding:20px; margin-bottom:20px; border:1px solid #eee;">
-                    <h4 style="margin-bottom:15px;">Tìm kiếm bài viết</h4>
+                <div class="product blog-sidebar-widget">
+                    <h4 class="blog-sidebar-title">Tìm kiếm bài viết</h4>
                     <form method="get" action="{% url 'blog_search' %}">
                         <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Nhập từ khóa..."
-                               style="width:100%; padding:10px; border:1px solid #ddd; margin-bottom:10px;">
-                        <button type="submit" class="primary-btn" style="border:none;">Tìm kiếm</button>
+                               class="blog-search-input">
+                        <button type="submit" class="primary-btn blog-search-btn">Tìm kiếm</button>
                     </form>
                 </div>
 
-                <div class="product" style="padding:20px; margin-bottom:20px; border:1px solid #eee;">
-                    <h4 style="margin-bottom:15px;">Danh mục</h4>
-                    <ul style="padding-left:18px; line-height:2;">
+                <div class="product blog-sidebar-widget">
+                    <h4 class="blog-sidebar-title">Danh mục</h4>
+                    <ul class="blog-category-list">
                         {% for category in categories %}
                         <li>
                             <a href="{% url 'blog_by_category' category.slug %}">
@@ -147,14 +147,14 @@
                     </ul>
                 </div>
 
-                <div class="product" style="padding:20px; border:1px solid #eee;">
-                    <h4 style="margin-bottom:15px;">Bài viết mới</h4>
+                <div class="product blog-sidebar-widget">
+                    <h4 class="blog-sidebar-title">Bài viết mới</h4>
                     {% for item in latest_posts %}
-                    <div style="margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #f0f0f0;">
-                        <a href="{% url 'blog_detail' item.slug %}" style="font-weight:600; color:#2B2D42;">
+                    <div class="blog-latest-item">
+                        <a href="{% url 'blog_detail' item.slug %}" class="blog-latest-title">
                             {{ item.title }}
                         </a>
-                        <div style="font-size:13px; color:#999; margin-top:5px;">
+                        <div class="blog-latest-date">
                             {{ item.created_at|date:"d/m/Y" }}
                         </div>
                     </div>
