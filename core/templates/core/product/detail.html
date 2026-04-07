@@ -5,111 +5,230 @@
 {% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
-            <li class="breadcrumb-item"><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
-        </ol>
-    </nav>
-
-    <div class="row g-5">
-        <!-- Product Images -->
-        <div class="col-lg-7">
-            <div class="glass-card p-4 text-center">
-                {% if product.image %}
-                    <img src="{{ product.image.url }}" class="img-fluid rounded animate-up" alt="{{ product.name }}" style="max-height: 500px;">
-                {% else %}
-                    <img src="https://via.placeholder.com/600x600?text={{ product.name }}" class="img-fluid rounded" alt="No image">
-                {% endif %}
+<div id="breadcrumb" class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="breadcrumb-tree">
+                    <li><a href="{% url 'shop:product_list' %}">Home</a></li>
+                    <li><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></li>
+                    <li class="active">{{ product.name }}</li>
+                </ul>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Product Info -->
-        <div class="col-lg-5">
-            <div class="animate-up">
-                <p class="text-primary fw-bold mb-1">{{ product.brand|upper }}</p>
-                <h1 class="display-5 fw-bold mb-3">{{ product.name }}</h1>
-                
-                <div class="d-flex align-items-center mb-4">
-                    {% if product.old_price %}
-                        <span class="old-price fs-4">{{ product.old_price|floatformat:0 }}₫</span>
-                    {% endif %}
-                    <span class="price-tag fs-2">{{ product.price|floatformat:0 }}₫</span>
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5 col-md-push-2">
+                <div id="product-main-img">
+                    <div class="product-preview">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="{% static 'img/product01.png' %}" alt="{{ product.name }}">
+                        {% endif %}
+                    </div>
                 </div>
+            </div>
 
-                <div class="mb-4">
-                    <h5>Thông số & Mô tả</h5>
-                    <p class="text-muted">{{ product.description|linebreaks }}</p>
+            <div class="col-md-2 col-md-pull-5">
+                <div id="product-imgs">
+                    <div class="product-preview">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="{% static 'img/product01.png' %}" alt="{{ product.name }}">
+                        {% endif %}
+                    </div>
                 </div>
+            </div>
 
-                <div class="glass-card p-4 mb-4">
-                    <form action="{% url 'cart:cart_add' product.id %}" method="post">
-                        {% csrf_token %}
-                        <div class="row align-items-end">
-                            <div class="col-6">
-                                {{ cart_product_form.quantity|as_crispy_field }}
-                            </div>
-                            <div class="col-6">
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ
-                                </button>
-                            </div>
+            <div class="col-md-5">
+                <div class="product-details">
+                    <h2 class="product-name">{{ product.name }}</h2>
+
+                    <div>
+                        <div class="product-rating">
+                            {% for i in "12345" %}
+                                <i class="fa fa-star"></i>
+                            {% endfor %}
                         </div>
-                    </form>
-                </div>
+                        <a class="review-link" href="#">{{ reviews.count }} Review(s)</a>
+                    </div>
 
-                <div class="d-flex gap-3 mb-5">
-                    <div class="text-center p-3 border rounded flex-fill">
-                        <i class="fas fa-undo-alt text-primary mb-2"></i>
-                        <p class="small mb-0">7 ngày đổi trả</p>
+                    <div>
+                        <h3 class="product-price">
+                            {{ product.price|floatformat:0 }}₫
+                        </h3>
+                        <span class="product-available">In Stock</span>
                     </div>
-                    <div class="text-center p-3 border rounded flex-fill">
-                        <i class="fas fa-shield-alt text-primary mb-2"></i>
-                        <p class="small mb-0">12 tháng bảo hành</p>
+
+                    <p>
+                        {{ product.description|truncatewords:40 }}
+                    </p>
+
+                    <div class="add-to-cart" style="margin-top: 30px;">
+                        <form action="{% url 'cart:cart_add' product.id %}" method="post">
+                            {% csrf_token %}
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    {{ cart_product_form.quantity|as_crispy_field }}
+                                </div>
+
+                                <div class="col-md-8">
+                                    <button type="submit" class="add-to-cart-btn" style="width: 100%;">
+                                        <i class="fa fa-shopping-cart"></i>
+                                        Add to cart
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                    <div class="text-center p-3 border rounded flex-fill">
-                        <i class="fas fa-truck text-primary mb-2"></i>
-                        <p class="small mb-0">Giao hàng miễn phí</p>
+
+                    <div style="margin-top: 20px;">
+                        {% if user.is_authenticated %}
+                            {% if is_in_wishlist %}
+                                <a href="{% url 'shop:remove_from_wishlist' product.id %}"
+                                   class="primary-btn"
+                                   style="display:block; text-align:center; background:#D10024; color:white;">
+                                    <i class="fa fa-heart"></i>
+                                    Remove from wishlist
+                                </a>
+                            {% else %}
+                                <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit"
+            class="primary-btn"
+            style="width:100%; background:white; color:#D10024; border:1px solid #D10024;">
+        <i class="fa fa-heart-o"></i>
+        Add to wishlist
+    </button>
+</form>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'account_login' %}"
+                               class="primary-btn"
+                               style="display:block; text-align:center;">
+                                Login to add wishlist
+                            </a>
+                        {% endif %}
                     </div>
+
+                    <ul class="product-links" style="margin-top: 30px;">
+                        <li>Category:</li>
+                        <li><a href="#">{{ product.category.name }}</a></li>
+                    </ul>
+
+                    <ul class="product-links">
+                        <li>Brand:</li>
+                        <li><a href="#">{{ product.brand }}</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Reviews Section -->
-    <div class="row mt-5">
-        <div class="col-lg-8">
-            <h3 class="mb-4">Đánh giá sản phẩm</h3>
-            {% for review in reviews %}
-                <div class="card border-0 shadow-sm mb-3">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between mb-2">
-                            <h6 class="mb-0">{{ review.user.username }}</h6>
-                            <span class="text-muted small">{{ review.created|date:"d/m/Y" }}</span>
+<!-- REVIEWS SECTION -->
+<style>
+.reviews-section {
+  padding: 60px 0 !important;
+  background-color: #f8f8fb !important;
+}
+.reviews-section .review-form {
+  max-width: 980px !important;
+  width: 100% !important;
+  margin: 0 auto 45px auto !important;
+  padding: 35px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(209, 0, 36, 0.12) !important;
+  box-shadow: 0 10px 30px rgba(35, 47, 63, 0.08) !important;
+}
+.reviews-section .review-form select,
+.reviews-section .review-form textarea,
+.reviews-section .review-form input[type=file],
+.reviews-section .review-form .review-control {
+  width: 100% !important;
+  min-height: 48px !important;
+  border: 1px solid #E4E7ED !important;
+  background: #FFFFFF !important;
+  border-radius: 12px !important;
+  padding: 12px 15px !important;
+  font-size: 15px !important;
+  color: #2B2D42 !important;
+}
+.reviews-section .review-image {
+  width: 100% !important;
+  max-width: 280px !important;
+  max-height: 210px !important;
+  height: auto !important;
+  display: block !important;
+  object-fit: cover !important;
+  border-radius: 18px !important;
+}
+</style>
+<div class="section reviews-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Đánh giá sản phẩm</h2>
+                {% if user.is_authenticated %}
+                <div class="review-form">
+                    <h3>Viết đánh giá của bạn</h3>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <label for="id_rating">Đánh giá</label>
+                            {{ review_form.rating }}
                         </div>
-                        <div class="text-warning mb-2">
+                        <div class="form-row">
+                            <label for="id_comment">Nội dung đánh giá</label>
+                            {{ review_form.comment }}
+                        </div>
+                        <div class="form-row">
+                            <label for="id_image">Ảnh thật</label>
+                            {{ review_form.image }}
+                            <small class="form-help">Tải ảnh thực tế sản phẩm để khách hàng tin cậy hơn.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+                    </form>
+                </div>
+                {% else %}
+                <p>Vui lòng <a href="{% url 'account_login' %}">đăng nhập</a> để đánh giá sản phẩm.</p>
+                {% endif %}
+
+                <div class="reviews-list">
+                    <h3>Các đánh giá ({{ reviews.count }})</h3>
+                    {% for review in reviews %}
+                    <div class="review">
+                        <div class="review-header">
+                            <span class="review-author">{{ review.user.username }}</span>
+                            <span class="review-date">{{ review.created|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="rating">
                             {% for i in "12345" %}
-                                <i class="{% if forloop.counter <= review.rating %}fas{% else %}far{% endif %} fa-star"></i>
+                                {% if forloop.counter <= review.rating %}
+                                    <i class="fa fa-star"></i>
+                                {% else %}
+                                    <i class="fa fa-star-o"></i>
+                                {% endif %}
                             {% endfor %}
                         </div>
-                        <p class="card-text">{{ review.comment }}</p>
+                        <p class="review-comment">{{ review.comment }}</p>
+                        {% if review.image %}
+                            <div class="review-image-wrap">
+                                <img src="{{ review.image.url }}" alt="Ảnh đánh giá" class="review-image">
+                            </div>
+                        {% endif %}
                     </div>
+                    {% empty %}
+                    <p class="no-reviews">Chưa có đánh giá nào.</p>
+                    {% endfor %}
                 </div>
-            {% empty %}
-                <p class="text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
-            {% endfor %}
-        </div>
-        
-        <!-- Google Maps Placeholder -->
-        <div class="col-lg-4">
-            <h3 class="mb-4">Vị trí cửa hàng</h3>
-            <div class="glass-card overflow-hidden" style="height: 300px;">
-                <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.924403919934!2d105.818318!3d21.036683!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDAyJzEyLjEiTiAxMDXCsDQ5JzA1LjkiRQ!5e0!3m2!1sen!2s!4v1620000000000!5m2!1sen!2s" 
-                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy">
-                </iframe>
             </div>
         </div>
     </div>

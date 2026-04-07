@@ -97,10 +97,14 @@
 							<div class="header-ctn">
 								<!-- Wishlist -->
 								<div>
-									<a href="#">
-										<i class="fa fa-heart-o"></i>
+									<a href="{% url 'shop:wishlist_list' %}">
+										<i class="fa fa-heart"></i>
 										<span>Your Wishlist</span>
-										<div class="qty">2</div>
+										{% if user.is_authenticated %}
+											<div class="qty">{{ user.wishlist_items.count }}</div>
+										{% else %}
+											<div class="qty">0</div>
+										{% endif %}
 									</a>
 								</div>
 								<!-- /Wishlist -->

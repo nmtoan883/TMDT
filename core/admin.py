@@ -1,6 +1,8 @@
 from django.contrib import admin
 from .models import Category, Product, Review, Contact, Policy
+from .models import Wishlist
 
+admin.site.register(Wishlist)
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug']
@@ -15,7 +17,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ['product', 'user', 'rating', 'created']
+    list_display = ['product', 'user', 'rating', 'created', 'image']
     list_filter = ['rating', 'created']
 
 @admin.register(Contact)
