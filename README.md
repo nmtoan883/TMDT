@@ -59,6 +59,6 @@ Hệ thống đã trải qua quá trình Build hoàn chỉnh qua lệnh:
 ```bash
 python manage.py collectstatic --noinput
 ```
-(Chỉ Trưởng Nhóm dùng khi chuẩn bị đẩy lên Server ảo như Render, Vercel, AWS v.v...). Các Cấu hình Database và Gunicorn đã sẵn sàng. Thư mục `staticfiles` sẽ tự động đóng gói vận chuyển.
+(Lệnh này dùng khi chuẩn bị đẩy hệ thống lên Server ảo như Render, Vercel, AWS v.v...). Các Cấu hình Database và Gunicorn đã sẵn sàng. Thư mục `staticfiles` sẽ tự động đóng gói vận chuyển.
 
 > **Team Development:** Cám ơn toàn bộ các thành viên vì những cống hiến để tạo nên sản phẩm tuyệt vời này! 🚀
