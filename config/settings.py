@@ -94,18 +94,18 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+import dj_database_url
+from dotenv import load_dotenv
+
+# Load biến môi trường từ file .env
+load_dotenv()
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tmdt_db',          # Tên Database MySQL
-        'USER': 'root',             # Tên user (XAMPP thường là root)
-        'PASSWORD': '',             # Mật khẩu (XAMPP thường để trống)
-        'HOST': '127.0.0.1',        # Hoặc localhost
-        'PORT': '3306',             # Port mặc định của MySQL
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        }
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL', 'sqlite:///dev.sqlite3'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 
