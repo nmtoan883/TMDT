@@ -92,12 +92,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'tmdt_db',          # Tên Database PostgreSQL
-        'USER': 'postgres',         # Tên user (thường là postgres)
-        'PASSWORD': 'password',     # Mật khẩu PostgreSQL của sếp
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'tmdt_db',          # Tên Database MySQL
+        'USER': 'root',             # Tên user (XAMPP thường là root)
+        'PASSWORD': '',             # Mật khẩu (XAMPP thường để trống)
         'HOST': '127.0.0.1',        # Hoặc localhost
-        'PORT': '5432',
+        'PORT': '3306',             # Port mặc định của MySQL
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        }
     }
 }
 
