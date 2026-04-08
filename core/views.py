@@ -2,7 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, Case, When, Value, IntegerField
+from django.db.models import CharField, TextField, SlugField, ForeignKey
 from .forms import ProductForm, ReviewForm
 from .models import Category, Product, Review, Wishlist
 from cart.forms import CartAddProductForm
@@ -11,25 +12,110 @@ from django.contrib import messages
 from .forms import ContactForm
 from .models import ContactInfo
 SUGGESTION_QUERY_MIN_LEN = 2
-SUGGESTION_MAX_RESULTS = 8
+SUGGESTION_MAX_RESULTS = 6
 SUGGESTION_QUERY_MAX_LEN = 100
+
+
+def _get_product_searchable_fields():
+    """
+    Build searchable field list dynamically so suggestion search
+    keeps working when Product/related models evolve.
+    """
+    direct_fields = []
+    related_fields = []
+
+    for field in Product._meta.get_fields():
+        if not getattr(field, 'concrete', False):
+            continue
+
+        # Search all text-like direct fields on Product.
+        if isinstance(field, (CharField, TextField, SlugField)):
+            direct_fields.append(field.name)
+            continue
+
+        # Search text-like columns from FK related models (ex: category.name).
+        if isinstance(field, ForeignKey):
+            related_model = field.related_model
+            related_name = field.name
+            for rel_field in related_model._meta.get_fields():
+                if not getattr(rel_field, 'concrete', False):
+                    continue
+                if isinstance(rel_field, (CharField, TextField, SlugField)):
+                    related_fields.append(f'{related_name}__{rel_field.name}')
+
+    # Remove duplicates while preserving stable order.
+    seen = set()
+    all_fields = []
+    for name in direct_fields + related_fields:
+        if name not in seen:
+            seen.add(name)
+            all_fields.append(name)
+    return all_fields
+
+
+def _build_dynamic_search_q(query, tokens):
+    searchable_fields = _get_product_searchable_fields()
+    if not searchable_fields:
+        return Q(name__icontains=query)
+
+    combined_q = Q()
+
+    for field_name in searchable_fields:
+        combined_q |= Q(**{f'{field_name}__icontains': query})
+
+    for token in tokens:
+        for field_name in searchable_fields:
+            combined_q |= Q(**{f'{field_name}__icontains': token})
+
+    return combined_q
 
 
 @require_GET
 def search_suggestions(request):
-    """
-    Gợi ý tìm kiếm theo tên sản phẩm (JSON).
-    Chỉ đọc các cột cần thiết qua .only() để giảm tải DB.
-    """
+    """Search suggestions with broader matching and relevance ordering."""
     q = (request.GET.get('q') or '').strip()[:SUGGESTION_QUERY_MAX_LEN]
 
     if len(q) < SUGGESTION_QUERY_MIN_LEN:
         return JsonResponse({'suggestions': []})
 
+    keyword_tokens = [token for token in q.split() if token]
+    multi_field_q = _build_dynamic_search_q(q, keyword_tokens)
+
     products = (
-        Product.objects.filter(available=True, name__icontains=q)
-        .only('id', 'name', 'price', 'image', 'slug')
-        .order_by('name')[:SUGGESTION_MAX_RESULTS]
+        Product.objects.filter(available=True)
+        .filter(multi_field_q)
+        .select_related('category')
+        .annotate(
+            match_score=(
+                Case(
+                    When(name__istartswith=q, then=Value(100)),
+                    default=Value(0),
+                    output_field=IntegerField(),
+                )
+                + Case(
+                    When(name__icontains=q, then=Value(60)),
+                    default=Value(0),
+                    output_field=IntegerField(),
+                )
+                + Case(
+                    When(brand__icontains=q, then=Value(35)),
+                    default=Value(0),
+                    output_field=IntegerField(),
+                )
+                + Case(
+                    When(category__name__icontains=q, then=Value(25)),
+                    default=Value(0),
+                    output_field=IntegerField(),
+                )
+                + Case(
+                    When(description__icontains=q, then=Value(10)),
+                    default=Value(0),
+                    output_field=IntegerField(),
+                )
+            )
+        )
+        .only('id', 'name', 'price', 'image', 'slug', 'brand', 'category__name')
+        .order_by('-match_score', 'name')[:SUGGESTION_MAX_RESULTS]
     )
 
     suggestions = []
@@ -42,6 +128,8 @@ def search_suggestions(request):
             'name': p.name,
             'price': float(p.price),
             'image': image_url,
+            'brand': p.brand or '',
+            'category': p.category.name if p.category_id else '',
             'url': p.get_absolute_url(),
         })
 
