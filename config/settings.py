@@ -92,8 +92,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'sqlite_memory_backend',
-        'NAME': BASE_DIR / os.environ.get('SQLITE_DB_NAME', 'dev.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'tmdt_db',          # Tên Database PostgreSQL
+        'USER': 'postgres',         # Tên user (thường là postgres)
+        'PASSWORD': 'password',     # Mật khẩu PostgreSQL của sếp
+        'HOST': '127.0.0.1',        # Hoặc localhost
+        'PORT': '5432',
     }
 }
 
