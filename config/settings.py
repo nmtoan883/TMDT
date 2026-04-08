@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 
+# Thêm bản vá lỗi (Monkey patch) cho những bản XAMPP cũ dùng MariaDB 10.4
+import django.db.backends.base.base
+django.db.backends.base.base.BaseDatabaseWrapper.check_database_version_supported = lambda self: None
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
