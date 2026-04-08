@@ -38,11 +38,11 @@ Yêu cầu đã cài đặt Python (3.10 trở lên). Cài đặt toàn bộ mô
 pip install -r requirements.txt
 ```
 
-### Bước 3: Cấu hình Mạng Lưới Nhện (Secret .env)
-Mọi dữ liệu của nhóm đều dùng chung trên Cloud, tuy nhiên đường dẫn Cloud đã được giấu. 
-1. Liên hệ **Trưởng Nhóm** (Sếp) để lấy đoạn mã mật khẩu.
-2. Tạo 1 file tên là `.env` (có dấu chấm ở đầu) nằm cùng phân cấp với file `manage.py`.
-3. Dán đoạn mã Trưởng Nhóm cấp vào file đó. (Ví dụ: `DATABASE_URL=postgresql://...`)
+### Bước 3: Cấu hình Database Cloud (Secret .env)
+Mọi dữ liệu của dự án đều dùng chung trên hệ thống máy chủ Cloud, tuy nhiên đường dẫn kết nối đã được ẩn đi vì lý do bảo mật. 
+1. Cần phải có đoạn mã kết nối `DATABASE_URL` (bạn có thể xin từ các thành viên khác trong dự án).
+2. Tạo 1 file tên là `.env` (có dấu chấm ở đầu) nằm cùng vị trí với file `manage.py`.
+3. Dán đoạn mã đã nhận vào file đó. (Ví dụ: `DATABASE_URL=postgresql://...`)
 
 ### Bước 4: Chạy Server
 Sau khi có `.env`, anh em thả nhẹ lệnh khởi động:
@@ -61,4 +61,4 @@ python manage.py collectstatic --noinput
 ```
 (Chỉ Trưởng Nhóm dùng khi chuẩn bị đẩy lên Server ảo như Render, Vercel, AWS v.v...). Các Cấu hình Database và Gunicorn đã sẵn sàng. Thư mục `staticfiles` sẽ tự động đóng gói vận chuyển.
 
-> **Trưởng Dự án / Development Team:** Cám ơn vì những cống hiến để làm lên đứa con hệ thống xinh đẹp này! 🚀
+> **Team Development:** Cám ơn toàn bộ các thành viên vì những cống hiến để tạo nên sản phẩm tuyệt vời này! 🚀
