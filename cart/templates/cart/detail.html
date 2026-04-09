@@ -64,50 +64,52 @@
             </div>
 
             <div class="col-lg-4">
-<div class="glass-card p-4">
-    <h5 class="mb-4 fw-bold">Tóm tắt đơn hàng</h5>
+                <div class="glass-card p-4">
+                    <h5 class="mb-4 fw-bold">Tóm tắt đơn hàng</h5>
 
-    <form action="{% url 'coupon:apply' %}" method="post" class="mb-3">
-        {% csrf_token %}
-        <label for="{{ coupon_form.code.id_for_label }}" class="form-label">Mã giảm giá</label>
-        {{ coupon_form.code }}
-        <button type="submit" class="btn btn-outline-primary w-100 mt-2">Áp dụng</button>
-    </form>
+                    <form action="{% url 'coupon:apply' %}" method="post" class="mb-3">
+                        {% csrf_token %}
+                        <label class="form-label fw-semibold">Mã giảm giá</label>
+                        {{ coupon_form.code }}
+                        <button type="submit" class="btn btn-outline-primary w-100 mt-2">
+                            Áp dụng
+                        </button>
+                    </form>
 
-    {% if coupon %}
-        <div class="alert alert-success py-2 mt-2 mb-2">
-            Đã áp dụng mã: <strong>{{ coupon.code }}</strong>
-        </div>
-        <a href="{% url 'coupon:remove' %}" class="btn btn-outline-danger w-100 mb-3">
-            Xóa mã giảm giá
-        </a>
-    {% endif %}
+                    {% if request.session.coupon_id %}
+                        <div class="alert alert-success py-2">
+                            🎉 Đã áp dụng mã giảm giá!
+                            <a href="{% url 'coupon:remove' %}" class="btn btn-sm btn-danger float-end">
+                                Xóa
+                            </a>
+                        </div>
+                    {% endif %}
 
-    <div class="d-flex justify-content-between mb-2">
-        <span>Tạm tính</span>
-        <span>{{ cart.get_total_price|floatformat:0 }}₫</span>
-    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tạm tính</span>
+                        <span>{{ cart.get_total_price|floatformat:0 }}₫</span>
+                    </div>
 
-    {% if coupon %}
-        <div class="d-flex justify-content-between mb-2 text-success">
-            <span>Giảm giá ({{ coupon.discount }}%)</span>
-            <span>-{{ cart.get_discount|floatformat:0 }}₫</span>
-        </div>
-    {% endif %}
+                    {% if coupon %}
+                        <div class="d-flex justify-content-between mb-2 text-success fw-semibold">
+                            <span>Giảm giá ({{ coupon.discount }}%)</span>
+                            <span>-{{ cart.get_discount|floatformat:0 }}₫</span>
+                        </div>
+                    {% endif %}
 
-    <div class="d-flex justify-content-between mb-4">
-        <span>Phí vận chuyển</span>
-        <span class="text-success">Miễn phí</span>
-    </div>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span>Phí vận chuyển</span>
+                        <span class="text-success">Miễn phí</span>
+                    </div>
 
-    <hr>
+                    <hr>
 
-    <div class="d-flex justify-content-between mb-4">
-        <span class="fw-bold fs-5">Tổng tiền</span>
-        <span class="fw-bold fs-5 text-primary">
-            {{ cart.get_total_price_after_discount|floatformat:0 }}₫
-        </span>
-    </div>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold fs-5">Tổng tiền</span>
+                        <span class="fw-bold fs-4 text-danger">
+                            {{ cart.get_total_price_after_discount|floatformat:0 }}₫
+                        </span>
+                    </div>
 
     <a href="{% url 'orders:order_create' %}" class="btn btn-primary w-100 py-3 fw-bold">
         TIẾN HÀNH THANH TOÁN

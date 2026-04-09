@@ -2383,3 +2383,34 @@ textarea.input {
     margin-top: 10px;
   }
 }
+.blog-card {
+    transition: all 0.3s ease;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.blog-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+.blog-content p {
+    margin-bottom: 1rem;
+    color: #444;
+}
+
+.blog-content img {
+    max-width: 100%;
+    height: auto;
+}
+.pagination .page-link {
+    border-radius: 10px;
+    margin: 0 4px;
+}
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+}

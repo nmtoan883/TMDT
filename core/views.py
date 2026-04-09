@@ -173,6 +173,7 @@ def product_list(request, category_slug=None):
 
 def product_detail(request, id, slug):
     product = get_object_or_404(Product, id=id, slug=slug, available=True)
+
     cart_product_form = CartAddProductForm()
     reviews = product.reviews.all()
 
@@ -269,3 +270,24 @@ def contact_view(request):
         'form': form,
         'contact_info': contact_info,
     })
+
+def wishlist_detail(request):
+    wishlist = Wishlist(request)
+    products = wishlist.get_products()
+    return render(request, 'core/product/wishlist.html', {
+        'wishlist_products': products,
+    })
+
+
+def wishlist_add(request, product_id):
+    wishlist = Wishlist(request)
+    product = get_object_or_404(Product, id=product_id, available=True)
+    wishlist.add(product.id)
+    return redirect(product.get_absolute_url())
+
+
+def wishlist_remove(request, product_id):
+    wishlist = Wishlist(request)
+    product = get_object_or_404(Product, id=product_id, available=True)
+    wishlist.remove(product.id)
+    return redirect('shop:wishlist_detail')
