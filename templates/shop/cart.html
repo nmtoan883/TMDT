@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cart</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class="section">
+    <div class="container">
+        <h2>Giỏ hàng</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-info" style="margin-bottom:10px;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Giá</th>
+                    <th>Số lượng</th>
+                    <th>Tạm tính</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Laptop Demo</td>
+                    <td>$980.00</td>
+                    <td>3</td>
+                    <td>$2940.00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="max-width:400px;">
+            <h3>Áp mã giảm giá</h3>
+            <form method="post" action="{% url 'apply_coupon' %}">
+                {% csrf_token %}
+                <input type="text" name="code" class="input" placeholder="Nhập mã giảm giá">
+                <button type="submit" class="primary-btn" style="margin-top:10px;">Áp dụng</button>
+            </form>
+
+            <hr>
+
+            <p><strong>Tổng tiền:</strong> ${{ cart_total }}</p>
+            <p><strong>Giảm giá:</strong> ${{ discount }}</p>
+            <p><strong>Thanh toán:</strong> ${{ final_total }}</p>
+
+            {% if applied_coupon %}
+                <p><strong>Mã đã áp:</strong> {{ applied_coupon }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+</body>
+</html>
