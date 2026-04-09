@@ -3,6 +3,36 @@
 {% block title %}Trang chủ E-Electro{% endblock %}
 {% block breadcrumb %}{% endblock %}
 {% block content %}
+<!-- CATEGORY QUICK SELECT SECTION (Shopee Style) -->
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="section-title" style="margin-bottom: 20px;">
+                    <h3 class="title">Danh Mục</h3>
+                </div>
+                <div class="category-grid" style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px; width: 100%;">
+                    {% for c in categories %}
+                    <a href="{% url 'shop:product_list_by_category' c.slug %}" class="category-item" style="display: flex; flex-direction: column; align-items: center; width: 100px; flex-shrink: 0; text-decoration: none;">
+                        <div class="category-icon" style="width: 70px; height: 70px; background-color: #f5f5f5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eaeaea;">
+                            {% if c.icon %}
+                            <i class="{{ c.icon }}" style="font-size: 24px; color: #D10024;"></i>
+                            {% else %}
+                            <i class="fa fa-th-large" style="font-size: 24px; color: #D10024;"></i>
+                            {% endif %}
+                        </div>
+                        <span style="font-size: 13px; text-align: center; color: #333; height: 35px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;">
+                            {{ c.name }}
+                        </span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /CATEGORY QUICK SELECT SECTION -->
+
 <!-- SECTION -->
 		<div class="section">
 			<!-- container -->
