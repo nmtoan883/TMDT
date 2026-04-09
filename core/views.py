@@ -68,6 +68,28 @@ def _parse_decimal(value):
 def _keyword_q(keyword):
     return Q(name__icontains=keyword) | Q(description__icontains=keyword)
 
+RAM_OPTIONS = ['4GB', '8GB', '16GB']
+ROM_OPTIONS = ['128GB', '256GB', '512GB']
+
+
+def _parse_decimal(value):
+    """Parse GET parameter into Decimal; return None if empty/invalid."""
+    if value is None:
+        return None
+    value = str(value).strip()
+    if not value:
+        return None
+    try:
+        return Decimal(value)
+    except (InvalidOperation, ValueError):
+        return None
+
+
+def _keyword_q(keyword):
+    """Match a keyword in Product name or description."""
+    return Q(name__icontains=keyword) | Q(description__icontains=keyword)
+
+
 def product_list(request, category_slug=None):
     category = None
     categories = Category.objects.all()
