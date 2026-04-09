@@ -23,7 +23,7 @@
                 </p>
 
                 {% if post.image %}
-                <img src="{{ post.image.url }}" alt="{{ post.title }}"
+                <img src="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}" alt="{{ post.title }}"
                      class="auto-extracted-style-67">
                 {% endif %}
 
@@ -45,7 +45,7 @@
                         <div class="col-md-4">
                             <div class="product" class="auto-extracted-style-71">
                                 {% if item.image %}
-                                <img src="{{ item.image.url }}" alt="{{ item.title }}"
+                                <img src="{{ request.scheme }}://{{ request.get_host }}{{ item.image.url }}" alt="{{ item.title }}"
                                      class="auto-extracted-style-72">
                                 {% endif %}
                                 <div class="product-body blog-item-body">

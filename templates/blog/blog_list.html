@@ -21,7 +21,7 @@
                     <div class="row">
                         <div class="col-md-7">
                             {% if featured_post.image %}
-                            <img src="{{ featured_post.image.url }}" alt="{{ featured_post.title }}"
+                            <img src="{{ request.scheme }}://{{ request.get_host }}{{ featured_post.image.url }}" alt="{{ featured_post.title }}"
                                  class="blog-featured-img">
                             {% else %}
                             <div class="blog-img-placeholder">
@@ -67,7 +67,7 @@
                     <div class="col-md-6">
                         <div class="product blog-post-card">
                             {% if post.image %}
-                            <img src="{{ post.image.url }}" alt="{{ post.title }}"
+                            <img src="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}" alt="{{ post.title }}"
                                  class="blog-item-img">
                             {% else %}
                             <div class="blog-item-placeholder">
