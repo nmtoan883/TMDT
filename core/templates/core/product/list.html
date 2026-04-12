@@ -47,7 +47,7 @@
 							</div>
 							<div class="shop-body">
 								<h3>Laptop<br>Collection</h3>
-								<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
+								<a href="{% url 'shop:product_list' %}" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
 							</div>
 						</div>
 					</div>
@@ -61,7 +61,7 @@
 							</div>
 							<div class="shop-body">
 								<h3>Accessories<br>Collection</h3>
-								<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
+								<a href="{% url 'shop:product_list' %}" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
 							</div>
 						</div>
 					</div>
@@ -75,7 +75,7 @@
 							</div>
 							<div class="shop-body">
 								<h3>Cameras<br>Collection</h3>
-								<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
+								<a href="{% url 'shop:product_list' %}" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
 							</div>
 						</div>
 					</div>
@@ -155,13 +155,14 @@
 													{% else %}
 														<a href="{% url 'account_login' %}"><button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button></a>
 													{% endif %}
-													<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
-													<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+													<a href="{{ product.get_absolute_url }}" class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></a>
 												</div>
 											</div>
 											<div class="add-to-cart">
 												<form action="{% url 'cart:cart_add' product.id %}" method="post">
 													{% csrf_token %}
+													<input type="hidden" name="quantity" value="1">
+													<input type="hidden" name="override" value="False">
 													<button type="submit" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
 												</form>
 											</div>
@@ -219,7 +220,7 @@
 							</ul>
 							<h2 class="text-uppercase">hot deal this week</h2>
 							<p>New Collection Up to 50% OFF</p>
-							<a class="primary-btn cta-btn" href="#">Shop now</a>
+							<a class="primary-btn cta-btn" href="{% url 'shop:product_list' %}">Shop now</a>
 						</div>
 					</div>
 				</div>
@@ -286,7 +287,7 @@
 												</div>
 											</div>
 											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+												<a href="{% url 'shop:product_detail' 6 'airpods-pro-2nd-gen' %}" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> view product</a>
 											</div>
 										</div>
 										<!-- /product -->
@@ -317,7 +318,7 @@
 												</div>
 											</div>
 											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+												<a href="{% url 'shop:product_detail' 5 'asus-rog-zephyrus-g14' %}" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> view product</a>
 											</div>
 										</div>
 										<!-- /product -->
@@ -343,7 +344,7 @@
 												</div>
 											</div>
 											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+												<a href="{% url 'shop:product_detail' 4 'macbook-air-m3' %}" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> view product</a>
 											</div>
 										</div>
 										<!-- /product -->
@@ -371,7 +372,7 @@
 												</div>
 											</div>
 											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+												<a href="{% url 'shop:product_detail' 3 'xiaomi-14-ultra' %}" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> view product</a>
 											</div>
 										</div>
 										<!-- /product -->
@@ -399,7 +400,7 @@
 												</div>
 											</div>
 											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+												<a href="{% url 'shop:product_detail' 2 'samsung-galaxy-s24-ultra' %}" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> view product</a>
 											</div>
 										</div>
 										<!-- /product -->

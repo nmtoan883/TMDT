@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% load static %}
 
 {% block title %}Giỏ hàng{% endblock %}
@@ -10,10 +10,16 @@
     {% if cart %}
         <div class="row">
             <div class="col-lg-8">
+                <form id="cart-checkout-form" action="{% url 'cart:cart_checkout' %}" method="post">
+                    {% csrf_token %}
+                </form>
                 <div class="glass-card p-0 overflow-hidden mb-4">
                     <table class="table table-hover mb-0">
                         <thead class="bg-light">
                             <tr>
+                                <th class="ps-4 py-3" style="width: 52px;">
+                                    <input type="checkbox" id="select-all-cart-items" checked>
+                                </th>
                                 <th class="ps-4 py-3">Sản phẩm</th>
                                 <th class="py-3">Số lượng</th>
                                 <th class="py-3">Đơn giá</th>
@@ -24,6 +30,15 @@
                             {% for item in cart %}
                                 {% with product=item.product %}
                                     <tr class="align-middle">
+                                        <td class="ps-4 py-4">
+                                            <input
+                                                type="checkbox"
+                                                name="selected_products"
+                                                value="{{ product.id }}"
+                                                class="cart-item-checkbox"
+                                                form="cart-checkout-form"
+                                                {% if product.id|stringformat:"s" in selected_product_ids %}checked{% endif %}>
+                                        </td>
                                         <td class="ps-4 py-4">
                                             <div class="d-flex align-items-center">
                                                 <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}"
@@ -49,13 +64,18 @@
                                                 <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cập nhật</button>
                                             </form>
                                         </td>
-                                        <td>{{ item.price|floatformat:0 }}₫</td>
-                                        <td class="text-end pe-4">{{ item.total_price|floatformat:0 }}₫</td>
+                                        <td>{{ item.price|floatformat:0 }} VND</td>
+                                        <td class="text-end pe-4">{{ item.total_price|floatformat:0 }} VND</td>
                                     </tr>
                                 {% endwith %}
                             {% endfor %}
                         </tbody>
                     </table>
+                    <div class="p-4 border-top bg-white">
+                        <button type="submit" class="btn btn-primary" form="cart-checkout-form">
+                            Tiến hành thanh toán các sản phẩm đã chọn
+                        </button>
+                    </div>
                 </div>
 
                 <a href="/" class="btn btn-outline-secondary">
@@ -78,7 +98,7 @@
 
                     {% if request.session.coupon_id %}
                         <div class="alert alert-success py-2">
-                            🎉 Đã áp dụng mã giảm giá!
+                            Đã áp dụng mã giảm giá!
                             <a href="{% url 'coupon:remove' %}" class="btn btn-sm btn-danger float-end">
                                 Xóa
                             </a>
@@ -86,14 +106,14 @@
                     {% endif %}
 
                     <div class="d-flex justify-content-between mb-2">
-                        <span>Tạm tính</span>
-                        <span>{{ cart.get_total_price|floatformat:0 }}₫</span>
+                        <span>Tạm tính (đã chọn)</span>
+                        <span>{{ selected_total_price|floatformat:0 }} VND</span>
                     </div>
 
                     {% if coupon %}
                         <div class="d-flex justify-content-between mb-2 text-success fw-semibold">
                             <span>Giảm giá ({{ coupon.discount }}%)</span>
-                            <span>-{{ cart.get_discount|floatformat:0 }}₫</span>
+                            <span>-{{ selected_discount|floatformat:0 }} VND</span>
                         </div>
                     {% endif %}
 
@@ -104,17 +124,17 @@
 
                     <hr>
 
-                    <div class="d-flex justify-content-between mb-4">
+                    <div class="d-flex justify-content-between mb-3">
                         <span class="fw-bold fs-5">Tổng tiền</span>
                         <span class="fw-bold fs-4 text-danger">
-                            {{ cart.get_total_price_after_discount|floatformat:0 }}₫
+                            {{ selected_total_price_after_discount|floatformat:0 }} VND
                         </span>
                     </div>
 
-    <a href="{% url 'orders:order_create' %}" class="btn btn-primary w-100 py-3 fw-bold">
-        TIẾN HÀNH THANH TOÁN
-    </a>
-</div>
+                    <div class="small text-muted">
+                        Bạn đang chọn {{ selected_items|length }} dòng sản phẩm để thanh toán.
+                    </div>
+                </div>
             </div>
         </div>
     {% else %}
@@ -126,4 +146,32 @@
         </div>
     {% endif %}
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var selectAll = document.getElementById('select-all-cart-items');
+    var checkboxes = Array.from(document.querySelectorAll('.cart-item-checkbox'));
+
+    if (!selectAll || !checkboxes.length) {
+        return;
+    }
+
+    function syncHeaderCheckbox() {
+        selectAll.checked = checkboxes.every(function (checkbox) { return checkbox.checked; });
+        selectAll.indeterminate = !selectAll.checked && checkboxes.some(function (checkbox) { return checkbox.checked; });
+    }
+
+    selectAll.addEventListener('change', function () {
+        checkboxes.forEach(function (checkbox) {
+            checkbox.checked = selectAll.checked;
+        });
+        syncHeaderCheckbox();
+    });
+
+    checkboxes.forEach(function (checkbox) {
+        checkbox.addEventListener('change', syncHeaderCheckbox);
+    });
+
+    syncHeaderCheckbox();
+});
+</script>
 {% endblock %}

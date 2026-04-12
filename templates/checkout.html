@@ -1,15 +1,13 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% load static %}
 
 {% block content %}
-<!-- BREADCRUMB -->
 <div id="breadcrumb" class="section">
     <div class="container">
-        <h3 class="breadcrumb-header">Thanh Toán (Checkout)</h3>
+        <h3 class="breadcrumb-header">Thanh toán (Checkout)</h3>
     </div>
 </div>
 
-<!-- SECTION -->
 <div class="section">
     <div class="container">
         {% if messages %}
@@ -47,7 +45,6 @@
                             {{ form.address.errors }}
                         </div>
 
-                        <!-- Lọc các lỗi non-field -->
                         {% if form.non_field_errors %}
                         <div class="alert alert-danger">
                             {{ form.non_field_errors }}
@@ -58,7 +55,7 @@
 
                 <div class="col-md-5 order-details">
                     <div class="section-title text-center">
-                        <h3 class="title">Đơn Tạm Tính</h3>
+                        <h3 class="title">Đơn tạm tính</h3>
                     </div>
 
                     <div class="order-summary">
@@ -68,17 +65,17 @@
                         </div>
 
                         <div class="order-products">
-                            {% for item in cart %}
+                            {% for item in selected_items %}
                             <div class="order-col" style="margin-bottom:10px;">
                                 <div>{{ item.quantity }}x {{ item.product.name }}</div>
-                                <div>{{ item.total_price }} VNĐ</div>
+                                <div>{{ item.total_price|floatformat:0 }} VND</div>
                             </div>
                             {% endfor %}
                         </div>
 
                         <div class="order-col">
                             <div><strong>TỔNG TIỀN</strong></div>
-                            <div><strong class="order-total">{{ cart.get_total_price }} VNĐ</strong></div>
+                            <div><strong class="order-total">{{ selected_total_price_after_discount|floatformat:0 }} VND</strong></div>
                         </div>
                     </div>
 

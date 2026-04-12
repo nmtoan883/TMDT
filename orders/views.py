@@ -1,18 +1,19 @@
-
+﻿from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from cart.cart import Cart
 
 from .forms import OrderCreateForm
 from .models import Order, OrderItem
 
-
-from django.db import transaction
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.conf import settings
 
 def _send_confirmation_email(order):
     try:
@@ -32,11 +33,19 @@ def _send_confirmation_email(order):
     except Exception as e:
         print(f'[EMAIL ERROR] Không gửi được email cho đơn #{order.id}: {e}')
 
+
 @login_required
 def order_create(request):
     cart = Cart(request)
+    selected_product_ids = cart.get_selected_product_ids()
+    selected_items = cart.get_selected_items()
+
     if len(cart) == 0:
-        messages.warning(request, 'Gio hang dang trong.')
+        messages.warning(request, 'Giỏ hàng đang trống.')
+        return redirect('cart:cart_detail')
+
+    if not selected_items:
+        messages.warning(request, 'Vui lòng chọn ít nhất một sản phẩm để thanh toán.')
         return redirect('cart:cart_detail')
 
     initial = {
@@ -58,14 +67,19 @@ def order_create(request):
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
         if form.is_valid():
-            # Check stock before processing
-            for item in cart:
+            for item in selected_items:
                 if item['product'].stock < item['quantity']:
                     messages.error(
                         request,
                         f'Sản phẩm "{item["product"].name}" chỉ còn {item["product"].stock} cái trong kho, không đủ số lượng!'
                     )
-                    return render(request, 'checkout.html', {'cart': cart, 'form': form})
+                    return render(request, 'checkout.html', {
+                        'cart': cart,
+                        'form': form,
+                        'selected_items': selected_items,
+                        'selected_total_price': cart.get_total_price(selected_product_ids),
+                        'selected_total_price_after_discount': cart.get_total_price_after_discount(selected_product_ids),
+                    })
 
             try:
                 with transaction.atomic():
@@ -73,22 +87,20 @@ def order_create(request):
                     order.user = request.user
                     order.city = order.province
                     order.save()
-                    
-                    for item in cart:
+
+                    for item in selected_items:
                         OrderItem.objects.create(
                             order=order,
                             product=item['product'],
                             price=item['price'],
                             quantity=item['quantity'],
                         )
-                        # Deduct stock
                         item['product'].stock -= item['quantity']
                         item['product'].save()
-
-                    cart.clear()
+                        cart.remove(item['product'])
 
                 _send_confirmation_email(order)
-                messages.success(request, f'Da tao don hang #{order.id} thanh cong.')
+                messages.success(request, f'Đã tạo đơn hàng #{order.id} thành công.')
                 return redirect('orders:order_detail', order_id=order.id)
             except Exception as e:
                 messages.error(request, 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại!')
@@ -96,7 +108,13 @@ def order_create(request):
     else:
         form = OrderCreateForm(initial=initial)
 
-    return render(request, 'checkout.html', {'cart': cart, 'form': form})
+    return render(request, 'checkout.html', {
+        'cart': cart,
+        'form': form,
+        'selected_items': selected_items,
+        'selected_total_price': cart.get_total_price(selected_product_ids),
+        'selected_total_price_after_discount': cart.get_total_price_after_discount(selected_product_ids),
+    })
 
 
 @login_required
@@ -118,9 +136,6 @@ def order_detail(request, order_id):
     )
     return render(request, 'orders/detail_v2.html', {'order': order})
 
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
 
 @api_view(['POST'])
 def checkout(request):
@@ -130,7 +145,6 @@ def checkout(request):
     location = data.get('location')
     payment_method = data.get('payment_method')
 
-    # ===== phí ship =====
     if location == 'noi_thanh':
         shipping_fee = 30000
     elif location == 'ngoai_thanh':
@@ -140,21 +154,19 @@ def checkout(request):
 
     total = amount + shipping_fee
 
-    # ===== thanh toán =====
     if payment_method == 'momo':
-        payment_status = "Thanh toán qua MoMo"
+        payment_status = 'Thanh toán qua MoMo'
     elif payment_method == 'zalopay':
-        payment_status = "Thanh toán qua ZaloPay"
+        payment_status = 'Thanh toán qua ZaloPay'
     elif payment_method == 'cod':
-        payment_status = "Thanh toán khi nhận hàng"
+        payment_status = 'Thanh toán khi nhận hàng'
     else:
         return Response({'error': 'Phương thức không hợp lệ'}, status=status.HTTP_400_BAD_REQUEST)
 
     return Response({
-        "amount": amount,
-        "shipping_fee": shipping_fee,
-        "total": total,
-        "payment_method": payment_method,
-        "payment_status": payment_status
+        'amount': amount,
+        'shipping_fee': shipping_fee,
+        'total': total,
+        'payment_method': payment_method,
+        'payment_status': payment_status,
     })
-
