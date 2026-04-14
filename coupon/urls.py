@@ -1,9 +1,9 @@
 from django.urls import path
-from .views import apply_coupon, remove_coupon
-
-app_name = 'coupon'
+from . import views
 
 urlpatterns = [
-    path('apply/', apply_coupon, name='apply'),
-    path('remove/', remove_coupon, name='remove'),
+    path('checkout/', views.checkout, name='checkout'),
+
+    # Nhận kết quả thanh toán
+    path('payment_return/', views.payment_return, name='payment_return'),
 ]

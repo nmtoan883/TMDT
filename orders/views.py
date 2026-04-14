@@ -1,39 +1,59 @@
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
+from django.shortcuts import render, redirect
+from django.core.mail import send_mail
+from django.conf import settings
+from .models import Product, Order, OrderItem
+from decimal import Decimal
+from .payment.vnpay import VNPay
 
-@api_view(['POST'])
 def checkout(request):
-    data = request.data
+    # Lấy giỏ hàng từ session
+    cart = request.session.get("cart", {})  # cart = {product_id: quantity}
+    if not cart:
+        return render(request, "checkout.html", {"error": "Giỏ hàng trống!"})
 
-    amount = float(data.get('amount', 0))
-    location = data.get('location')
-    payment_method = data.get('payment_method')
+    # Tạo đơn hàng mới
+    order = Order.objects.create(user=request.user)
 
-    # ===== phí ship =====
-    if location == 'noi_thanh':
-        shipping_fee = 30000
-    elif location == 'ngoai_thanh':
-        shipping_fee = 50000
+    total = Decimal("0.00")
+    for product_id, qty in cart.items():
+        product = Product.objects.get(id=product_id)
+        if product.stock < qty:
+            return render(request, "checkout.html", {"error": f"Sản phẩm {product.name} không đủ hàng!"})
+        
+        # Trừ kho
+        product.stock -= qty
+        product.save()
+
+        item_total = product.price * qty
+        total += item_total
+
+        OrderItem.objects.create(
+            order=order,
+            product=product,
+            quantity=qty,
+            price=product.price
+        )
+
+    # Logic phí vận chuyển
+    address = request.POST.get("address", "")
+    if "Hà Nội" in address and "nội thành" in address.lower():
+        shipping_fee = Decimal("30000")
     else:
-        return Response({'error': 'Địa điểm không hợp lệ'}, status=status.HTTP_400_BAD_REQUEST)
+        shipping_fee = Decimal("50000")
 
-    total = amount + shipping_fee
+    order.total_amount = total + shipping_fee
+    order.shipping_fee = shipping_fee
+    order.save()
 
-    # ===== thanh toán =====
-    if payment_method == 'momo':
-        payment_status = "Thanh toán qua MoMo"
-    elif payment_method == 'zalopay':
-        payment_status = "Thanh toán qua ZaloPay"
-    elif payment_method == 'cod':
-        payment_status = "Thanh toán khi nhận hàng"
-    else:
-        return Response({'error': 'Phương thức không hợp lệ'}, status=status.HTTP_400_BAD_REQUEST)
+    # Gửi email xác nhận
+    send_mail(
+        subject="Xác nhận đơn hàng",
+        message=f"Đơn hàng #{order.id} đã được tạo. Tổng tiền: {order.total_amount} VND",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[request.user.email],
+    )
 
-    return Response({
-        "amount": amount,
-        "shipping_fee": shipping_fee,
-        "total": total,
-        "payment_method": payment_method,
-        "payment_status": payment_status
-    })
+    # Xóa giỏ hàng
+    request.session["cart"] = {}
+
+    return render(request, "checkout_success.html", {"order": order})
