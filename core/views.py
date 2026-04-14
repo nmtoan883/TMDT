@@ -370,7 +370,7 @@ def contact_view(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Gửi liên hệ thành công! Chúng tôi sẽ phản hồi sớm nhất.')
-            return redirect('contact')
+            return redirect('shop:contact')
     else:
         form = ContactForm()
 
