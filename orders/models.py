@@ -32,6 +32,15 @@ class Order(models.Model):
 
     customer_name = models.CharField(max_length=255)
     customer_email = models.EmailField()
+    first_name = models.CharField(max_length=50, default="")
+    last_name = models.CharField(max_length=50, default="")
+    email = models.EmailField(default="")
+    address = models.CharField(max_length=250, default="")
+    postal_code = models.CharField(max_length=20, default="")
+    province = models.CharField(max_length=100, blank=True, null=True)
+    district = models.CharField(max_length=100, blank=True, null=True)
+    ward = models.CharField(max_length=100, blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
 
     total_amount = models.DecimalField(
         max_digits=10,
