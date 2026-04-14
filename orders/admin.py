@@ -32,16 +32,7 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
 
 
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
 
-    list_display = (
-        'id',
-        'name',
-        'price',
-        'stock',
-        'created_at',
-    )
 
 
 @admin.register(OrderItem)
