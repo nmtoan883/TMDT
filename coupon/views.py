@@ -3,10 +3,10 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.http import HttpResponse
 
-from .models import Product, Order, OrderItem
+from orders.models import Product, Order, OrderItem
 from decimal import Decimal
 
-from .payment.vnpay import VNPay
+from orders.payment.vnpay import VNPay
 
 
 def checkout(request):
