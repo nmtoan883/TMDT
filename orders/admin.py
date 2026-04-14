@@ -1,12 +1,56 @@
 from django.contrib import admin
-from .models import Order, OrderItem
+from .models import Product, Order, OrderItem
+
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
-    raw_id_fields = ['product']
+    extra = 1
+
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'first_name', 'last_name', 'email', 'status', 'paid', 'created', 'updated']
-    list_filter = ['status', 'paid', 'created', 'updated']
+
+    list_display = (
+        'id',
+        'customer_name',
+        'customer_email',
+        'total_amount',
+        'status',
+        'created_at',
+    )
+
+    list_filter = (
+        'status',
+        'created_at',
+    )
+
+    search_fields = (
+        'customer_name',
+        'customer_email',
+    )
+
     inlines = [OrderItemInline]
+
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'id',
+        'name',
+        'price',
+        'stock',
+        'created_at',
+    )
+
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'id',
+        'order',
+        'product',
+        'quantity',
+        'price',
+    )
