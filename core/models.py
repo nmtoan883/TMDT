@@ -6,6 +6,7 @@ class Category(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
     icon = models.CharField(max_length=50, blank=True, null=True, help_text="FontAwesome icon class")
+    image = models.ImageField(upload_to='categories/%Y/%m/%d', blank=True, null=True)
 
     class Meta:
         ordering = ['name']
@@ -16,6 +17,12 @@ class Category(models.Model):
 
     def get_absolute_url(self):
         return reverse('shop:product_list_by_category', args=[self.slug])
+
+    @property
+    def category_image_url(self):
+        if self.image:
+            return self.image.url
+        return '/static/img/category_placeholder.png'
 
 class Product(models.Model):
     category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)

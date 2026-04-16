@@ -18,6 +18,8 @@ def seed_data():
         print("Created superuser: admin/admin123")
 
     # Create Categories
+    # Category.image is optional in seed data because image files are uploaded separately.
+    # When no image exists, category_image_url will fall back to a static placeholder.
     categories_data = [
         {'name': 'Smartphone', 'icon': 'fa-mobile-alt'},
         {'name': 'Laptop', 'icon': 'fa-laptop'},

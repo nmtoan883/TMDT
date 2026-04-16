@@ -1,11 +1,18 @@
 from django.contrib import admin
+from django.utils.html import mark_safe
 from .models import Category, Product, Review, Contact, Policy, Wishlist, ContactMessage, ContactInfo
 
 admin.site.register(Wishlist)
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug']
+    list_display = ['name', 'slug', 'icon', 'category_image']
     prepopulated_fields = {'slug': ('name',)}
+
+    def category_image(self, obj):
+        if obj.image:
+            return mark_safe(f'<img src="{obj.image.url}" style="max-height:50px; max-width:100px; object-fit:contain;" />')
+        return '(No image)'
+    category_image.short_description = 'Image'
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
