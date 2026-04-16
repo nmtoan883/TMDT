@@ -10,13 +10,25 @@ from core.models import Product
 
 
 class Order(models.Model):
+    STATUS_PENDING = 'pending'
+    STATUS_PROCESSING = 'processing'
+    STATUS_COMPLETED = 'completed'
+    STATUS_CANCELLED = 'cancelled'
 
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('processing', 'Processing'),
-        ('completed', 'Completed'),
-        ('cancelled', 'Cancelled'),
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_PROCESSING, 'Processing'),
+        (STATUS_COMPLETED, 'Completed'),
+        (STATUS_CANCELLED, 'Cancelled'),
     ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        related_name='orders',
+        blank=True,
+        null=True,
+    )
 
     customer_name = models.CharField(max_length=255)
     customer_email = models.EmailField()
@@ -47,15 +59,20 @@ class Order(models.Model):
     def __str__(self):
         return f"Order #{self.id}"
 
+    @property
+    def created(self):
+        return self.created_at
 
-# ======================
-# ORDER ITEM
-# ======================
+    def get_total_cost(self):
+        items_total = sum(item.get_cost() for item in self.items.all())
+        return items_total or self.total_amount
+
 
     def get_status_label_class(self):
         return {
             self.STATUS_PENDING: 'warning',
-            self.STATUS_SHIPPING: 'primary',
+            self.STATUS_PROCESSING: 'primary',
+            self.STATUS_COMPLETED: 'success',
             self.STATUS_CANCELLED: 'danger',
         }.get(self.status, 'secondary')
 
@@ -90,3 +107,6 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product.name} x {self.quantity}"
+
+    def get_cost(self):
+        return self.price * self.quantity
