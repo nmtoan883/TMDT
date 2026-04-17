@@ -14,8 +14,6 @@ import os
 from pathlib import Path
 
 # Thêm bản vá lỗi (Monkey patch) cho những bản XAMPP cũ dùng MariaDB 10.4
-import pymysql
-pymysql.install_as_MySQLdb()
 import django.db.backends.base.base
 django.db.backends.base.base.BaseDatabaseWrapper.check_database_version_supported = lambda self: None
 
