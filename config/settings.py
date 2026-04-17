@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     'orders',
     'coupon',
     'blog',
+    'ckeditor',
+    'ckeditor_uploader',
 ]
 
 MIDDLEWARE = [
@@ -162,6 +164,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+# ============================================================
+# CKEDITOR CONFIGURATION
+# ============================================================
+CKEDITOR_UPLOAD_PATH = "blog/uploads/"
+CKEDITOR_IMAGE_BACKEND = "pillow"
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 300,
+        'width': '100%',
+    },
+}
 
 # ============================================================
 # SITE FRAMEWORK (required by allauth)

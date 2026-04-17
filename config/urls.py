@@ -12,7 +12,7 @@ urlpatterns = [
     path('blog/', include('blog.urls')),
     path('', include('core.urls', namespace='shop')),
     path('coupon/', include('coupon.urls')),
-
+    path('ckeditor/', include('ckeditor_uploader.urls')),
 ]
 
 if settings.DEBUG:

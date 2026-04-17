@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from ckeditor_uploader.fields import RichTextUploadingField
 
 
 class Category(models.Model):
@@ -31,7 +32,7 @@ class Post(models.Model):
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     image = models.ImageField(upload_to='blog/', blank=True, null=True)
     summary = models.TextField(max_length=300, blank=True)
-    content = models.TextField()
+    content = RichTextUploadingField()
     author = models.CharField(max_length=100, default='Admin')
     is_featured = models.BooleanField(default=False)
     is_published = models.BooleanField(default=True)

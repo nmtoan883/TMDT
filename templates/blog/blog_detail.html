@@ -34,7 +34,7 @@
                 {% endif %}
 
                 <div class="auto-extracted-style-69">
-                    {{ post.content|linebreaks }}
+                    {{ post.content|safe }}
                 </div>
 
                 {% if related_posts %}
