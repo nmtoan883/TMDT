@@ -86,6 +86,8 @@ def order_create(request):
                     order = form.save(commit=False)
                     order.user = request.user
                     order.city = order.province
+                    order.customer_name = f'{order.first_name} {order.last_name}'.strip() or request.user.get_full_name() or request.user.username
+                    order.customer_email = order.email or request.user.email
                     order.save()
 
                     for item in selected_items:
@@ -122,9 +124,9 @@ def order_history(request):
     orders = (
         Order.objects.filter(user=request.user)
         .prefetch_related('items__product')
-        .order_by('-created')
+        .order_by('-created_at')
     )
-    return render(request, 'orders/history_v2.html', {'orders': orders})
+    return render(request, 'orders/history.html', {'orders': orders})
 
 
 @login_required
@@ -134,7 +136,7 @@ def order_detail(request, order_id):
         id=order_id,
         user=request.user,
     )
-    return render(request, 'orders/detail_v2.html', {'order': order})
+    return render(request, 'orders/detail.html', {'order': order})
 
 
 @api_view(['POST'])

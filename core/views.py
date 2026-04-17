@@ -184,7 +184,18 @@ def product_list(request, category_slug=None):
     query = request.GET.get('query')
     sort = request.GET.get('sort')
 
+    # Query directly from DB on every request so homepage reflects admin changes immediately.
     base_products = Product.objects.filter(available=True)
+    latest_products = (
+        Product.objects.filter(available=True)
+        .select_related('category')
+        .order_by('-created')[:12]
+    )
+    top_selling_products = (
+        Product.objects.filter(available=True)
+        .select_related('category')
+        .order_by('-stock', '-created')[:12]
+    )
     
     if query:
         base_products = base_products.filter(
@@ -266,6 +277,13 @@ def product_list(request, category_slug=None):
         'category': category,
         'categories': categories,
         'products': products,
+        'latest_products': latest_products,
+        'top_selling_products': top_selling_products,
+        'top_selling_columns': [
+            top_selling_products[0:3],
+            top_selling_products[3:6],
+            top_selling_products[6:9],
+        ],
         'query': query,
         'sort': sort,
         'price_min_bound': price_min_bound,
