@@ -24,57 +24,33 @@ Dự án phát triển nền tảng Website Thương Mại Điện Tử chuyên 
 
 ## 🚀 Hướng Dẫn Cài Đặt Dành Cho Team
 
-Dự án hỗ trợ 2 môi trường làm việc: Đồng bộ với Cloud (Khuyên dùng) hoặc Chạy Local Offline bằng file chia sẻ.
+Dự án đã kết nối hoàn chỉnh với Cloud PostgreSQL qua Supabase. Nhờ vậy, anh em trong Team **không cần xài XAMPP**, không phụ thuộc MySQL Local, hay phải gõ lệnh Nạp Dữ Liệu (`loaddata`) cực khổ nữa. Chỉ cần làm theo 3 bước sau là hệ thống tự động đồng bộ 100%:
 
-### Bước 1: Kéo Code và cài đặt môi trường
-Đảm bảo bạn đã cài đặt Python (3.10 trở lên).
+### Bước 1: Kéo Code về máy
+Đảm bảo bạn đã tính hợp Python 3.10 trở lên.
 ```bash
 git clone https://github.com/nmtoan883/TMDT.git
 cd TMDT
+```
+
+### Bước 2: Cài đặt thư viện môi trường
+```bash
 pip install -r requirements.txt
 ```
 
-### Bước 2: Thiết lập Database (Chọn 1 trong 2 phương án)
+### Bước 3: Thiết lập kết nối Cloud (Secret .env)
+Mọi dữ liệu của dự án đều dùng chung trên hệ thống máy chủ Cloud, tuy nhiên đường dẫn kết nối đã được ẩn đi. 
+1. Cần phải có đoạn mã kết nối `DATABASE_URL` (Xin từ các Lead hoặc người trong dự án).
+2. Tạo 1 file tên là `.env` (nhớ có dấu chấm ở đầu) nằm cùng vị trí với file `manage.py`.
+3. Dán đoạn mã đã nhận vào file đó. (Ví dụ: `DATABASE_URL=postgresql://...`)
 
-#### Phương án A: Dùng chung Cloud Database Supabase (Khuyên dùng)
-Dữ liệu được cập nhật Real-time. Người này thêm sản phẩm thì người kia F5 là thấy ngay.
-1. Không cần bật XAMPP.
-2. Tạo 1 file tên là `.env` (có dấu chấm ở đầu) nằm ngay cạnh file `manage.py`.
-3. Xin đoạn mã kết nối `DATABASE_URL=postgresql://...` từ các thành viên khác và dán vào file `.env`.
-4. Xong! Không cần gõ lệnh nạp dữ liệu gì thêm.
-
-#### Phương án B: Quy trình làm việc Offline (Sử dụng tệp JSON)
-Dành cho trường hợp đứt mạng Supabase hoặc nhóm thống nhất code trên máy tính của mỗi người (Local). Khi đó, ta sẽ sử dụng file `tmdt_data.json` để chia sẻ dữ liệu với nhau.
-
-**🔹 Dành cho người nhận (Muốn NẠP cơ sở dữ liệu để test máy bạn)**
-Khi bạn mới tải code về hoặc nhận được thông báo có file JSON nâng cấp từ đồng đội, hãy làm như sau:
-1. (Tùy chọn) Bật XAMPP MySQL. Nếu lười, Django mặc định tự xài tệp `dev.sqlite3` siêu gọn nhẹ.
-2. Ép hệ thống tạo bộ khung Database bằng lệnh:
-   ```bash
-   python manage.py migrate
-   ```
-3. Nạp 100% Dữ Liệu (Nick admin, sản phẩm, tin tức... lấy từ dự án gốc) vào máy bạn:
-   ```bash
-   python manage.py flush
-   python manage.py loaddata tmdt_data.json
-   ```
-*(Lưu ý: Lệnh `flush` sẽ hỏi bạn có chắc muốn dọn sạch DB hiện tại không, hãy bấm `yes`. Việc này giúp rửa sạch các rác cũ và tránh báo lỗi "trùng ID Sản phẩm" khi nạp file đè lên).*
-
-**🔸 Dành cho người thiết kế (Muốn XUẤT cơ sở dữ liệu để xách đi chia sẻ)**
-Nếu bạn là người vừa thao tác thêm cả đống Sản phẩm mới, Danh mục mới trong Admin và muốn toàn đội ai cũng có bộ Data này. Đừng gửi bảng SQL, hãy xuất bằng JSON quy chuẩn của Django:
-1. Chạy lệnh Dump Data đa hệ (đã loại bỏ rác hệ thống để tránh xung đột quyền):
-   ```bash
-   python manage.py dumpdata --exclude auth.permission --exclude contenttypes -e sessions > tmdt_data.json
-   ```
-2. Mở Git Desktop hoặc xài lệnh terminal để Commit file `.json` đó và Push lên Github. Xong! Các anh em ở trên F5 lấy code về nạp bằng lệnh `loaddata` là ngon ngay.
-
-### Bước 3: Chạy Server
-Sau khi thiết lập xong DB:
+### Bước 4: Chạy Server
+Sau khi có `.env`, anh em thả nhẹ lệnh khởi động:
 ```bash
 python manage.py runserver
 ```
-▶️ Truy cập link: `http://127.0.0.1:8000/`
-🔑 Tài khoản Admin (nếu dùng chung Cloud hoặc load JSON): **User:** `admin` | **Pass:** `admin123`
+▶️ Truy cập link: `http://127.0.0.1:8000/`. Mọi sự thay đổi (Thêm sản phẩm, xóa bài viết...) do bất kỳ ai thực hiện đều sẽ có hiệu lực Real-time trên máy toàn nhóm. 
+🔑 **Tài khoản Admin chung:** **User:** `admin` | **Pass:** `admin123`
 
 ---
 
