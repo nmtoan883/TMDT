@@ -24,32 +24,45 @@ Dự án phát triển nền tảng Website Thương Mại Điện Tử chuyên 
 
 ## 🚀 Hướng Dẫn Cài Đặt Dành Cho Team
 
-Do hệ thống đã kết nối hoàn chỉnh với Cloud Postgresql qua Supabase, anh em trong Team **không cần xài XAMPP** hay gõ lệnh Nạp Dữ Liệu (`loaddata`). Chỉ cần làm theo 3 bước sau:
+Dự án hỗ trợ 2 môi trường làm việc: Đồng bộ với Cloud (Khuyên dùng) hoặc Chạy Local Offline bằng file chia sẻ.
 
-### Bước 1: Kéo Code về máy
+### Bước 1: Kéo Code và cài đặt môi trường
+Đảm bảo bạn đã cài đặt Python (3.10 trở lên).
 ```bash
 git clone https://github.com/nmtoan883/TMDT.git
 cd TMDT
-```
-
-### Bước 2: Cài đặt thư viện
-Yêu cầu đã cài đặt Python (3.10 trở lên). Cài đặt toàn bộ môi trường:
-```bash
 pip install -r requirements.txt
 ```
 
-### Bước 3: Cấu hình Database Cloud (Secret .env)
-Mọi dữ liệu của dự án đều dùng chung trên hệ thống máy chủ Cloud, tuy nhiên đường dẫn kết nối đã được ẩn đi vì lý do bảo mật. 
-1. Cần phải có đoạn mã kết nối `DATABASE_URL` (bạn có thể xin từ các thành viên khác trong dự án).
-2. Tạo 1 file tên là `.env` (có dấu chấm ở đầu) nằm cùng vị trí với file `manage.py`.
-3. Dán đoạn mã đã nhận vào file đó. (Ví dụ: `DATABASE_URL=postgresql://...`)
+### Bước 2: Thiết lập Database (Chọn 1 trong 2 phương án)
 
-### Bước 4: Chạy Server
-Sau khi có `.env`, anh em thả nhẹ lệnh khởi động:
+#### Phương án A: Dùng chung Cloud Database Supabase (Khuyên dùng)
+Dữ liệu được cập nhật Real-time. Người này thêm sản phẩm thì người kia F5 là thấy ngay.
+1. Không cần bật XAMPP.
+2. Tạo 1 file tên là `.env` (có dấu chấm ở đầu) nằm ngay cạnh file `manage.py`.
+3. Xin đoạn mã kết nối `DATABASE_URL=postgresql://...` từ các thành viên khác và dán vào file `.env`.
+4. Xong! Không cần gõ lệnh nạp dữ liệu gì thêm.
+
+#### Phương án B: Dùng Offline Local Database (Thông qua tệp JSON)
+Dành cho ai muốn chạy độc lập không phụ thuộc mạng, hoặc làm việc chia nhỏ nhóm.
+1. (Tùy chọn) Bật XAMPP MySQL. Nếu không bật, Django mặc định sẽ tự xài SQLite siêu nhẹ.
+2. Nạp cấu trúc Database:
+   ```bash
+   python manage.py migrate
+   ```
+3. Nạp Data Seed (100% dữ liệu: Nick admin, sản phẩm, tin tức... lấy từ dự án gốc):
+   ```bash
+   python manage.py loaddata tmdt_data.json
+   ```
+*(🌟 Mẹo: Bất kì khi nào bạn tải code mới về và thấy có file `tmdt_data.json` cập nhật, hãy chạy `python manage.py flush` -> Nhập "yes" để rửa sạch DB máy bạn, rồi thả lại lệnh loaddata ở trên để dữ liệu mới nhất được tái tạo chuẩn 100%)*
+
+### Bước 3: Chạy Server
+Sau khi thiết lập xong DB:
 ```bash
 python manage.py runserver
 ```
-Truy cập vào trang bằng đường link: `http://127.0.0.1:8000/`. Mọi thay đổi về dữ liệu do 1 người thêm sẽ có hiệu lực trên máy toàn nhóm.
+▶️ Truy cập link: `http://127.0.0.1:8000/`
+🔑 Tài khoản Admin (nếu dùng chung Cloud hoặc load JSON): **User:** `admin` | **Pass:** `admin123`
 
 ---
 
