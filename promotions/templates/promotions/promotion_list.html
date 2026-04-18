@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Khuyến mãi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .promo-hero {
+        background: linear-gradient(135deg, #1e1f29 0%, #2b2d42 100%);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 30px;
+        color: #fff;
+        padding: 40px;
+    }
+
+    .promo-hero h1 {
+        font-size: 38px;
+        font-weight: 700;
+        margin-bottom: 14px;
+        color: #fff;
+    }
+
+    .promo-hero p {
+        font-size: 17px;
+        line-height: 1.8;
+        color: rgba(255,255,255,0.88);
+        margin-bottom: 0;
+    }
+
+    .promo-card {
+        background: #fff;
+        border: 1px solid #e4e7ed;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+        margin-bottom: 30px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        height: 100%;
+    }
+
+    .promo-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .promo-image {
+        height: 220px;
+        overflow: hidden;
+        background: #f6f7fb;
+    }
+
+    .promo-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .promo-body {
+        padding: 22px;
+    }
+
+    .promo-badge {
+        display: inline-block;
+        background: #d10024;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 30px;
+        margin-bottom: 12px;
+    }
+
+    .promo-title {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.4;
+        margin-bottom: 12px;
+    }
+
+    .promo-title a {
+        color: #2b2d42;
+    }
+
+    .promo-title a:hover {
+        color: #d10024;
+    }
+
+    .promo-desc {
+        color: #596275;
+        font-size: 15px;
+        line-height: 1.8;
+        min-height: 80px;
+    }
+
+    .promo-meta {
+        margin-top: 16px;
+        font-size: 14px;
+        color: #8d99ae;
+        border-top: 1px solid #edf1f5;
+        padding-top: 14px;
+    }
+
+    .promo-btn {
+        margin-top: 18px;
+        display: inline-block;
+        background: #d10024;
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<div id="breadcrumb" class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="breadcrumb-header">Khuyến mãi</h3>
+                <ul class="breadcrumb-tree">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li class="active">Khuyến mãi</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="promo-hero">
+    <h1>Ưu đãi mới nhất</h1>
+    <p>Khám phá các chương trình giảm giá, quà tặng và ưu đãi nổi bật đang được áp dụng trên hệ thống.</p>
+</div>
+
+<div class="row">
+    {% for promotion in promotions %}
+    <div class="col-md-4 col-sm-6">
+        <div class="promo-card">
+            <div class="promo-image">
+                {% if promotion.banner_image %}
+                    <a href="{{ promotion.get_absolute_url }}">
+                        <img src="{{ promotion.banner_image.url }}" alt="{{ promotion.title }}">
+                    </a>
+                {% endif %}
+            </div>
+            <div class="promo-body">
+                <div class="promo-badge">{{ promotion.display_badge }}</div>
+                <h3 class="promo-title">
+                    <a href="{{ promotion.get_absolute_url }}">{{ promotion.title }}</a>
+                </h3>
+                <div class="promo-desc">{{ promotion.short_description }}</div>
+                <div class="promo-meta">
+                    Áp dụng đến: {{ promotion.end_date|date:"d/m/Y H:i" }}
+                </div>
+                <a href="{{ promotion.get_absolute_url }}" class="promo-btn">Xem chi tiết</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-md-12">
+        <div class="alert alert-info">Hiện chưa có khuyến mãi nào.</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

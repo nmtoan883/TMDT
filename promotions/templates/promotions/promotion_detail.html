@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ promotion.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .promotion-detail-card {
+        background: #fff;
+        border: 1px solid #e4e7ed;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .promotion-banner img {
+        width: 100%;
+        max-height: 420px;
+        object-fit: cover;
+    }
+
+    .promotion-content {
+        padding: 32px;
+    }
+
+    .promotion-badge {
+        display: inline-block;
+        background: #d10024;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 7px 12px;
+        border-radius: 30px;
+        margin-bottom: 16px;
+    }
+
+    .promotion-title {
+        font-size: 36px;
+        font-weight: 700;
+        color: #2b2d42;
+        margin-bottom: 14px;
+    }
+
+    .promotion-desc {
+        font-size: 17px;
+        color: #596275;
+        line-height: 1.9;
+        margin-bottom: 20px;
+    }
+
+    .promotion-meta {
+        background: #f8f9fb;
+        border: 1px solid #edf1f5;
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-bottom: 24px;
+        color: #4b5563;
+        line-height: 1.8;
+    }
+
+    .promo-coupon-box {
+        margin: 26px 0;
+        padding: 22px;
+        background: #fff6f8;
+        border: 1px dashed #d10024;
+        border-radius: 10px;
+    }
+
+    .promo-coupon-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #8d99ae;
+        margin-bottom: 8px;
+    }
+
+    .promo-coupon-code-wrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+
+    .promo-coupon-code {
+        font-size: 30px;
+        font-weight: 700;
+        color: #d10024;
+        letter-spacing: 1px;
+        background: #fff;
+        border: 1px solid #ffd7df;
+        padding: 10px 18px;
+        border-radius: 8px;
+    }
+
+    .promo-copy-btn {
+        background: #d10024;
+        color: #fff;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .promo-coupon-note {
+        color: #596275;
+        font-size: 14px;
+        line-height: 1.8;
+    }
+
+    .promotion-html {
+        font-size: 16px;
+        line-height: 1.95;
+        color: #3f4a5a;
+    }
+
+    .promotion-html h3 {
+        color: #2b2d42;
+        font-weight: 700;
+        margin-top: 28px;
+        margin-bottom: 14px;
+    }
+
+    .promotion-html ul {
+        padding-left: 22px;
+    }
+
+    .promo-action-box {
+        margin-top: 24px;
+    }
+
+    .promo-buy-btn {
+        display: inline-block;
+        background: #2b2d42;
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        margin-right: 10px;
+    }
+
+    .promo-back-btn {
+        display: inline-block;
+        background: #f5f5f5;
+        color: #2b2d42;
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<div id="breadcrumb" class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="breadcrumb-header">{{ promotion.title }}</h3>
+                <ul class="breadcrumb-tree">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li><a href="{% url 'promotions:promotion_list' %}">Khuyến mãi</a></li>
+                    <li class="active">{{ promotion.title }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="promotion-detail-card">
+    {% if promotion.banner_image %}
+    <div class="promotion-banner">
+        <img src="{{ promotion.banner_image.url }}" alt="{{ promotion.title }}">
+    </div>
+    {% endif %}
+
+    <div class="promotion-content">
+        <div class="promotion-badge">{{ promotion.display_badge }}</div>
+        <h1 class="promotion-title">{{ promotion.title }}</h1>
+        <div class="promotion-desc">{{ promotion.short_description }}</div>
+
+        <div class="promotion-meta">
+            <strong>Thời gian áp dụng:</strong><br>
+            Từ {{ promotion.start_date|date:"d/m/Y H:i" }} đến {{ promotion.end_date|date:"d/m/Y H:i" }}
+        </div>
+
+        {% if promotion.coupon %}
+        <div class="promo-coupon-box">
+            <div class="promo-coupon-label">Mã ưu đãi</div>
+            <div class="promo-coupon-code-wrap">
+                <div class="promo-coupon-code" id="coupon-code">{{ promotion.coupon.code }}</div>
+                <button class="promo-copy-btn" onclick="copyCouponCode()">Sao chép mã</button>
+            </div>
+            <div class="promo-coupon-note">
+                Sử dụng mã này tại giỏ hàng hoặc bước thanh toán để áp dụng ưu đãi.
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="promotion-html">
+            {{ promotion.content|safe }}
+        </div>
+
+        <div class="promo-action-box">
+            <a href="/cart/" class="promo-buy-btn">Mua ngay</a>
+            <a href="{% url 'promotions:promotion_list' %}" class="promo-back-btn">Xem thêm khuyến mãi</a>
+        </div>
+    </div>
+</div>
+
+{% if related_products %}
+<div class="section-title">
+    <h3 class="title">Sản phẩm áp dụng</h3>
+</div>
+<div class="row">
+    {% for product in related_products %}
+    <div class="col-md-3 col-sm-6 col-xs-6">
+        <div class="product">
+            <div class="product-img">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                {% endif %}
+                <div class="product-label">
+                    <span class="sale">{{ promotion.display_badge }}</span>
+                </div>
+            </div>
+            <div class="product-body">
+                <p class="product-category">{{ product.category.name }}</p>
+                <h3 class="product-name">
+                    <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+                </h3>
+                <h4 class="product-price">{{ product.price }} VNĐ</h4>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function copyCouponCode() {
+        const code = document.getElementById('coupon-code').innerText;
+        navigator.clipboard.writeText(code).then(function() {
+            alert('Đã sao chép mã: ' + code);
+        });
+    }
+</script>
+{% endblock %}

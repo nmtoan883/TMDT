@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'legal',
+    'promotions',
 ]
 
 MIDDLEWARE = [

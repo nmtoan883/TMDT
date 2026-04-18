@@ -1,3 +1,5 @@
+from django.utils import timezone
+from promotions.models import Promotion
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
@@ -194,8 +196,16 @@ def product_list(request, category_slug=None):
     top_selling_products = (
         Product.objects.filter(available=True)
         .select_related('category')
-        .order_by('-stock', '-created')[:12]
+        .order_by('-stock', '-created')[:12]       
     )
+    
+    now = timezone.now()
+    latest_promotions = Promotion.objects.filter(
+    is_active=True,
+    start_date__lte=now,
+    end_date__gte=now
+    ).order_by('-is_featured', '-created_at')[:3]
+    
     
     if query:
         base_products = base_products.filter(
@@ -284,6 +294,7 @@ def product_list(request, category_slug=None):
             top_selling_products[3:6],
             top_selling_products[6:9],
         ],
+        'latest_promotions': latest_promotions,
         'query': query,
         'sort': sort,
         'price_min_bound': price_min_bound,
