@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'blog',
     'ckeditor',
     'ckeditor_uploader',
+    'legal',
 ]
 
 MIDDLEWARE = [

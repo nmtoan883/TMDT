@@ -97,8 +97,19 @@ class Cart:
 
     def get_discount(self, product_ids=None):
         coupon = self.get_coupon()
-        if coupon:
-            return (coupon.discount / Decimal('100')) * self.get_total_price(product_ids)
+        if not coupon:
+                return Decimal('0')
+
+        total_price = self.get_total_price(product_ids)
+
+        if coupon.discount_percent:
+            discount = (Decimal(str(coupon.discount_percent)) / Decimal('100')) * total_price
+            return min(discount, total_price)
+
+        if coupon.discount_amount:
+            discount = Decimal(str(coupon.discount_amount))
+            return min(discount, total_price)
+
         return Decimal('0')
 
     def get_total_price_after_discount(self, product_ids=None):
