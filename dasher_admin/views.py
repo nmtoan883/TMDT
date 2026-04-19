@@ -11,3 +11,9 @@ def blog_list(request):
     from blog.models import Post
     posts = Post.objects.all().order_by('-created_at')
     return render(request, 'dasher_admin/pages/blog/list.html', {'posts': posts})
+
+@staff_member_required
+def blog_category_list(request):
+    from blog.models import Category
+    categories = Category.objects.all()
+    return render(request, 'dasher_admin/pages/blog/category_list.html', {'categories': categories})
