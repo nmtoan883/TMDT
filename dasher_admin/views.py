@@ -642,3 +642,344 @@ def ec_promotion_delete(request, pk):
     obj.delete()
     messages.success(request, 'Đã xóa đối tượng.')
     return redirect('dasher_admin:ec_promotion_list')
+
+
+# -------------------------------------------------------------------------------------------------
+# SOCIALACCOUNT / SOCIALAPP CRUD (allauth)
+# -------------------------------------------------------------------------------------------------
+from allauth.socialaccount.models import SocialApp, SocialAccount
+from django.forms import modelform_factory
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
+
+SocialAppForm = modelform_factory(SocialApp, fields='__all__')
+SocialAccountForm = modelform_factory(SocialAccount, fields='__all__')
+
+@staff_member_required
+def socialapp_list(request):
+    objects = SocialApp.objects.all()
+    rows = [{'id': obj.id, 'columns': [obj.id, obj.provider, obj.name, obj.client_id]} for obj in objects]
+    return render(request, 'dasher_admin/pages/ecommerce/generic_list.html', {
+        'model_name': 'Social App (OAuth)', 'headers': ['ID', 'Provider', 'Name', 'Client ID'],
+        'rows': rows, 'create_url': '/dasher-admin/socialapp/create/',
+        'update_url_name': 'dasher_admin:socialapp_update', 'delete_url_name': 'dasher_admin:socialapp_delete'
+    })
+
+@staff_member_required
+def socialapp_create(request):
+    if request.method == 'POST':
+        form = SocialAppForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã tạo Social App.')
+            return redirect('dasher_admin:socialapp_list')
+    else:
+        form = SocialAppForm()
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Social App', 'cancel_url': '/dasher-admin/socialapp/'})
+
+@staff_member_required
+def socialapp_update(request, pk):
+    obj = get_object_or_404(SocialApp, pk=pk)
+    if request.method == 'POST':
+        form = SocialAppForm(request.POST, request.FILES, instance=obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã cập nhật Social App.')
+            return redirect('dasher_admin:socialapp_list')
+    else:
+        form = SocialAppForm(instance=obj)
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Social App', 'cancel_url': '/dasher-admin/socialapp/'})
+
+@staff_member_required
+def socialapp_delete(request, pk):
+    obj = get_object_or_404(SocialApp, pk=pk)
+    if request.method == 'POST':
+        obj.delete()
+        messages.success(request, 'Đã xoá Social App.')
+        return redirect('dasher_admin:socialapp_list')
+    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Social App', 'cancel_url': '/dasher-admin/socialapp/'})
+
+@staff_member_required
+def socialaccount_list(request):
+    objects = SocialAccount.objects.all()
+    rows = [{'id': obj.id, 'columns': [obj.id, str(obj.user), obj.provider, obj.uid]} for obj in objects]
+    return render(request, 'dasher_admin/pages/ecommerce/generic_list.html', {
+        'model_name': 'Social Account', 'headers': ['ID', 'User', 'Provider', 'UID'],
+        'rows': rows, 'create_url': '/dasher-admin/socialaccount/create/',
+        'update_url_name': 'dasher_admin:socialaccount_update', 'delete_url_name': 'dasher_admin:socialaccount_delete'
+    })
+
+@staff_member_required
+def socialaccount_create(request):
+    if request.method == 'POST':
+        form = SocialAccountForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã tạo Social Account.')
+            return redirect('dasher_admin:socialaccount_list')
+    else:
+        form = SocialAccountForm()
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Social Account', 'cancel_url': '/dasher-admin/socialaccount/'})
+
+@staff_member_required
+def socialaccount_update(request, pk):
+    obj = get_object_or_404(SocialAccount, pk=pk)
+    if request.method == 'POST':
+        form = SocialAccountForm(request.POST, request.FILES, instance=obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã cập nhật Social Account.')
+            return redirect('dasher_admin:socialaccount_list')
+    else:
+        form = SocialAccountForm(instance=obj)
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Social Account', 'cancel_url': '/dasher-admin/socialaccount/'})
+
+@staff_member_required
+def socialaccount_delete(request, pk):
+    obj = get_object_or_404(SocialAccount, pk=pk)
+    if request.method == 'POST':
+        obj.delete()
+        messages.success(request, 'Đã xoá Social Account.')
+        return redirect('dasher_admin:socialaccount_list')
+    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Social Account', 'cancel_url': '/dasher-admin/socialaccount/'})
+
+
+# -------------------------------------------------------------------------------------------------
+# CORE DJANGO & SYSTEM CRUD (auth, sites, allauth.account, core.livechatsession)
+# -------------------------------------------------------------------------------------------------
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.sites.models import Site
+from allauth.account.models import EmailAddress
+from core.models import LiveChatSession
+
+GroupForm = modelform_factory(Group, fields='__all__')
+SiteForm = modelform_factory(Site, fields='__all__')
+EmailAddressForm = modelform_factory(EmailAddress, fields='__all__')
+LiveChatSessionForm = modelform_factory(LiveChatSession, fields='__all__')
+
+# --- USERS ---
+@staff_member_required
+def core_user_list(request):
+    objects = User.objects.all().order_by('-date_joined')
+    rows = [{'id': obj.id, 'columns': [obj.id, obj.username, obj.email, obj.is_staff, obj.is_active]} for obj in objects]
+    return render(request, 'dasher_admin/pages/ecommerce/generic_list.html', {
+        'model_name': 'Hệ thống - User', 'headers': ['ID', 'Username', 'Email', 'Staff+', 'Active'],
+        'rows': rows, 'create_url': '/dasher-admin/sys-user/create/',
+        'update_url_name': 'dasher_admin:core_user_update', 'delete_url_name': 'dasher_admin:core_user_delete'
+    })
+
+@staff_member_required
+def core_user_create(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã tạo User.')
+            return redirect('dasher_admin:core_user_list')
+    else:
+        form = UserCreationForm()
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Hệ thống - User', 'cancel_url': '/dasher-admin/sys-user/'})
+
+@staff_member_required
+def core_user_update(request, pk):
+    obj = get_object_or_404(User, pk=pk)
+    if request.method == 'POST':
+        form = UserChangeForm(request.POST, request.FILES, instance=obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã cập nhật User.')
+            return redirect('dasher_admin:core_user_list')
+    else:
+        form = UserChangeForm(instance=obj)
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Hệ thống - User', 'cancel_url': '/dasher-admin/sys-user/'})
+
+@staff_member_required
+def core_user_delete(request, pk):
+    obj = get_object_or_404(User, pk=pk)
+    if request.method == 'POST':
+        obj.delete()
+        messages.success(request, 'Đã xoá User.')
+        return redirect('dasher_admin:core_user_list')
+    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Hệ thống - User', 'cancel_url': '/dasher-admin/sys-user/'})
+
+# --- GROUPS ---
+@staff_member_required
+def core_group_list(request):
+    objects = Group.objects.all()
+    rows = [{'id': obj.id, 'columns': [obj.id, obj.name]} for obj in objects]
+    return render(request, 'dasher_admin/pages/ecommerce/generic_list.html', {
+        'model_name': 'Hệ thống - Group (Role)', 'headers': ['ID', 'Tên Nhóm'],
+        'rows': rows, 'create_url': '/dasher-admin/sys-group/create/',
+        'update_url_name': 'dasher_admin:core_group_update', 'delete_url_name': 'dasher_admin:core_group_delete'
+    })
+
+@staff_member_required
+def core_group_create(request):
+    if request.method == 'POST':
+        form = GroupForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã tạo Group.')
+            return redirect('dasher_admin:core_group_list')
+    else:
+        form = GroupForm()
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Hệ thống - Group', 'cancel_url': '/dasher-admin/sys-group/'})
+
+@staff_member_required
+def core_group_update(request, pk):
+    obj = get_object_or_404(Group, pk=pk)
+    if request.method == 'POST':
+        form = GroupForm(request.POST, request.FILES, instance=obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã cập nhật Group.')
+            return redirect('dasher_admin:core_group_list')
+    else:
+        form = GroupForm(instance=obj)
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Hệ thống - Group', 'cancel_url': '/dasher-admin/sys-group/'})
+
+@staff_member_required
+def core_group_delete(request, pk):
+    obj = get_object_or_404(Group, pk=pk)
+    if request.method == 'POST':
+        obj.delete()
+        messages.success(request, 'Đã xoá Group.')
+        return redirect('dasher_admin:core_group_list')
+    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Hệ thống - Group', 'cancel_url': '/dasher-admin/sys-group/'})
+
+# --- SITES ---
+@staff_member_required
+def core_site_list(request):
+    objects = Site.objects.all()
+    rows = [{'id': obj.id, 'columns': [obj.id, obj.domain, obj.name]} for obj in objects]
+    return render(request, 'dasher_admin/pages/ecommerce/generic_list.html', {
+        'model_name': 'Django Sites', 'headers': ['ID', 'Domain', 'Name'],
+        'rows': rows, 'create_url': '/dasher-admin/sys-site/create/',
+        'update_url_name': 'dasher_admin:core_site_update', 'delete_url_name': 'dasher_admin:core_site_delete'
+    })
+
+@staff_member_required
+def core_site_create(request):
+    if request.method == 'POST':
+        form = SiteForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã tạo Site.')
+            return redirect('dasher_admin:core_site_list')
+    else:
+        form = SiteForm()
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Django Site', 'cancel_url': '/dasher-admin/sys-site/'})
+
+@staff_member_required
+def core_site_update(request, pk):
+    obj = get_object_or_404(Site, pk=pk)
+    if request.method == 'POST':
+        form = SiteForm(request.POST, request.FILES, instance=obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã cập nhật Site.')
+            return redirect('dasher_admin:core_site_list')
+    else:
+        form = SiteForm(instance=obj)
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Django Site', 'cancel_url': '/dasher-admin/sys-site/'})
+
+@staff_member_required
+def core_site_delete(request, pk):
+    obj = get_object_or_404(Site, pk=pk)
+    if request.method == 'POST':
+        obj.delete()
+        messages.success(request, 'Đã xoá Site.')
+        return redirect('dasher_admin:core_site_list')
+    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Django Site', 'cancel_url': '/dasher-admin/sys-site/'})
+
+# --- EMAIL ADDRESSES ---
+@staff_member_required
+def core_email_list(request):
+    objects = EmailAddress.objects.all()
+    rows = [{'id': obj.id, 'columns': [obj.id, str(obj.user), obj.email, obj.verified, obj.primary]} for obj in objects]
+    return render(request, 'dasher_admin/pages/ecommerce/generic_list.html', {
+        'model_name': 'Allauth Email Address', 'headers': ['ID', 'User', 'Email', 'Verified?', 'Primary?'],
+        'rows': rows, 'create_url': '/dasher-admin/sys-email/create/',
+        'update_url_name': 'dasher_admin:core_email_update', 'delete_url_name': 'dasher_admin:core_email_delete'
+    })
+
+@staff_member_required
+def core_email_create(request):
+    if request.method == 'POST':
+        form = EmailAddressForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã tạo Email.')
+            return redirect('dasher_admin:core_email_list')
+    else:
+        form = EmailAddressForm()
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Email Address', 'cancel_url': '/dasher-admin/sys-email/'})
+
+@staff_member_required
+def core_email_update(request, pk):
+    obj = get_object_or_404(EmailAddress, pk=pk)
+    if request.method == 'POST':
+        form = EmailAddressForm(request.POST, request.FILES, instance=obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã cập nhật Email.')
+            return redirect('dasher_admin:core_email_list')
+    else:
+        form = EmailAddressForm(instance=obj)
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Email Address', 'cancel_url': '/dasher-admin/sys-email/'})
+
+@staff_member_required
+def core_email_delete(request, pk):
+    obj = get_object_or_404(EmailAddress, pk=pk)
+    if request.method == 'POST':
+        obj.delete()
+        messages.success(request, 'Đã xoá Email.')
+        return redirect('dasher_admin:core_email_list')
+    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Email Address', 'cancel_url': '/dasher-admin/sys-email/'})
+
+# --- LIVECHAT SESSION ---
+@staff_member_required
+def core_chat_list(request):
+    objects = LiveChatSession.objects.all()
+    rows = [{'id': obj.id, 'columns': [obj.id, str(obj.user) if obj.user else obj.guest_name, obj.is_active, obj.created_at]} for obj in objects]
+    return render(request, 'dasher_admin/pages/ecommerce/generic_list.html', {
+        'model_name': 'Live Chat Session', 'headers': ['ID', 'User/Guest', 'Active?', 'Created'],
+        'rows': rows, 'create_url': '/dasher-admin/sys-chat/create/',
+        'update_url_name': 'dasher_admin:core_chat_update', 'delete_url_name': 'dasher_admin:core_chat_delete'
+    })
+
+@staff_member_required
+def core_chat_create(request):
+    if request.method == 'POST':
+        form = LiveChatSessionForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã tạo Chat.')
+            return redirect('dasher_admin:core_chat_list')
+    else:
+        form = LiveChatSessionForm()
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Live Chat', 'cancel_url': '/dasher-admin/sys-chat/'})
+
+@staff_member_required
+def core_chat_update(request, pk):
+    obj = get_object_or_404(LiveChatSession, pk=pk)
+    if request.method == 'POST':
+        form = LiveChatSessionForm(request.POST, request.FILES, instance=obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã cập nhật Chat.')
+            return redirect('dasher_admin:core_chat_list')
+    else:
+        form = LiveChatSessionForm(instance=obj)
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Live Chat', 'cancel_url': '/dasher-admin/sys-chat/'})
+
+@staff_member_required
+def core_chat_delete(request, pk):
+    obj = get_object_or_404(LiveChatSession, pk=pk)
+    if request.method == 'POST':
+        obj.delete()
+        messages.success(request, 'Đã xoá Chat.')
+        return redirect('dasher_admin:core_chat_list')
+    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Live Chat', 'cancel_url': '/dasher-admin/sys-chat/'})

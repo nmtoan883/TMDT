@@ -44,17 +44,30 @@
       </ul>
     </li>
 
-    <li class="nav-item">
-      <a class="nav-link {% if '/accounts/' in request.path %}active{% endif %}" href="{% url 'dasher_admin:account_list' %}"><span class="nav-icon"><svg
-            xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-            class="icon icon-tabler icons-tabler-outline icon-tabler-users">
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle {% if 'account' in request.path or 'social' in request.path %}show active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="{% if 'account' in request.path or 'social' in request.path %}true{% else %}false{% endif %}">
+        <span class="nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-users">
             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
             <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
             <path d="M3 21v-2a4 4 0 0 1 4 -4h4c.96 0 1.84 .338 2.53 .901" />
             <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
-          </svg></span> <span class="text">Tài khoản</span></a>
+          </svg>
+        </span>
+        <span class="text">Tài khoản (Account)</span>
+      </a>
+      <ul class="dropdown-menu flex-column {% if 'account' in request.path or 'social' in request.path %}show{% endif %}">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'dasher_admin:account_list' %}">User Profiles</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'dasher_admin:socialaccount_list' %}">Social Accounts</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'dasher_admin:socialapp_list' %}">Social Apps (OAuth)</a>
+        </li>
+      </ul>
     </li>
 
     <li class="nav-item dropdown">
@@ -113,6 +126,26 @@
 
 
 
+
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle {% if '/sys-' in request.path %}show active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="{% if '/sys-' in request.path %}true{% else %}false{% endif %}">
+        <span class="nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-settings">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" />
+            <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+          </svg>
+        </span>
+        <span class="text">Hệ thống (System)</span>
+      </a>
+      <ul class="dropdown-menu flex-column {% if '/sys-' in request.path %}show{% endif %}">
+        <li class="nav-item"><a class="nav-link" href="{% url 'dasher_admin:core_user_list' %}">User (Django Auth)</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'dasher_admin:core_group_list' %}">Group (Roles)</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'dasher_admin:core_site_list' %}">Sites Framework</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'dasher_admin:core_email_list' %}">Email Addresses</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'dasher_admin:core_chat_list' %}">Live Chat Sessions</a></li>
+      </ul>
+    </li>
 
     <li class="nav-item">
       <div class="nav-heading">Pages</div>

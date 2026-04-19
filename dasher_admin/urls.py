@@ -70,4 +70,40 @@ urlpatterns = [
     path('ecommerce/promotion/add/', views.ec_promotion_add, name='ec_promotion_add'),
     path('ecommerce/promotion/edit/<int:pk>/', views.ec_promotion_edit, name='ec_promotion_edit'),
     path('ecommerce/promotion/delete/<int:pk>/', views.ec_promotion_delete, name='ec_promotion_delete'),
+
+    
+    path('socialaccount/', views.socialaccount_list, name='socialaccount_list'),
+    path('socialaccount/create/', views.socialaccount_create, name='socialaccount_create'),
+    path('socialaccount/<int:pk>/update/', views.socialaccount_update, name='socialaccount_update'),
+    path('socialaccount/<int:pk>/delete/', views.socialaccount_delete, name='socialaccount_delete'),
+
+    path('socialapp/', views.socialapp_list, name='socialapp_list'),
+    path('socialapp/create/', views.socialapp_create, name='socialapp_create'),
+    path('socialapp/<int:pk>/update/', views.socialapp_update, name='socialapp_update'),
+    path('socialapp/<int:pk>/delete/', views.socialapp_delete, name='socialapp_delete'),
+
+    path('sys-user/', views.core_user_list, name='core_user_list'),
+    path('sys-user/create/', views.core_user_create, name='core_user_create'),
+    path('sys-user/<int:pk>/update/', views.core_user_update, name='core_user_update'),
+    path('sys-user/<int:pk>/delete/', views.core_user_delete, name='core_user_delete'),
+
+    path('sys-group/', views.core_group_list, name='core_group_list'),
+    path('sys-group/create/', views.core_group_create, name='core_group_create'),
+    path('sys-group/<int:pk>/update/', views.core_group_update, name='core_group_update'),
+    path('sys-group/<int:pk>/delete/', views.core_group_delete, name='core_group_delete'),
+
+    path('sys-site/', views.core_site_list, name='core_site_list'),
+    path('sys-site/create/', views.core_site_create, name='core_site_create'),
+    path('sys-site/<int:pk>/update/', views.core_site_update, name='core_site_update'),
+    path('sys-site/<int:pk>/delete/', views.core_site_delete, name='core_site_delete'),
+
+    path('sys-email/', views.core_email_list, name='core_email_list'),
+    path('sys-email/create/', views.core_email_create, name='core_email_create'),
+    path('sys-email/<int:pk>/update/', views.core_email_update, name='core_email_update'),
+    path('sys-email/<int:pk>/delete/', views.core_email_delete, name='core_email_delete'),
+
+    path('sys-chat/', views.core_chat_list, name='core_chat_list'),
+    path('sys-chat/create/', views.core_chat_create, name='core_chat_create'),
+    path('sys-chat/<int:pk>/update/', views.core_chat_update, name='core_chat_update'),
+    path('sys-chat/<int:pk>/delete/', views.core_chat_delete, name='core_chat_delete'),
 ]
