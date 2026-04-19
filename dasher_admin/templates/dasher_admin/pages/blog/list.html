@@ -20,7 +20,7 @@
             <p class="text-secondary mb-0">Quản lý nội dung và bài viết tin tức tại đây.</p>
           </div>
           <div class="col-12 col-md-4 text-md-end">
-             <a href="#" class="btn btn-primary d-inline-flex align-items-center gap-2">
+             <a href="{% url 'dasher_admin:blog_add' %}" class="btn btn-primary d-inline-flex align-items-center gap-2">
                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                  Tạo Bài viết
              </a>
@@ -75,8 +75,11 @@
                       </td>
                       <td>{{ post.created_at|date:"d/m/Y H:i" }}</td>
                       <td>
-                        <a href="#" class="btn btn-sm btn-white">Sửa</a>
-                        <a href="#" class="btn btn-sm btn-danger text-white">Xóa</a>
+                        <a href="{% url 'dasher_admin:blog_edit' pk=post.pk %}" class="btn btn-sm btn-white">Sửa</a>
+                        <form action="{% url 'dasher_admin:blog_delete' pk=post.pk %}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc xoá bài viết này không?');">
+                           {% csrf_token %}
+                           <button type="submit" class="btn btn-sm btn-danger text-white">Xóa</button>
+                        </form>
                       </td>
                     </tr>
                     {% empty %}
