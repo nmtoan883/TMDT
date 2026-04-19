@@ -1,9 +1,11 @@
 from django.urls import path
 from . import views
+from django.contrib.auth.views import LoginView
 
 app_name = 'dasher_admin'
 
 urlpatterns = [
+    path('login/', LoginView.as_view(template_name='dasher_admin/pages/authentication/sign-in.html', redirect_authenticated_user=True), name='login'),
     path('', views.index, name='index'),
     path('blog/', views.blog_list, name='blog_list'),
     path('blog/add/', views.blog_add, name='blog_add'),
