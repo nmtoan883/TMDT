@@ -81,6 +81,32 @@
       </ul>
     </li>
 
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-shopping-cart">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+            <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+            <path d="M17 17h-11v-14h-2" />
+            <path d="M6 5l14 1l-1 7h-13" />
+          </svg>
+        </span>
+        <span class="text">Cửa hàng (Shop)</span>
+      </a>
+      <ul class="dropdown-menu flex-column">
+        <li class="nav-item"><a class="nav-link" href="{% url 'dasher_admin:ec_category_list' %}">Categories (Product)</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'dasher_admin:ec_product_list' %}">Products</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'dasher_admin:ec_review_list' %}">Reviews</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'dasher_admin:ec_wishlist_list' %}">Wishlists</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'dasher_admin:ec_policy_list' %}">Policies (Core)</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'dasher_admin:ec_contactinfo_list' %}">Contacts</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'dasher_admin:ec_contactmessage_list' %}">Tin nhắn Liên hệ</a></li>
+      </ul>
+    </li>
+
+
+
 
 
 
