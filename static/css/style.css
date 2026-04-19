@@ -2414,3 +2414,117 @@ textarea.input {
     transform: translateY(-5px);
     box-shadow: 0 12px 25px rgba(0,0,0,0.1);
 }
+
+
+/* CUSTOM INJECTED CSS FOR HOME UI */
+.fs-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #D10024;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+}
+
+.fs-wrapper {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.fs-title {
+    margin: 0;
+    color: #D10024;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.fs-timer {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 10px;
+    list-style: none;
+    align-items: center;
+}
+
+.fs-timer-val {
+    font-size: 14px;
+    margin-bottom: 0;
+}
+
+.fs-timer-unit {
+    font-size: 10px;
+}
+
+.fs-link {
+    font-weight:600;
+    color:#d10024;
+    font-size: 14px;
+}
+
+.pg-hd-header {
+    margin-bottom: 20px;
+}
+
+.pg-hd-title {
+    color: #D10024;
+    font-size: 28px;
+}
+
+.pg-hd-timer {
+    margin-bottom: 30px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    padding: 0;
+    list-style: none;
+}
+
+.cat-img {
+    height: 250px;
+    object-fit: cover;
+}
+
+.hd-empty-box {
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.hd-empty-body {
+    padding: 30px;
+    text-align: center;
+}
+
+.hd-empty-desc {
+    margin-top: 10px;
+    color: #666;
+}
+
+.hd-empty-btn {
+    margin-top: 15px;
+    display: inline-block;
+}
+
+.sugg-title {
+    color: #D10024;
+    font-size: 24px;
+}
+
+.sugg-more {
+    margin-top: 20px;
+}
+
+.inline-form {
+    display:inline;
+}
+
+.btn-bare {
+    border:none;
+    background:none;
+}
+
+.mr-2px {
+    margin-right: 2px;
+}

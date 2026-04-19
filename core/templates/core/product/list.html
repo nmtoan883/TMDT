@@ -128,9 +128,9 @@
                                 <h4 class="product-price">{{ product.price|floatformat:0 }} VNĐ{% if product.old_price %} <del class="product-old-price">{{ product.old_price|floatformat:0 }} VNĐ</del>{% endif %}</h4>
                                 <div class="product-btns">
                                     {% if user.is_authenticated %}
-                                    <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" style="display:inline;">
+                                    <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" class="inline-form">
                                         {% csrf_token %}
-                                        <button type="submit" class="add-to-wishlist" style="border:none; background:none;"><i class="fa fa-heart-o"></i><span class="tooltipp">Thêm vào yêu thích</span></button>
+                                        <button type="submit" class="add-to-wishlist btn-bare" ><i class="fa fa-heart-o"></i><span class="tooltipp">Thêm vào yêu thích</span></button>
                                     </form>
                                     {% endif %}
                                     <a href="{{ product.get_absolute_url }}" class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">Xem nhanh</span></a>
@@ -169,11 +169,11 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <div class="section-title" style="margin-bottom: 20px;">
-                    <h3 class="title" style="color: #D10024; font-size: 28px;">⚡ FLASH SALE</h3>
+                <div class="section-title pg-hd-header" >
+                    <h3 class="title pg-hd-title" >⚡ FLASH SALE</h3>
                 </div>
                 {% if hotdeal_countdown %}
-                <ul class="hot-deal-countdown" style="margin-bottom: 30px; display: flex; gap: 15px; justify-content: center; padding: 0; list-style: none;">
+                <ul class="hot-deal-countdown pg-hd-timer" >
                     <li><div><h3>{{ hotdeal_countdown.days }}</h3><span>Ngày</span></div></li>
                     <li><div><h3>{{ hotdeal_countdown.hours }}</h3><span>Giờ</span></div></li>
                     <li><div><h3>{{ hotdeal_countdown.minutes }}</h3><span>Phút</span></div></li>
@@ -276,14 +276,14 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <div class="section-title" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #D10024; padding-bottom: 10px; margin-bottom: 30px;">
-                    <h3 class="title" style="margin: 0; color: #D10024; font-size: 26px; font-weight: 700;">⚡ FLASH SALE HÔM NAY</h3>
+                <div class="section-title fs-header" >
+                    <h3 class="title fs-title" >⚡ FLASH SALE HÔM NAY</h3>
                     {% if hotdeal_countdown %}
                     <ul class="hot-deal-countdown" style="margin: 0;">
-                        <li style="margin-right: 2px;"><div><h3 style="font-size: 14px; margin-bottom: 0;">{{ hotdeal_countdown.days }}</h3><span style="font-size: 10px;">Ngày</span></div></li>
-                        <li style="margin-right: 2px;"><div><h3 style="font-size: 14px; margin-bottom: 0;">{{ hotdeal_countdown.hours }}</h3><span style="font-size: 10px;">Giờ</span></div></li>
-                        <li style="margin-right: 2px;"><div><h3 style="font-size: 14px; margin-bottom: 0;">{{ hotdeal_countdown.minutes }}</h3><span style="font-size: 10px;">Phút</span></div></li>
-                        <li><div><h3 style="font-size: 14px; margin-bottom: 0;">{{ hotdeal_countdown.seconds }}</h3><span style="font-size: 10px;">Giây</span></div></li>
+                        <li class="mr-2px"><div><h3 class="fs-timer-val">{{ hotdeal_countdown.days }}</h3><span class="fs-timer-unit">Ngày</span></div></li>
+                        <li class="mr-2px"><div><h3 class="fs-timer-val">{{ hotdeal_countdown.hours }}</h3><span class="fs-timer-unit">Giờ</span></div></li>
+                        <li class="mr-2px"><div><h3 class="fs-timer-val">{{ hotdeal_countdown.minutes }}</h3><span class="fs-timer-unit">Phút</span></div></li>
+                        <li><div><h3 class="fs-timer-val">{{ hotdeal_countdown.seconds }}</h3><span class="fs-timer-unit">Giây</span></div></li>
                     </ul>
                     {% endif %}
                 </div>
@@ -315,9 +315,9 @@
                             {% endif %}
                             <div class="product-btns">
                                 {% if user.is_authenticated %}
-                                <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" style="display:inline;">
+                                <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" class="inline-form">
                                     {% csrf_token %}
-                                    <button type="submit" class="add-to-wishlist" style="border:none; background:none;"><i class="fa fa-heart-o"></i><span class="tooltipp">Thêm vào yêu thích</span></button>
+                                    <button type="submit" class="add-to-wishlist btn-bare" ><i class="fa fa-heart-o"></i><span class="tooltipp">Thêm vào yêu thích</span></button>
                                 </form>
                                 {% endif %}
                                 <a href="{{ product.get_absolute_url }}" class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">Xem nhanh</span></a>
@@ -335,11 +335,11 @@
                 </div>
                 <div id="slick-nav-hotdeal-page" class="products-slick-nav"></div>
                 {% else %}
-                <div class="product" style="max-width: 420px; margin: 0 auto;">
-                    <div class="product-body" style="padding: 30px; text-align: center;">
+                <div class="product hd-empty-box" >
+                    <div class="product-body hd-empty-body" >
                         <h3 class="product-name">Hiện chưa có sản phẩm hot deal.</h3>
-                        <p style="margin-top: 10px; color: #666;">Khi admin bật hot deal cho sản phẩm, chúng sẽ xuất hiện tại đây.</p>
-                        <a href="{% url 'shop:product_list' %}" class="primary-btn" style="margin-top: 15px; display: inline-block;">Quay về trang chủ</a>
+                        <p class="hd-empty-desc">Khi admin bật hot deal cho sản phẩm, chúng sẽ xuất hiện tại đây.</p>
+                        <a href="{% url 'shop:product_list' %}" class="primary-btn hd-empty-btn" >Quay về trang chủ</a>
                     </div>
                 </div>
                 {% endif %}
@@ -366,9 +366,9 @@
                 <div class="shop">
                     <div class="shop-img">
                         {% if cat.image %}
-                        <img src="{{ cat.image.url }}" alt="{{ cat.name }}" style="height: 250px; object-fit: cover;">
+                        <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="cat-img">
                         {% else %}
-                        <img src="{% static 'img/shop01.png' %}" alt="{{ cat.name }}" style="height: 250px; object-fit: cover;">
+                        <img src="{% static 'img/shop01.png' %}" alt="{{ cat.name }}" class="cat-img">
                         {% endif %}
                     </div>
                     <div class="shop-body">
@@ -387,20 +387,20 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <div class="section-title" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #D10024; padding-bottom: 10px; margin-bottom: 30px;">
-                    <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 20px;">
-                        <h3 class="title" style="margin: 0; color: #D10024; font-size: 26px; font-weight: 700;">⚡ FLASH SALE</h3>
+                <div class="section-title fs-header" >
+                    <div class="fs-wrapper">
+                        <h3 class="title fs-title" >⚡ FLASH SALE</h3>
                         {% if hotdeal_countdown %}
-                        <ul class="hot-deal-countdown" style="margin: 0; padding: 0; display: flex; gap: 10px; list-style: none; align-items: center;">
-                            <li style="margin-right: 2px;"><div><h3 style="font-size: 14px; margin-bottom: 0;">{{ hotdeal_countdown.days }}</h3><span style="font-size: 10px;">Ngày</span></div></li>
-                            <li style="margin-right: 2px;"><div><h3 style="font-size: 14px; margin-bottom: 0;">{{ hotdeal_countdown.hours }}</h3><span style="font-size: 10px;">Giờ</span></div></li>
-                            <li style="margin-right: 2px;"><div><h3 style="font-size: 14px; margin-bottom: 0;">{{ hotdeal_countdown.minutes }}</h3><span style="font-size: 10px;">Phút</span></div></li>
-                            <li><div><h3 style="font-size: 14px; margin-bottom: 0;">{{ hotdeal_countdown.seconds }}</h3><span style="font-size: 10px;">Giây</span></div></li>
+                        <ul class="hot-deal-countdown fs-timer" >
+                            <li class="mr-2px"><div><h3 class="fs-timer-val">{{ hotdeal_countdown.days }}</h3><span class="fs-timer-unit">Ngày</span></div></li>
+                            <li class="mr-2px"><div><h3 class="fs-timer-val">{{ hotdeal_countdown.hours }}</h3><span class="fs-timer-unit">Giờ</span></div></li>
+                            <li class="mr-2px"><div><h3 class="fs-timer-val">{{ hotdeal_countdown.minutes }}</h3><span class="fs-timer-unit">Phút</span></div></li>
+                            <li><div><h3 class="fs-timer-val">{{ hotdeal_countdown.seconds }}</h3><span class="fs-timer-unit">Giây</span></div></li>
                         </ul>
                         {% endif %}
                     </div>
                     <div class="section-nav">
-                        <a href="{% url 'shop:hotdeal_list' %}" style="font-weight:600; color:#d10024; font-size: 14px;">Xem tất cả <i class="fa fa-angle-right"></i></a>
+                        <a href="{% url 'shop:hotdeal_list' %}" class="fs-link">Xem tất cả <i class="fa fa-angle-right"></i></a>
                     </div>
                 </div>
             </div>
@@ -431,9 +431,9 @@
                             {% endif %}
                             <div class="product-btns">
                                 {% if user.is_authenticated %}
-                                <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" style="display:inline;">
+                                <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" class="inline-form">
                                     {% csrf_token %}
-                                    <button type="submit" class="add-to-wishlist" style="border:none; background:none;"><i class="fa fa-heart-o"></i><span class="tooltipp">Thêm vào yêu thích</span></button>
+                                    <button type="submit" class="add-to-wishlist btn-bare" ><i class="fa fa-heart-o"></i><span class="tooltipp">Thêm vào yêu thích</span></button>
                                 </form>
                                 {% endif %}
                                 <a href="{{ product.get_absolute_url }}" class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">Xem nhanh</span></a>
@@ -451,11 +451,11 @@
                 </div>
                 <div id="slick-nav-hotdeal-page" class="products-slick-nav"></div>
                 {% else %}
-                <div class="product" style="max-width: 420px; margin: 0 auto;">
-                    <div class="product-body" style="padding: 30px; text-align: center;">
+                <div class="product hd-empty-box" >
+                    <div class="product-body hd-empty-body" >
                         <h3 class="product-name">Hiện chưa có sản phẩm hot deal.</h3>
-                        <p style="margin-top: 10px; color: #666;">Khi admin bật hot deal cho sản phẩm, chúng sẽ xuất hiện tại đây.</p>
-                        <a href="{% url 'shop:product_list' %}" class="primary-btn" style="margin-top: 15px; display: inline-block;">Quay về trang chủ</a>
+                        <p class="hd-empty-desc">Khi admin bật hot deal cho sản phẩm, chúng sẽ xuất hiện tại đây.</p>
+                        <a href="{% url 'shop:product_list' %}" class="primary-btn hd-empty-btn" >Quay về trang chủ</a>
                     </div>
                 </div>
                 {% endif %}
@@ -578,7 +578,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="section-title">
-                    <h3 class="title" style="color: #D10024; font-size: 24px;">GỢI Ý HÔM NAY</h3>
+                    <h3 class="title sugg-title" >GỢI Ý HÔM NAY</h3>
                 </div>
             </div>
             
@@ -606,9 +606,9 @@
                                 <h4 class="product-price">{{ product.price|floatformat:0 }} VNĐ{% if product.old_price %} <del class="product-old-price">{{ product.old_price|floatformat:0 }} VNĐ</del>{% endif %}</h4>
                                 <div class="product-btns">
                                     {% if user.is_authenticated %}
-                                    <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" style="display:inline;">
+                                    <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" class="inline-form">
                                         {% csrf_token %}
-                                        <button type="submit" class="add-to-wishlist" style="border:none; background:none;"><i class="fa fa-heart-o"></i><span class="tooltipp">Thêm vào yêu thích</span></button>
+                                        <button type="submit" class="add-to-wishlist btn-bare" ><i class="fa fa-heart-o"></i><span class="tooltipp">Thêm vào yêu thích</span></button>
                                     </form>
                                     {% endif %}
                                     <a href="{{ product.get_absolute_url }}" class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">Xem nhanh</span></a>
@@ -633,7 +633,7 @@
                 </div>
             </div>
             
-            <div class="col-md-12 text-center" style="margin-top: 20px;">
+            <div class="col-md-12 text-center sugg-more" >
                 <a href="{% url 'shop:product_list' %}?sort=newest" class="primary-btn">Xem thêm gợi ý</a>
             </div>
         </div>
