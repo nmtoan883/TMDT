@@ -92,7 +92,73 @@
         background: #b4001f;
     }
 </style>
-{% if is_hotdeal_page %}
+{% if category or query %}
+<!-- BỘ CỤC DANH MỤC / TÌM KIẾM SẢN PHẨM -->
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="section-title">
+                    <h3 class="title">
+                        {% if category %}Danh mục: {{ category.name }}{% else %}Kết quả tìm kiếm: "{{ query }}"{% endif %}
+                    </h3>
+                </div>
+            </div>
+            
+            <div id="store" class="col-md-12">
+                <div class="row">
+                    {% for product in products %}
+                    <div class="col-md-3 col-sm-6 col-xs-6">
+                        <div class="product">
+                            <div class="product-img">
+                                {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                                {% else %}
+                                <img src="{% static 'img/product01.png' %}" alt="{{ product.name }}">
+                                {% endif %}
+                                <div class="product-label">
+                                    {% if product.old_price %}
+                                    <span class="sale">SALE</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="product-body">
+                                <p class="product-category">{{ product.category.name }}</p>
+                                <h3 class="product-name"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
+                                <h4 class="product-price">{{ product.price|floatformat:0 }} VNĐ{% if product.old_price %} <del class="product-old-price">{{ product.old_price|floatformat:0 }} VNĐ</del>{% endif %}</h4>
+                                <div class="product-btns">
+                                    {% if user.is_authenticated %}
+                                    <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="add-to-wishlist" style="border:none; background:none;"><i class="fa fa-heart-o"></i><span class="tooltipp">Thêm vào yêu thích</span></button>
+                                    </form>
+                                    {% endif %}
+                                    <a href="{{ product.get_absolute_url }}" class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">Xem nhanh</span></a>
+                                </div>
+                            </div>
+                            <div class="add-to-cart">
+                                <form action="{% url 'cart:cart_add' product.id %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> Thêm vào giỏ</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-md-12">
+                        <p style="padding: 20px 0; font-size: 16px;">Không tìm thấy sản phẩm nào.</p>
+                        <a href="{% url 'shop:product_list' %}" class="primary-btn">Quay lại trang chủ</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- KẾT THÚC BỘ CỤC DANH MỤC -->
+
+{% elif is_hotdeal_page %}
 <div class="section">
     <div class="container">
         <div class="row">
