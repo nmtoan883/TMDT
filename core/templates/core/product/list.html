@@ -560,5 +560,48 @@
         </div>
     </div>
 </div>
+</div>
 {% endif %}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.hot-deal-countdown').forEach(function (ul) {
+            let h3s = ul.querySelectorAll('h3');
+            if (h3s.length === 4) {
+                let el_d = h3s[0];
+                let el_h = h3s[1];
+                let el_m = h3s[2];
+                let el_s = h3s[3];
+
+                let d = parseInt(el_d.innerText) || 0;
+                let h = parseInt(el_h.innerText) || 0;
+                let m = parseInt(el_m.innerText) || 0;
+                let s = parseInt(el_s.innerText) || 0;
+
+                let totalSeconds = d * 86400 + h * 3600 + m * 60 + s;
+
+                if (totalSeconds > 0) {
+                    let interval = setInterval(function () {
+                        if (totalSeconds <= 0) {
+                            clearInterval(interval);
+                            return;
+                        }
+                        totalSeconds--;
+
+                        let rem_d = Math.floor(totalSeconds / 86400);
+                        let rem_h = Math.floor((totalSeconds % 86400) / 3600);
+                        let rem_m = Math.floor((totalSeconds % 3600) / 60);
+                        let rem_s = totalSeconds % 60;
+
+                        el_d.innerText = String(rem_d).padStart(2, '0');
+                        el_h.innerText = String(rem_h).padStart(2, '0');
+                        el_m.innerText = String(rem_m).padStart(2, '0');
+                        el_s.innerText = String(rem_s).padStart(2, '0');
+                    }, 1000);
+                }
+            }
+        });
+    });
+</script>
+
 {% endblock %}
