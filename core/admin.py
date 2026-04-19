@@ -16,10 +16,26 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug', 'price', 'old_price', 'stock', 'available', 'created', 'updated']
-    list_filter = ['available', 'created', 'updated', 'category']
-    list_editable = ['price', 'stock', 'available']
+    list_display = [
+        'name', 'category', 'slug', 'price', 'old_price', 'stock', 'available',
+        'is_hotdeal', 'hotdeal_start', 'hotdeal_end', 'created', 'updated'
+    ]
+    list_filter = ['available', 'is_hotdeal', 'created', 'updated', 'category']
+    list_editable = ['price', 'stock', 'available', 'is_hotdeal']
     prepopulated_fields = {'slug': ('name',)}
+    search_fields = ['name', 'slug', 'brand', 'category__name']
+    fieldsets = (
+        ('Thông tin cơ bản', {
+            'fields': ('category', 'name', 'slug', 'brand', 'image', 'description')
+        }),
+        ('Giá và kho', {
+            'fields': ('price', 'old_price', 'stock', 'available')
+        }),
+        ('Hot Deal', {
+            'fields': ('is_hotdeal', 'hotdeal_start', 'hotdeal_end'),
+            'description': 'Bật Hot Deal và chọn thời gian hiệu lực để hiển thị ở trang chủ.'
+        }),
+    )
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):

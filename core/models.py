@@ -35,6 +35,9 @@ class Product(models.Model):
     old_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     stock = models.PositiveIntegerField(default=10)
     available = models.BooleanField(default=True)
+    is_hotdeal = models.BooleanField(default=False)
+    hotdeal_start = models.DateTimeField(blank=True, null=True)
+    hotdeal_end = models.DateTimeField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 

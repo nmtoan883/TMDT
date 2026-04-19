@@ -11,6 +11,7 @@ from django.views.decorators.http import require_POST
 from django.contrib import messages
 from .forms import ContactForm
 from .models import ContactInfo
+from django.utils import timezone
 SUGGESTION_QUERY_MIN_LEN = 2
 SUGGESTION_MAX_RESULTS = 6
 SUGGESTION_QUERY_MAX_LEN = 100
@@ -178,14 +179,46 @@ def _keyword_q(keyword):
     return Q(name__icontains=keyword) | Q(description__icontains=keyword)
 
 
-def product_list(request, category_slug=None):
-    category = None
-    categories = Category.objects.all()
-    query = request.GET.get('query')
-    sort = request.GET.get('sort')
+def _get_hotdeal_products(limit=None):
+    now = timezone.now()
+    queryset = (
+        Product.objects.filter(
+            available=True,
+            is_hotdeal=True,
+        )
+        .filter(Q(hotdeal_start__isnull=True) | Q(hotdeal_start__lte=now))
+        .filter(Q(hotdeal_end__isnull=True) | Q(hotdeal_end__gte=now))
+        .select_related('category')
+        .order_by('hotdeal_end', '-updated', '-created')
+    )
+    if limit is not None:
+        return queryset[:limit]
+    return queryset
 
-    # Query directly from DB on every request so homepage reflects admin changes immediately.
-    base_products = Product.objects.filter(available=True)
+
+def _build_hotdeal_countdown(products):
+    if not products:
+        return None
+
+    first_end = next((product.hotdeal_end for product in products if product.hotdeal_end), None)
+    if not first_end:
+        return None
+
+    remaining_seconds = max(int((first_end - timezone.now()).total_seconds()), 0)
+    days, remainder = divmod(remaining_seconds, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return {
+        'days': f'{days:02d}',
+        'hours': f'{hours:02d}',
+        'minutes': f'{minutes:02d}',
+        'seconds': f'{seconds:02d}',
+        'expires_at': first_end,
+    }
+
+
+def _build_product_list_context(request, base_products, category=None, query=None, sort=None):
+    categories = Category.objects.all()
     latest_products = (
         Product.objects.filter(available=True)
         .select_related('category')
@@ -196,17 +229,8 @@ def product_list(request, category_slug=None):
         .select_related('category')
         .order_by('-stock', '-created')[:12]
     )
-    
-    if query:
-        base_products = base_products.filter(
-            Q(name__icontains=query) |
-            Q(description__icontains=query) |
-            Q(brand__icontains=query)
-        )
-
-    if category_slug:
-        category = get_object_or_404(Category, slug=category_slug)
-        base_products = base_products.filter(category=category)
+    hotdeal_products = list(_get_hotdeal_products())
+    hotdeal_countdown = _build_hotdeal_countdown(hotdeal_products)
 
     price_bounds = base_products.aggregate(
         min_price=Min('price'),
@@ -272,12 +296,14 @@ def product_list(request, category_slug=None):
         products = products.order_by('-price')
     elif sort == 'newest':
         products = products.order_by('-created')
-    
-    return render(request, 'core/product/list.html', {
+
+    return {
         'category': category,
         'categories': categories,
         'products': products,
         'latest_products': latest_products,
+        'hotdeal_products': hotdeal_products,
+        'hotdeal_countdown': hotdeal_countdown,
         'top_selling_products': top_selling_products,
         'top_selling_columns': [
             top_selling_products[0:3],
@@ -296,7 +322,42 @@ def product_list(request, category_slug=None):
         'rams_selected': selected_rams,
         'rom_options': ROM_OPTIONS,
         'roms_selected': selected_roms,
-    })
+    }
+
+
+def product_list(request, category_slug=None):
+    category = None
+    query = request.GET.get('query')
+    sort = request.GET.get('sort')
+
+    # Query directly from DB on every request so homepage reflects admin changes immediately.
+    base_products = Product.objects.filter(available=True)
+    
+    if query:
+        base_products = base_products.filter(
+            Q(name__icontains=query) |
+            Q(description__icontains=query) |
+            Q(brand__icontains=query)
+        )
+
+    if category_slug:
+        category = get_object_or_404(Category, slug=category_slug)
+        base_products = base_products.filter(category=category)
+
+    context = _build_product_list_context(request, base_products, category=category, query=query, sort=sort)
+    return render(request, 'core/product/list.html', context)
+
+
+def hotdeal_list(request):
+    hotdeal_products = list(_get_hotdeal_products(limit=24))
+    context = {
+        'categories': Category.objects.all(),
+        'hotdeal_products': hotdeal_products,
+        'hotdeal_countdown': _build_hotdeal_countdown(hotdeal_products),
+        'is_hotdeal_page': True,
+        'page_title': 'Hot Deal',
+    }
+    return render(request, 'core/product/list.html', context)
 
 
 def product_detail(request, id, slug):

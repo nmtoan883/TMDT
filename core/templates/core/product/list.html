@@ -1,167 +1,87 @@
 ﻿{% extends "base.html" %}
 {% load static %}
-{% block title %}Trang chủ E-Electro{% endblock %}
+{% block title %}{% if is_hotdeal_page %}Hot Deal{% else %}Trang chủ E-Electro{% endif %}{% endblock %}
 {% block breadcrumb %}{% endblock %}
 {% block content %}
+{% if is_hotdeal_page %}
 <div class="section">
     <div class="container">
         <div class="row">
             <div class="col-md-12">
                 <div class="section-title" style="margin-bottom: 20px;">
-                    <h3 class="title">Danh mục</h3>
+                    <h3 class="title">Sản phẩm Hot Deal</h3>
                 </div>
-                <div class="category-grid" style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px; width: 100%;">
-                    {% for c in categories %}
-                    <a href="{% url 'shop:product_list_by_category' c.slug %}" class="category-item" style="display: flex; flex-direction: column; align-items: center; width: 100px; flex-shrink: 0; text-decoration: none;">
-                        <div class="category-icon" style="width: 70px; height: 70px; background-color: #f5f5f5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eaeaea;">
-                            {% if c.icon %}
-                            <i class="{{ c.icon }}" style="font-size: 24px; color: #D10024;"></i>
+                {% if hotdeal_countdown %}
+                <ul class="hot-deal-countdown" style="margin-bottom: 30px;">
+                    <li><div><h3>{{ hotdeal_countdown.days }}</h3><span>Ngày</span></div></li>
+                    <li><div><h3>{{ hotdeal_countdown.hours }}</h3><span>Giờ</span></div></li>
+                    <li><div><h3>{{ hotdeal_countdown.minutes }}</h3><span>Phút</span></div></li>
+                    <li><div><h3>{{ hotdeal_countdown.seconds }}</h3><span>Giây</span></div></li>
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                {% if hotdeal_products %}
+                <div class="products-slick" data-nav="#slick-nav-hotdeal-page">
+                    {% for product in hotdeal_products %}
+                    <div class="product">
+                        <div class="product-img">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
                             {% else %}
-                            <i class="fa fa-th-large" style="font-size: 24px; color: #D10024;"></i>
+                            <img src="{% static 'img/product01.png' %}" alt="{{ product.name }}">
                             {% endif %}
+                            <div class="product-label">
+                                <span class="sale">HOT</span>
+                                {% if product.old_price %}
+                                <span class="new">SALE</span>
+                                {% endif %}
+                            </div>
                         </div>
-                        <span style="font-size: 13px; text-align: center; color: #333; height: 35px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;">
-                            {{ c.name }}
-                        </span>
-                    </a>
+                        <div class="product-body">
+                            <p class="product-category">{{ product.category.name }}</p>
+                            <h3 class="product-name"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
+                            <h4 class="product-price">{{ product.price|floatformat:0 }} VNĐ{% if product.old_price %} <del class="product-old-price">{{ product.old_price|floatformat:0 }} VNĐ</del>{% endif %}</h4>
+                            {% if product.hotdeal_end %}
+                            <p style="margin-top: 8px; color: #D10024; font-size: 12px;">Kết thúc: {{ product.hotdeal_end|date:"d/m/Y H:i" }}</p>
+                            {% endif %}
+                            <div class="product-btns">
+                                {% if user.is_authenticated %}
+                                <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="add-to-wishlist" style="border:none; background:none;"><i class="fa fa-heart-o"></i><span class="tooltipp">Thêm vào yêu thích</span></button>
+                                </form>
+                                {% endif %}
+                                <a href="{{ product.get_absolute_url }}" class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">Xem nhanh</span></a>
+                            </div>
+                        </div>
+                        <div class="add-to-cart">
+                            <form action="{% url 'cart:cart_add' product.id %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> Thêm vào giỏ</button>
+                            </form>
+                        </div>
+                    </div>
                     {% endfor %}
                 </div>
+                <div id="slick-nav-hotdeal-page" class="products-slick-nav"></div>
+                {% else %}
+                <div class="product" style="max-width: 420px; margin: 0 auto;">
+                    <div class="product-body" style="padding: 30px; text-align: center;">
+                        <h3 class="product-name">Hiện chưa có sản phẩm hot deal.</h3>
+                        <p style="margin-top: 10px; color: #666;">Khi admin bật hot deal cho sản phẩm, chúng sẽ xuất hiện tại đây.</p>
+                        <a href="{% url 'shop:product_list' %}" class="primary-btn" style="margin-top: 15px; display: inline-block;">Quay về trang chủ</a>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
-
-<div class="section">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4 col-xs-6">
-                <div class="shop">
-                    <div class="shop-img">
-                        <img src="{% static 'img/shop01.png' %}" alt="">
-                    </div>
-                    <div class="shop-body">
-                        <h3>Bộ sưu tập<br>Laptop</h3>
-                        <a href="{% url 'shop:product_list' %}" class="cta-btn">Mua ngay <i class="fa fa-arrow-circle-right"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 col-xs-6">
-                <div class="shop">
-                    <div class="shop-img">
-                        <img src="{% static 'img/shop03.png' %}" alt="">
-                    </div>
-                    <div class="shop-body">
-                        <h3>Bộ sưu tập<br>Phụ kiện</h3>
-                        <a href="{% url 'shop:product_list' %}" class="cta-btn">Mua ngay <i class="fa fa-arrow-circle-right"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 col-xs-6">
-                <div class="shop">
-                    <div class="shop-img">
-                        <img src="{% static 'img/shop02.png' %}" alt="">
-                    </div>
-                    <div class="shop-body">
-                        <h3>Bộ sưu tập<br>Máy ảnh</h3>
-                        <a href="{% url 'shop:product_list' %}" class="cta-btn">Mua ngay <i class="fa fa-arrow-circle-right"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="section">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="section-title">
-                    <h3 class="title">Sản phẩm mới</h3>
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="row">
-                    <div class="products-tabs">
-                        <div id="tab1" class="tab-pane active">
-                            <div class="products-slick" data-nav="#slick-nav-1">
-                                {% for product in latest_products %}
-                                <div class="product">
-                                    <div class="product-img">
-                                        {% if product.image %}
-                                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
-                                        {% else %}
-                                        <img src="{% static 'img/product01.png' %}" alt="{{ product.name }}">
-                                        {% endif %}
-                                        <div class="product-label">
-                                            {% if product.old_price %}
-                                            <span class="sale">SALE</span>
-                                            {% endif %}
-                                            <span class="new">NEW</span>
-                                        </div>
-                                    </div>
-                                    <div class="product-body">
-                                        <p class="product-category">{{ product.category.name }}</p>
-                                        <h3 class="product-name"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
-                                        <h4 class="product-price">{{ product.price|floatformat:0 }} VNĐ{% if product.old_price %} <del class="product-old-price">{{ product.old_price|floatformat:0 }} VNĐ</del>{% endif %}</h4>
-                                        <div class="product-rating">
-                                            {% for i in "12345" %}
-                                            <i class="fa fa-star"></i>
-                                            {% endfor %}
-                                        </div>
-                                        <div class="product-btns">
-                                            {% if user.is_authenticated %}
-                                            <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" style="display:inline;">
-                                                {% csrf_token %}
-                                                <button type="submit" class="add-to-wishlist" style="border:none; background:none;"><i class="fa fa-heart-o"></i><span class="tooltipp">Thêm vào yêu thích</span></button>
-                                            </form>
-                                            {% endif %}
-                                            <a href="{{ product.get_absolute_url }}" class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">Xem nhanh</span></a>
-                                        </div>
-                                    </div>
-                                    <div class="add-to-cart">
-                                        <form action="{% url 'cart:cart_add' product.id %}" method="post">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="quantity" value="1">
-                                            <button type="submit" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> Thêm vào giỏ</button>
-                                        </form>
-                                    </div>
-                                </div>
-                                {% empty %}
-                                <div class="product">
-                                    <div class="product-body" style="padding: 30px;">
-                                        <h3 class="product-name">Chưa có sản phẩm nào được thêm từ admin.</h3>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            <div id="slick-nav-1" class="products-slick-nav"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="hot-deal" class="section">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="hot-deal">
-                    <ul class="hot-deal-countdown">
-                        <li><div><h3>02</h3><span>Ngày</span></div></li>
-                        <li><div><h3>10</h3><span>Giờ</span></div></li>
-                        <li><div><h3>34</h3><span>Phút</span></div></li>
-                        <li><div><h3>60</h3><span>Giây</span></div></li>
-                    </ul>
-                    <h2 class="text-uppercase">Top sản phẩm</h2>
-                    <a class="primary-btn cta-btn" href="{% url 'shop:product_list' %}">Xem tất cả</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+{% else %}
 <div class="section">
     <div class="container">
         <div class="row">
@@ -268,4 +188,5 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock %}

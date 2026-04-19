@@ -9,7 +9,7 @@
             <h1 class="h3 fw-bold mb-1">Lịch sử mua hàng</h1>
             <p class="text-muted mb-0">Theo dõi các đơn hàng bạn đã đặt.</p>
         </div>
-        <a href="/" class="btn btn-outline-secondary">Tiếp tục mua sắm</a>
+        <a href="{% url 'shop:product_list' %}" class="btn btn-outline-secondary">Tiếp tục mua sắm</a>
     </div>
 
     {% if orders %}

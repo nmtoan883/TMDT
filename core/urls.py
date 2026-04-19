@@ -1,10 +1,13 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from . import views
 
 app_name = 'shop'
 
 urlpatterns = [
-    path('', views.product_list, name='product_list'),
+    path('', RedirectView.as_view(pattern_name='shop:product_list', permanent=False)),
+    path('home/', views.product_list, name='product_list'),
+    path('hot-deals/', views.hotdeal_list, name='hotdeal_list'),
     path('search-suggestions/', views.search_suggestions, name='search_suggestions'),
 
     path('wishlist/', views.wishlist_list, name='wishlist_list'),
