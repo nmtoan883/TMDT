@@ -6,6 +6,7 @@ app_name = 'shop'
 
 urlpatterns = [
     path('', views.product_list, name='product_list'),
+    path('home/', RedirectView.as_view(url='/', permanent=True)),
     path('hot-deals/', views.hotdeal_list, name='hotdeal_list'),
     path('search-suggestions/', views.search_suggestions, name='search_suggestions'),
 
