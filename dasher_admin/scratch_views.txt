@@ -1,276 +1,130 @@
-from django.forms import modelform_factory
-from core import models as core_models
 
 
 @staff_member_required
-def ec_category_list(request):
-    items = core_models.Category.objects.all()
-    return render(request, 'dasher_admin/pages/ecommerce/category_list.html', {'items': items})
+def ec_order_list(request):
+    from orders.models import Order
+    items = Order.objects.all()
+    return render(request, 'dasher_admin/pages/ecommerce/order_list.html', {'items': items})
 
 @staff_member_required
-def ec_category_add(request):
-    FormClass = modelform_factory(core_models.Category, exclude=[])
+def ec_order_add(request):
+    from orders.models import Order
+    FormClass = modelform_factory(Order, exclude=[])
     if request.method == 'POST':
         form = FormClass(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, 'Đã thêm mới thành công.')
-            return redirect('dasher_admin:ec_category_list')
+            return redirect('dasher_admin:ec_order_list')
     else:
         form = FormClass()
-    return render(request, 'dasher_admin/pages/ecommerce/category_form.html', {'form': form})
+    return render(request, 'dasher_admin/pages/ecommerce/order_form.html', {'form': form})
 
 @staff_member_required
-def ec_category_edit(request, pk):
-    obj = get_object_or_404(core_models.Category, pk=pk)
-    FormClass = modelform_factory(core_models.Category, exclude=[])
+def ec_order_edit(request, pk):
+    from orders.models import Order
+    obj = get_object_or_404(Order, pk=pk)
+    FormClass = modelform_factory(Order, exclude=[])
     if request.method == 'POST':
         form = FormClass(request.POST, request.FILES, instance=obj)
         if form.is_valid():
             form.save()
             messages.success(request, 'Đã cập nhật thành công.')
-            return redirect('dasher_admin:ec_category_list')
+            return redirect('dasher_admin:ec_order_list')
     else:
         form = FormClass(instance=obj)
-    return render(request, 'dasher_admin/pages/ecommerce/category_form.html', {'form': form, 'obj': obj})
+    return render(request, 'dasher_admin/pages/ecommerce/order_form.html', {'form': form, 'obj': obj})
 
 @staff_member_required
-def ec_category_delete(request, pk):
-    obj = get_object_or_404(core_models.Category, pk=pk)
+def ec_order_delete(request, pk):
+    from orders.models import Order
+    obj = get_object_or_404(Order, pk=pk)
     obj.delete()
     messages.success(request, 'Đã xóa đối tượng.')
-    return redirect('dasher_admin:ec_category_list')
+    return redirect('dasher_admin:ec_order_list')
 
 @staff_member_required
-def ec_contactinfo_list(request):
-    items = core_models.ContactInfo.objects.all()
-    return render(request, 'dasher_admin/pages/ecommerce/contactinfo_list.html', {'items': items})
+def ec_coupon_list(request):
+    from coupon.models import Coupon
+    items = Coupon.objects.all()
+    return render(request, 'dasher_admin/pages/ecommerce/coupon_list.html', {'items': items})
 
 @staff_member_required
-def ec_contactinfo_add(request):
-    FormClass = modelform_factory(core_models.ContactInfo, exclude=[])
+def ec_coupon_add(request):
+    from coupon.models import Coupon
+    FormClass = modelform_factory(Coupon, exclude=[])
     if request.method == 'POST':
         form = FormClass(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, 'Đã thêm mới thành công.')
-            return redirect('dasher_admin:ec_contactinfo_list')
+            return redirect('dasher_admin:ec_coupon_list')
     else:
         form = FormClass()
-    return render(request, 'dasher_admin/pages/ecommerce/contactinfo_form.html', {'form': form})
+    return render(request, 'dasher_admin/pages/ecommerce/coupon_form.html', {'form': form})
 
 @staff_member_required
-def ec_contactinfo_edit(request, pk):
-    obj = get_object_or_404(core_models.ContactInfo, pk=pk)
-    FormClass = modelform_factory(core_models.ContactInfo, exclude=[])
+def ec_coupon_edit(request, pk):
+    from coupon.models import Coupon
+    obj = get_object_or_404(Coupon, pk=pk)
+    FormClass = modelform_factory(Coupon, exclude=[])
     if request.method == 'POST':
         form = FormClass(request.POST, request.FILES, instance=obj)
         if form.is_valid():
             form.save()
             messages.success(request, 'Đã cập nhật thành công.')
-            return redirect('dasher_admin:ec_contactinfo_list')
+            return redirect('dasher_admin:ec_coupon_list')
     else:
         form = FormClass(instance=obj)
-    return render(request, 'dasher_admin/pages/ecommerce/contactinfo_form.html', {'form': form, 'obj': obj})
+    return render(request, 'dasher_admin/pages/ecommerce/coupon_form.html', {'form': form, 'obj': obj})
 
 @staff_member_required
-def ec_contactinfo_delete(request, pk):
-    obj = get_object_or_404(core_models.ContactInfo, pk=pk)
+def ec_coupon_delete(request, pk):
+    from coupon.models import Coupon
+    obj = get_object_or_404(Coupon, pk=pk)
     obj.delete()
     messages.success(request, 'Đã xóa đối tượng.')
-    return redirect('dasher_admin:ec_contactinfo_list')
+    return redirect('dasher_admin:ec_coupon_list')
 
 @staff_member_required
-def ec_policy_list(request):
-    items = core_models.Policy.objects.all()
-    return render(request, 'dasher_admin/pages/ecommerce/policy_list.html', {'items': items})
+def ec_promotion_list(request):
+    from promotions.models import Promotion
+    items = Promotion.objects.all()
+    return render(request, 'dasher_admin/pages/ecommerce/promotion_list.html', {'items': items})
 
 @staff_member_required
-def ec_policy_add(request):
-    FormClass = modelform_factory(core_models.Policy, exclude=[])
+def ec_promotion_add(request):
+    from promotions.models import Promotion
+    FormClass = modelform_factory(Promotion, exclude=[])
     if request.method == 'POST':
         form = FormClass(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, 'Đã thêm mới thành công.')
-            return redirect('dasher_admin:ec_policy_list')
+            return redirect('dasher_admin:ec_promotion_list')
     else:
         form = FormClass()
-    return render(request, 'dasher_admin/pages/ecommerce/policy_form.html', {'form': form})
+    return render(request, 'dasher_admin/pages/ecommerce/promotion_form.html', {'form': form})
 
 @staff_member_required
-def ec_policy_edit(request, pk):
-    obj = get_object_or_404(core_models.Policy, pk=pk)
-    FormClass = modelform_factory(core_models.Policy, exclude=[])
+def ec_promotion_edit(request, pk):
+    from promotions.models import Promotion
+    obj = get_object_or_404(Promotion, pk=pk)
+    FormClass = modelform_factory(Promotion, exclude=[])
     if request.method == 'POST':
         form = FormClass(request.POST, request.FILES, instance=obj)
         if form.is_valid():
             form.save()
             messages.success(request, 'Đã cập nhật thành công.')
-            return redirect('dasher_admin:ec_policy_list')
+            return redirect('dasher_admin:ec_promotion_list')
     else:
         form = FormClass(instance=obj)
-    return render(request, 'dasher_admin/pages/ecommerce/policy_form.html', {'form': form, 'obj': obj})
+    return render(request, 'dasher_admin/pages/ecommerce/promotion_form.html', {'form': form, 'obj': obj})
 
 @staff_member_required
-def ec_policy_delete(request, pk):
-    obj = get_object_or_404(core_models.Policy, pk=pk)
+def ec_promotion_delete(request, pk):
+    from promotions.models import Promotion
+    obj = get_object_or_404(Promotion, pk=pk)
     obj.delete()
     messages.success(request, 'Đã xóa đối tượng.')
-    return redirect('dasher_admin:ec_policy_list')
-
-@staff_member_required
-def ec_product_list(request):
-    items = core_models.Product.objects.all()
-    return render(request, 'dasher_admin/pages/ecommerce/product_list.html', {'items': items})
-
-@staff_member_required
-def ec_product_add(request):
-    FormClass = modelform_factory(core_models.Product, exclude=[])
-    if request.method == 'POST':
-        form = FormClass(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Đã thêm mới thành công.')
-            return redirect('dasher_admin:ec_product_list')
-    else:
-        form = FormClass()
-    return render(request, 'dasher_admin/pages/ecommerce/product_form.html', {'form': form})
-
-@staff_member_required
-def ec_product_edit(request, pk):
-    obj = get_object_or_404(core_models.Product, pk=pk)
-    FormClass = modelform_factory(core_models.Product, exclude=[])
-    if request.method == 'POST':
-        form = FormClass(request.POST, request.FILES, instance=obj)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Đã cập nhật thành công.')
-            return redirect('dasher_admin:ec_product_list')
-    else:
-        form = FormClass(instance=obj)
-    return render(request, 'dasher_admin/pages/ecommerce/product_form.html', {'form': form, 'obj': obj})
-
-@staff_member_required
-def ec_product_delete(request, pk):
-    obj = get_object_or_404(core_models.Product, pk=pk)
-    obj.delete()
-    messages.success(request, 'Đã xóa đối tượng.')
-    return redirect('dasher_admin:ec_product_list')
-
-@staff_member_required
-def ec_review_list(request):
-    items = core_models.Review.objects.all()
-    return render(request, 'dasher_admin/pages/ecommerce/review_list.html', {'items': items})
-
-@staff_member_required
-def ec_review_add(request):
-    FormClass = modelform_factory(core_models.Review, exclude=[])
-    if request.method == 'POST':
-        form = FormClass(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Đã thêm mới thành công.')
-            return redirect('dasher_admin:ec_review_list')
-    else:
-        form = FormClass()
-    return render(request, 'dasher_admin/pages/ecommerce/review_form.html', {'form': form})
-
-@staff_member_required
-def ec_review_edit(request, pk):
-    obj = get_object_or_404(core_models.Review, pk=pk)
-    FormClass = modelform_factory(core_models.Review, exclude=[])
-    if request.method == 'POST':
-        form = FormClass(request.POST, request.FILES, instance=obj)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Đã cập nhật thành công.')
-            return redirect('dasher_admin:ec_review_list')
-    else:
-        form = FormClass(instance=obj)
-    return render(request, 'dasher_admin/pages/ecommerce/review_form.html', {'form': form, 'obj': obj})
-
-@staff_member_required
-def ec_review_delete(request, pk):
-    obj = get_object_or_404(core_models.Review, pk=pk)
-    obj.delete()
-    messages.success(request, 'Đã xóa đối tượng.')
-    return redirect('dasher_admin:ec_review_list')
-
-@staff_member_required
-def ec_contactmessage_list(request):
-    items = core_models.ContactMessage.objects.all()
-    return render(request, 'dasher_admin/pages/ecommerce/contactmessage_list.html', {'items': items})
-
-@staff_member_required
-def ec_contactmessage_add(request):
-    FormClass = modelform_factory(core_models.ContactMessage, exclude=[])
-    if request.method == 'POST':
-        form = FormClass(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Đã thêm mới thành công.')
-            return redirect('dasher_admin:ec_contactmessage_list')
-    else:
-        form = FormClass()
-    return render(request, 'dasher_admin/pages/ecommerce/contactmessage_form.html', {'form': form})
-
-@staff_member_required
-def ec_contactmessage_edit(request, pk):
-    obj = get_object_or_404(core_models.ContactMessage, pk=pk)
-    FormClass = modelform_factory(core_models.ContactMessage, exclude=[])
-    if request.method == 'POST':
-        form = FormClass(request.POST, request.FILES, instance=obj)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Đã cập nhật thành công.')
-            return redirect('dasher_admin:ec_contactmessage_list')
-    else:
-        form = FormClass(instance=obj)
-    return render(request, 'dasher_admin/pages/ecommerce/contactmessage_form.html', {'form': form, 'obj': obj})
-
-@staff_member_required
-def ec_contactmessage_delete(request, pk):
-    obj = get_object_or_404(core_models.ContactMessage, pk=pk)
-    obj.delete()
-    messages.success(request, 'Đã xóa đối tượng.')
-    return redirect('dasher_admin:ec_contactmessage_list')
-
-@staff_member_required
-def ec_wishlist_list(request):
-    items = core_models.Wishlist.objects.all()
-    return render(request, 'dasher_admin/pages/ecommerce/wishlist_list.html', {'items': items})
-
-@staff_member_required
-def ec_wishlist_add(request):
-    FormClass = modelform_factory(core_models.Wishlist, exclude=[])
-    if request.method == 'POST':
-        form = FormClass(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Đã thêm mới thành công.')
-            return redirect('dasher_admin:ec_wishlist_list')
-    else:
-        form = FormClass()
-    return render(request, 'dasher_admin/pages/ecommerce/wishlist_form.html', {'form': form})
-
-@staff_member_required
-def ec_wishlist_edit(request, pk):
-    obj = get_object_or_404(core_models.Wishlist, pk=pk)
-    FormClass = modelform_factory(core_models.Wishlist, exclude=[])
-    if request.method == 'POST':
-        form = FormClass(request.POST, request.FILES, instance=obj)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Đã cập nhật thành công.')
-            return redirect('dasher_admin:ec_wishlist_list')
-    else:
-        form = FormClass(instance=obj)
-    return render(request, 'dasher_admin/pages/ecommerce/wishlist_form.html', {'form': form, 'obj': obj})
-
-@staff_member_required
-def ec_wishlist_delete(request, pk):
-    obj = get_object_or_404(core_models.Wishlist, pk=pk)
-    obj.delete()
-    messages.success(request, 'Đã xóa đối tượng.')
-    return redirect('dasher_admin:ec_wishlist_list')
+    return redirect('dasher_admin:ec_promotion_list')
