@@ -983,3 +983,8 @@ def core_chat_delete(request, pk):
         messages.success(request, 'Đã xoá Chat.')
         return redirect('dasher_admin:core_chat_list')
     return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Live Chat', 'cancel_url': '/admin/sys-chat/'})
+
+from django.contrib.auth import logout as auth_logout
+def admin_logout(request):
+    auth_logout(request)
+    return redirect("/")
