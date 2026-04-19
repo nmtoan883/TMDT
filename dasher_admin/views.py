@@ -5,3 +5,9 @@ from django.contrib.admin.views.decorators import staff_member_required
 @staff_member_required
 def index(request):
     return render(request, 'dasher_admin/index.html')
+
+@staff_member_required
+def blog_list(request):
+    from blog.models import Post
+    posts = Post.objects.all().order_by('-created_at')
+    return render(request, 'dasher_admin/pages/blog/list.html', {'posts': posts})
