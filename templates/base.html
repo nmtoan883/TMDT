@@ -388,5 +388,83 @@
 		<script src="{% static 'js/search_suggestion.js' %}"></script>
 		{% block extra_js %}{% endblock %}
 
+		<!-- LIVE CHAT / CONTACT WIDGET -->
+		<div class="floating-widget">
+			<!-- Chat Popup Modal -->
+			<div class="chat-popup" id="chatPopup">
+				<div class="chat-header">
+					<h4><i class="fa fa-headphones"></i> Hỗ trợ trực tuyến</h4>
+					<button onclick="toggleChat()" class="close-btn"><i class="fa fa-times"></i></button>
+				</div>
+				<div class="chat-body" id="chatBody">
+					<div class="message support-msg">
+						Chào bạn! 👋<br>Chúng tôi có thể giúp gì cho bạn hôm nay?
+					</div>
+				</div>
+				<div class="chat-footer">
+					<form id="liveChatForm" onsubmit="handleChatSubmit(event)">
+						<input type="text" id="chatInput" placeholder="Nhập tin nhắn..." autocomplete="off" required>
+						<button type="submit"><i class="fa fa-paper-plane"></i></button>
+					</form>
+				</div>
+			</div>
+
+			<!-- Tawk.to Embedded / Toggle Internal Chat -->
+			<button class="action-btn chat-toggle-btn" onclick="toggleChat()" title="Chat trực tiếp">
+				<i class="fa fa-comments"></i>
+			</button>
+			
+			<!-- Zalo Icon -->
+			<a href="https://zalo.me/0123456789" target="_blank" class="action-btn zalo-btn" title="Chat Zalo">
+				<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Icon_of_Zalo.svg/1024px-Icon_of_Zalo.svg.png" alt="Zalo">
+			</a>
+
+			<!-- Phone Call -->
+			<a href="tel:021955184" class="action-btn phone-btn pulse-anim" title="Gọi Hotline">
+				<i class="fa fa-phone"></i>
+			</a>
+		</div>
+
+		<script>
+		function toggleChat() {
+			var chatPop = document.getElementById('chatPopup');
+			if (chatPop.style.display === 'flex') {
+				chatPop.style.display = 'none';
+			} else {
+				chatPop.style.display = 'flex';
+				document.getElementById('chatInput').focus();
+			}
+		}
+
+		function handleChatSubmit(e) {
+			e.preventDefault();
+			var input = document.getElementById('chatInput');
+			var msg = input.value.trim();
+			if (!msg) return;
+
+			var chatBody = document.getElementById('chatBody');
+			
+			// Add User Message
+			var userDiv = document.createElement('div');
+			userDiv.className = 'message user-msg';
+			userDiv.textContent = msg;
+			chatBody.appendChild(userDiv);
+			input.value = '';
+			
+			// Scroll top
+			chatBody.scrollTop = chatBody.scrollHeight;
+
+			// Add System Reply
+			setTimeout(function() {
+				var replyDiv = document.createElement('div');
+				replyDiv.className = 'message support-msg';
+				replyDiv.innerHTML = "Cảm ơn bạn đã liên hệ! Hiện tại các tư vấn viên đang bận, vui lòng để lại Số điện thoại hoặc kết nối qua Zalo để được hỗ trợ nhanh nhất nhé.";
+				chatBody.appendChild(replyDiv);
+				chatBody.scrollTop = chatBody.scrollHeight;
+			}, 1000);
+		}
+		</script>
+		<!-- /LIVE CHAT -->
+
 	</body>
 </html>
