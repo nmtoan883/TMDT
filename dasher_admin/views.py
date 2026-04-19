@@ -943,7 +943,7 @@ def core_email_delete(request, pk):
 @staff_member_required
 def core_chat_list(request):
     objects = LiveChatSession.objects.all()
-    rows = [{'id': obj.id, 'columns': [obj.id, str(obj.user) if obj.user else obj.guest_name, obj.is_active, obj.created_at]} for obj in objects]
+    rows = [{'id': obj.id, 'columns': [obj.id, str(obj.user) if obj.user else obj.session_key, not obj.is_closed, obj.created_at]} for obj in objects]
     return render(request, 'dasher_admin/pages/ecommerce/generic_list.html', {
         'model_name': 'Live Chat Session', 'headers': ['ID', 'User/Guest', 'Active?', 'Created'],
         'rows': rows, 'create_url': '/dasher-admin/sys-chat/create/',
