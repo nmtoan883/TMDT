@@ -148,3 +148,89 @@ def account_delete(request, pk):
     else:
         messages.error(request, 'Không thể xóa tài khoản Quản trị viên tối cao.')
     return redirect('dasher_admin:account_list')
+
+# Legal Policies
+@staff_member_required
+def legal_policy_list(request):
+    from legal.models import PolicyPage
+    policies = PolicyPage.objects.all().order_by('policy_type')
+    return render(request, 'dasher_admin/pages/legal/policy_list.html', {'policies': policies})
+
+@staff_member_required
+def legal_policy_add(request):
+    from dasher_admin.forms import PolicyPageForm
+    if request.method == 'POST':
+        form = PolicyPageForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã tạo sách sách thành công.')
+            return redirect('dasher_admin:legal_policy_list')
+    else:
+        form = PolicyPageForm()
+    return render(request, 'dasher_admin/pages/legal/policy_form.html', {'form': form})
+
+@staff_member_required
+def legal_policy_edit(request, pk):
+    from legal.models import PolicyPage
+    from dasher_admin.forms import PolicyPageForm
+    policy = get_object_or_404(PolicyPage, pk=pk)
+    if request.method == 'POST':
+        form = PolicyPageForm(request.POST, instance=policy)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Cập nhật chính sách thành công.')
+            return redirect('dasher_admin:legal_policy_list')
+    else:
+        form = PolicyPageForm(instance=policy)
+    return render(request, 'dasher_admin/pages/legal/policy_form.html', {'form': form, 'policy': policy})
+
+@staff_member_required
+def legal_policy_delete(request, pk):
+    from legal.models import PolicyPage
+    policy = get_object_or_404(PolicyPage, pk=pk)
+    policy.delete()
+    messages.success(request, 'Đã xóa chính sách.')
+    return redirect('dasher_admin:legal_policy_list')
+
+# Legal Licenses
+@staff_member_required
+def legal_license_list(request):
+    from legal.models import BusinessLicense
+    licenses = BusinessLicense.objects.all()
+    return render(request, 'dasher_admin/pages/legal/license_list.html', {'licenses': licenses})
+
+@staff_member_required
+def legal_license_add(request):
+    from dasher_admin.forms import BusinessLicenseForm
+    if request.method == 'POST':
+        form = BusinessLicenseForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã lưu thông tin ĐKKD.')
+            return redirect('dasher_admin:legal_license_list')
+    else:
+        form = BusinessLicenseForm()
+    return render(request, 'dasher_admin/pages/legal/license_form.html', {'form': form})
+
+@staff_member_required
+def legal_license_edit(request, pk):
+    from legal.models import BusinessLicense
+    from dasher_admin.forms import BusinessLicenseForm
+    license = get_object_or_404(BusinessLicense, pk=pk)
+    if request.method == 'POST':
+        form = BusinessLicenseForm(request.POST, instance=license)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã cập nhật thông tin ĐKKD.')
+            return redirect('dasher_admin:legal_license_list')
+    else:
+        form = BusinessLicenseForm(instance=license)
+    return render(request, 'dasher_admin/pages/legal/license_form.html', {'form': form, 'license': license})
+
+@staff_member_required
+def legal_license_delete(request, pk):
+    from legal.models import BusinessLicense
+    license = get_object_or_404(BusinessLicense, pk=pk)
+    license.delete()
+    messages.success(request, 'Đã xóa thông tin ĐKKD.')
+    return redirect('dasher_admin:legal_license_list')

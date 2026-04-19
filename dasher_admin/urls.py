@@ -20,4 +20,14 @@ urlpatterns = [
     path('accounts/add/', views.account_add, name='account_add'),
     path('accounts/edit/<int:pk>/', views.account_edit, name='account_edit'),
     path('accounts/delete/<int:pk>/', views.account_delete, name='account_delete'),
+
+    # Legal
+    path('legal/policies/', views.legal_policy_list, name='legal_policy_list'),
+    path('legal/policies/add/', views.legal_policy_add, name='legal_policy_add'),
+    path('legal/policies/edit/<int:pk>/', views.legal_policy_edit, name='legal_policy_edit'),
+    path('legal/policies/delete/<int:pk>/', views.legal_policy_delete, name='legal_policy_delete'),
+    path('legal/licenses/', views.legal_license_list, name='legal_license_list'),
+    path('legal/licenses/add/', views.legal_license_add, name='legal_license_add'),
+    path('legal/licenses/edit/<int:pk>/', views.legal_license_edit, name='legal_license_edit'),
+    path('legal/licenses/delete/<int:pk>/', views.legal_license_delete, name='legal_license_delete'),
 ]

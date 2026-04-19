@@ -46,3 +46,36 @@ class CustomerProfileForm(forms.ModelForm):
             'province': forms.TextInput(attrs={'class': 'form-control'}),
             'avatar': forms.FileInput(attrs={'class': 'form-control'}),
         }
+
+from legal.models import PolicyPage, BusinessLicense
+
+class PolicyPageForm(forms.ModelForm):
+    class Meta:
+        model = PolicyPage
+        fields = ['policy_type', 'title', 'slug', 'content', 'is_published']
+        widgets = {
+            'policy_type': forms.Select(attrs={'class': 'form-select'}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'slug': forms.TextInput(attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+class BusinessLicenseForm(forms.ModelForm):
+    class Meta:
+        model = BusinessLicense
+        fields = '__all__'
+        widgets = {
+            'company_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'business_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'tax_code': forms.TextInput(attrs={'class': 'form-control'}),
+            'license_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'issued_by': forms.TextInput(attrs={'class': 'form-control'}),
+            'issue_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'address': forms.TextInput(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'representative': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }

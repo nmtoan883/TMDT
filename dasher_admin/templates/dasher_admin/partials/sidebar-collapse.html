@@ -57,6 +57,30 @@
           </svg></span> <span class="text">Tài khoản</span></a>
     </li>
 
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-gavel">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M13 10l7.383 7.418c.823 .82 .823 2.148 0 2.968a2.11 2.11 0 0 1 -2.976 0l-7.407 -7.386" />
+            <path d="M6 9l4 4" />
+            <path d="M13 10l-4 -4" />
+            <path d="M3 21l3 -3" />
+            <path d="M7 6.942l3.966 -3.966a2.853 2.853 0 0 1 4.04 0c1.116 1.116 1.116 2.923 0 4.04l-3.966 3.966" />
+          </svg>
+        </span>
+        <span class="text">Pháp lý (Legal)</span>
+      </a>
+      <ul class="dropdown-menu flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'dasher_admin:legal_policy_list' %}">Trang Chính Sách</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'dasher_admin:legal_license_list' %}">Giấy Phép KD</a>
+        </li>
+      </ul>
+    </li>
+
 
 
 
