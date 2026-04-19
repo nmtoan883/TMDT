@@ -663,7 +663,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 
-SocialAppForm = modelform_factory(SocialApp, fields='__all__')
+from django.conf import settings
+SocialAppForm = modelform_factory(SocialApp, exclude=['sites'])
 SocialAccountForm = modelform_factory(SocialAccount, fields='__all__')
 
 @staff_member_required
@@ -681,7 +682,8 @@ def socialapp_create(request):
     if request.method == 'POST':
         form = SocialAppForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            app = form.save()
+            app.sites.add(settings.SITE_ID)
             messages.success(request, 'Đã tạo Social App.')
             return redirect('admin:socialapp_list')
     else:
