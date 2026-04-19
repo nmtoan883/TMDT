@@ -4,7 +4,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('user/', include('accounts.urls', namespace='accounts')),
     path('cart/', include('cart.urls', namespace='cart')),
@@ -12,7 +11,7 @@ urlpatterns = [
     path('blog/', include('blog.urls')),
     path('', include('legal.urls')),
     path('', include('promotions.urls')),
-    path('dasher-admin/', include('dasher_admin.urls', namespace='dasher_admin')),
+    path('admin/', include('dasher_admin.urls', namespace='dasher_admin')),
     path('', include('core.urls', namespace='shop')),
     path('coupon/', include('coupon.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),

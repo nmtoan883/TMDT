@@ -662,7 +662,7 @@ def socialapp_list(request):
     rows = [{'id': obj.id, 'columns': [obj.id, obj.provider, obj.name, obj.client_id]} for obj in objects]
     return render(request, 'dasher_admin/pages/ecommerce/generic_list.html', {
         'model_name': 'Social App (OAuth)', 'headers': ['ID', 'Provider', 'Name', 'Client ID'],
-        'rows': rows, 'create_url': '/dasher-admin/socialapp/create/',
+        'rows': rows, 'create_url': '/admin/socialapp/create/',
         'update_url_name': 'dasher_admin:socialapp_update', 'delete_url_name': 'dasher_admin:socialapp_delete'
     })
 
@@ -676,7 +676,7 @@ def socialapp_create(request):
             return redirect('dasher_admin:socialapp_list')
     else:
         form = SocialAppForm()
-    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Social App', 'cancel_url': '/dasher-admin/socialapp/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Social App', 'cancel_url': '/admin/socialapp/'})
 
 @staff_member_required
 def socialapp_update(request, pk):
@@ -689,7 +689,7 @@ def socialapp_update(request, pk):
             return redirect('dasher_admin:socialapp_list')
     else:
         form = SocialAppForm(instance=obj)
-    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Social App', 'cancel_url': '/dasher-admin/socialapp/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Social App', 'cancel_url': '/admin/socialapp/'})
 
 @staff_member_required
 def socialapp_delete(request, pk):
@@ -698,7 +698,7 @@ def socialapp_delete(request, pk):
         obj.delete()
         messages.success(request, 'Đã xoá Social App.')
         return redirect('dasher_admin:socialapp_list')
-    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Social App', 'cancel_url': '/dasher-admin/socialapp/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Social App', 'cancel_url': '/admin/socialapp/'})
 
 @staff_member_required
 def socialaccount_list(request):
@@ -706,7 +706,7 @@ def socialaccount_list(request):
     rows = [{'id': obj.id, 'columns': [obj.id, str(obj.user), obj.provider, obj.uid]} for obj in objects]
     return render(request, 'dasher_admin/pages/ecommerce/generic_list.html', {
         'model_name': 'Social Account', 'headers': ['ID', 'User', 'Provider', 'UID'],
-        'rows': rows, 'create_url': '/dasher-admin/socialaccount/create/',
+        'rows': rows, 'create_url': '/admin/socialaccount/create/',
         'update_url_name': 'dasher_admin:socialaccount_update', 'delete_url_name': 'dasher_admin:socialaccount_delete'
     })
 
@@ -720,7 +720,7 @@ def socialaccount_create(request):
             return redirect('dasher_admin:socialaccount_list')
     else:
         form = SocialAccountForm()
-    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Social Account', 'cancel_url': '/dasher-admin/socialaccount/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Social Account', 'cancel_url': '/admin/socialaccount/'})
 
 @staff_member_required
 def socialaccount_update(request, pk):
@@ -733,7 +733,7 @@ def socialaccount_update(request, pk):
             return redirect('dasher_admin:socialaccount_list')
     else:
         form = SocialAccountForm(instance=obj)
-    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Social Account', 'cancel_url': '/dasher-admin/socialaccount/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Social Account', 'cancel_url': '/admin/socialaccount/'})
 
 @staff_member_required
 def socialaccount_delete(request, pk):
@@ -742,7 +742,7 @@ def socialaccount_delete(request, pk):
         obj.delete()
         messages.success(request, 'Đã xoá Social Account.')
         return redirect('dasher_admin:socialaccount_list')
-    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Social Account', 'cancel_url': '/dasher-admin/socialaccount/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Social Account', 'cancel_url': '/admin/socialaccount/'})
 
 
 # -------------------------------------------------------------------------------------------------
@@ -766,7 +766,7 @@ def core_user_list(request):
     rows = [{'id': obj.id, 'columns': [obj.id, obj.username, obj.email, obj.is_staff, obj.is_active]} for obj in objects]
     return render(request, 'dasher_admin/pages/ecommerce/generic_list.html', {
         'model_name': 'Hệ thống - User', 'headers': ['ID', 'Username', 'Email', 'Staff+', 'Active'],
-        'rows': rows, 'create_url': '/dasher-admin/sys-user/create/',
+        'rows': rows, 'create_url': '/admin/sys-user/create/',
         'update_url_name': 'dasher_admin:core_user_update', 'delete_url_name': 'dasher_admin:core_user_delete'
     })
 
@@ -780,7 +780,7 @@ def core_user_create(request):
             return redirect('dasher_admin:core_user_list')
     else:
         form = UserCreationForm()
-    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Hệ thống - User', 'cancel_url': '/dasher-admin/sys-user/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Hệ thống - User', 'cancel_url': '/admin/sys-user/'})
 
 @staff_member_required
 def core_user_update(request, pk):
@@ -793,7 +793,7 @@ def core_user_update(request, pk):
             return redirect('dasher_admin:core_user_list')
     else:
         form = UserChangeForm(instance=obj)
-    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Hệ thống - User', 'cancel_url': '/dasher-admin/sys-user/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Hệ thống - User', 'cancel_url': '/admin/sys-user/'})
 
 @staff_member_required
 def core_user_delete(request, pk):
@@ -802,7 +802,7 @@ def core_user_delete(request, pk):
         obj.delete()
         messages.success(request, 'Đã xoá User.')
         return redirect('dasher_admin:core_user_list')
-    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Hệ thống - User', 'cancel_url': '/dasher-admin/sys-user/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Hệ thống - User', 'cancel_url': '/admin/sys-user/'})
 
 # --- GROUPS ---
 @staff_member_required
@@ -811,7 +811,7 @@ def core_group_list(request):
     rows = [{'id': obj.id, 'columns': [obj.id, obj.name]} for obj in objects]
     return render(request, 'dasher_admin/pages/ecommerce/generic_list.html', {
         'model_name': 'Hệ thống - Group (Role)', 'headers': ['ID', 'Tên Nhóm'],
-        'rows': rows, 'create_url': '/dasher-admin/sys-group/create/',
+        'rows': rows, 'create_url': '/admin/sys-group/create/',
         'update_url_name': 'dasher_admin:core_group_update', 'delete_url_name': 'dasher_admin:core_group_delete'
     })
 
@@ -825,7 +825,7 @@ def core_group_create(request):
             return redirect('dasher_admin:core_group_list')
     else:
         form = GroupForm()
-    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Hệ thống - Group', 'cancel_url': '/dasher-admin/sys-group/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Hệ thống - Group', 'cancel_url': '/admin/sys-group/'})
 
 @staff_member_required
 def core_group_update(request, pk):
@@ -838,7 +838,7 @@ def core_group_update(request, pk):
             return redirect('dasher_admin:core_group_list')
     else:
         form = GroupForm(instance=obj)
-    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Hệ thống - Group', 'cancel_url': '/dasher-admin/sys-group/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Hệ thống - Group', 'cancel_url': '/admin/sys-group/'})
 
 @staff_member_required
 def core_group_delete(request, pk):
@@ -847,7 +847,7 @@ def core_group_delete(request, pk):
         obj.delete()
         messages.success(request, 'Đã xoá Group.')
         return redirect('dasher_admin:core_group_list')
-    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Hệ thống - Group', 'cancel_url': '/dasher-admin/sys-group/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Hệ thống - Group', 'cancel_url': '/admin/sys-group/'})
 
 # --- SITES ---
 @staff_member_required
@@ -856,7 +856,7 @@ def core_site_list(request):
     rows = [{'id': obj.id, 'columns': [obj.id, obj.domain, obj.name]} for obj in objects]
     return render(request, 'dasher_admin/pages/ecommerce/generic_list.html', {
         'model_name': 'Django Sites', 'headers': ['ID', 'Domain', 'Name'],
-        'rows': rows, 'create_url': '/dasher-admin/sys-site/create/',
+        'rows': rows, 'create_url': '/admin/sys-site/create/',
         'update_url_name': 'dasher_admin:core_site_update', 'delete_url_name': 'dasher_admin:core_site_delete'
     })
 
@@ -870,7 +870,7 @@ def core_site_create(request):
             return redirect('dasher_admin:core_site_list')
     else:
         form = SiteForm()
-    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Django Site', 'cancel_url': '/dasher-admin/sys-site/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Django Site', 'cancel_url': '/admin/sys-site/'})
 
 @staff_member_required
 def core_site_update(request, pk):
@@ -883,7 +883,7 @@ def core_site_update(request, pk):
             return redirect('dasher_admin:core_site_list')
     else:
         form = SiteForm(instance=obj)
-    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Django Site', 'cancel_url': '/dasher-admin/sys-site/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Django Site', 'cancel_url': '/admin/sys-site/'})
 
 @staff_member_required
 def core_site_delete(request, pk):
@@ -892,7 +892,7 @@ def core_site_delete(request, pk):
         obj.delete()
         messages.success(request, 'Đã xoá Site.')
         return redirect('dasher_admin:core_site_list')
-    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Django Site', 'cancel_url': '/dasher-admin/sys-site/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Django Site', 'cancel_url': '/admin/sys-site/'})
 
 # --- EMAIL ADDRESSES ---
 @staff_member_required
@@ -901,7 +901,7 @@ def core_email_list(request):
     rows = [{'id': obj.id, 'columns': [obj.id, str(obj.user), obj.email, obj.verified, obj.primary]} for obj in objects]
     return render(request, 'dasher_admin/pages/ecommerce/generic_list.html', {
         'model_name': 'Allauth Email Address', 'headers': ['ID', 'User', 'Email', 'Verified?', 'Primary?'],
-        'rows': rows, 'create_url': '/dasher-admin/sys-email/create/',
+        'rows': rows, 'create_url': '/admin/sys-email/create/',
         'update_url_name': 'dasher_admin:core_email_update', 'delete_url_name': 'dasher_admin:core_email_delete'
     })
 
@@ -915,7 +915,7 @@ def core_email_create(request):
             return redirect('dasher_admin:core_email_list')
     else:
         form = EmailAddressForm()
-    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Email Address', 'cancel_url': '/dasher-admin/sys-email/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Email Address', 'cancel_url': '/admin/sys-email/'})
 
 @staff_member_required
 def core_email_update(request, pk):
@@ -928,7 +928,7 @@ def core_email_update(request, pk):
             return redirect('dasher_admin:core_email_list')
     else:
         form = EmailAddressForm(instance=obj)
-    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Email Address', 'cancel_url': '/dasher-admin/sys-email/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Email Address', 'cancel_url': '/admin/sys-email/'})
 
 @staff_member_required
 def core_email_delete(request, pk):
@@ -937,7 +937,7 @@ def core_email_delete(request, pk):
         obj.delete()
         messages.success(request, 'Đã xoá Email.')
         return redirect('dasher_admin:core_email_list')
-    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Email Address', 'cancel_url': '/dasher-admin/sys-email/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Email Address', 'cancel_url': '/admin/sys-email/'})
 
 # --- LIVECHAT SESSION ---
 @staff_member_required
@@ -946,7 +946,7 @@ def core_chat_list(request):
     rows = [{'id': obj.id, 'columns': [obj.id, str(obj.user) if obj.user else obj.session_key, not obj.is_closed, obj.created_at]} for obj in objects]
     return render(request, 'dasher_admin/pages/ecommerce/generic_list.html', {
         'model_name': 'Live Chat Session', 'headers': ['ID', 'User/Guest', 'Active?', 'Created'],
-        'rows': rows, 'create_url': '/dasher-admin/sys-chat/create/',
+        'rows': rows, 'create_url': '/admin/sys-chat/create/',
         'update_url_name': 'dasher_admin:core_chat_update', 'delete_url_name': 'dasher_admin:core_chat_delete'
     })
 
@@ -960,7 +960,7 @@ def core_chat_create(request):
             return redirect('dasher_admin:core_chat_list')
     else:
         form = LiveChatSessionForm()
-    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Live Chat', 'cancel_url': '/dasher-admin/sys-chat/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Live Chat', 'cancel_url': '/admin/sys-chat/'})
 
 @staff_member_required
 def core_chat_update(request, pk):
@@ -973,7 +973,7 @@ def core_chat_update(request, pk):
             return redirect('dasher_admin:core_chat_list')
     else:
         form = LiveChatSessionForm(instance=obj)
-    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Live Chat', 'cancel_url': '/dasher-admin/sys-chat/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Live Chat', 'cancel_url': '/admin/sys-chat/'})
 
 @staff_member_required
 def core_chat_delete(request, pk):
@@ -982,4 +982,4 @@ def core_chat_delete(request, pk):
         obj.delete()
         messages.success(request, 'Đã xoá Chat.')
         return redirect('dasher_admin:core_chat_list')
-    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Live Chat', 'cancel_url': '/dasher-admin/sys-chat/'})
+    return render(request, 'dasher_admin/pages/ecommerce/generic_confirm_delete.html', {'object': obj, 'model_name': 'Live Chat', 'cancel_url': '/admin/sys-chat/'})
