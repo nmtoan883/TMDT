@@ -22,7 +22,7 @@
     </li>
 
     <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <a class="nav-link dropdown-toggle {% if '/blog/' in request.path %}show active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="{% if '/blog/' in request.path %}true{% else %}false{% endif %}">
         <span class="nav-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-news">
             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -34,7 +34,7 @@
         </span>
         <span class="text">Blog</span>
       </a>
-      <ul class="dropdown-menu flex-column">
+      <ul class="dropdown-menu flex-column {% if '/blog/' in request.path %}show{% endif %}">
         <li class="nav-item">
           <a class="nav-link" href="{% url 'dasher_admin:blog_list' %}">Bài viết</a>
         </li>
@@ -45,7 +45,7 @@
     </li>
 
     <li class="nav-item">
-      <a class="nav-link" href="{% url 'dasher_admin:account_list' %}"><span class="nav-icon"><svg
+      <a class="nav-link {% if \'/accounts/\' in request.path %}active{% endif %}" href="{% url 'dasher_admin:account_list' %}"><span class="nav-icon"><svg
             xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
             class="icon icon-tabler icons-tabler-outline icon-tabler-users">
@@ -58,7 +58,7 @@
     </li>
 
     <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <a class="nav-link dropdown-toggle {% if '/legal/' in request.path %}show active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="{% if '/legal/' in request.path %}true{% else %}false{% endif %}">
         <span class="nav-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-gavel">
             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -71,7 +71,7 @@
         </span>
         <span class="text">Pháp lý (Legal)</span>
       </a>
-      <ul class="dropdown-menu flex-column">
+      <ul class="dropdown-menu flex-column {% if '/legal/' in request.path %}show{% endif %}">
         <li class="nav-item">
           <a class="nav-link" href="{% url 'dasher_admin:legal_policy_list' %}">Trang Chính Sách</a>
         </li>
@@ -82,7 +82,7 @@
     </li>
 
     <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <a class="nav-link dropdown-toggle {% if '/ecommerce/' in request.path %}show active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="{% if '/ecommerce/' in request.path %}true{% else %}false{% endif %}">
         <span class="nav-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-shopping-cart">
             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -94,7 +94,7 @@
         </span>
         <span class="text">Cửa hàng (Shop)</span>
       </a>
-      <ul class="dropdown-menu flex-column">
+      <ul class="dropdown-menu flex-column {% if '/ecommerce/' in request.path %}show{% endif %}">
         <li class="nav-item"><a class="nav-link" href="{% url 'dasher_admin:ec_category_list' %}">Categories (Product)</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'dasher_admin:ec_product_list' %}">Products</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'dasher_admin:ec_review_list' %}">Reviews</a></li>
@@ -729,8 +729,8 @@
             </svg>
           </span>
           <span class="text">Blog</span>
-        </a>
-        <ul class="dropdown-menu flex-column">
+      </a>
+      <ul class="dropdown-menu flex-column {% if '/blog/' in request.path %}show{% endif %}">
           <li class="nav-item">
             <a class="nav-link" href="{% url 'dasher_admin:blog_list' %}">List</a>
           </li>
