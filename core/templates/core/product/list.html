@@ -141,10 +141,15 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="quantity" value="1">
                                     <button type="submit" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> Thêm vào giỏ</button>
-                                </form>
                             </div>
                         </div>
                     </div>
+                    {% if forloop.counter|divisibleby:2 %}
+                    <div class="clearfix visible-sm visible-xs"></div>
+                    {% endif %}
+                    {% if forloop.counter|divisibleby:4 %}
+                    <div class="clearfix visible-md visible-lg"></div>
+                    {% endif %}
                     {% empty %}
                     <div class="col-md-12">
                         <p style="padding: 20px 0; font-size: 16px;">Không tìm thấy sản phẩm nào.</p>
@@ -613,10 +618,15 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="quantity" value="1">
                                     <button type="submit" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> Thêm vào giỏ</button>
-                                </form>
                             </div>
                         </div>
                     </div>
+                    {% if forloop.counter|divisibleby:2 %}
+                    <div class="clearfix visible-sm visible-xs"></div>
+                    {% endif %}
+                    {% if forloop.counter|divisibleby:4 %}
+                    <div class="clearfix visible-md visible-lg"></div>
+                    {% endif %}
                     {% endfor %}
                 </div>
             </div>
