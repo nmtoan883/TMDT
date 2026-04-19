@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    @@include("../partials/head/head-meta.html")
+    {% include 'dasher_admin/partials/head/head-meta.html' %}
     <title>Blank | Dasher - Responsive Bootstrap 5 Admin Dashboard</title>
-    @@include("../partials/head/head-links.html")
+    {% include 'dasher_admin/partials/head/head-links.html' %}
   </head>
 
   <body>
     <!-- Vertical Sidebar -->
     <div>
-      @@include("../partials/sidebar-collapse.html")
+      {% include 'dasher_admin/partials/sidebar-collapse.html' %}
 
       <!-- Main Content -->
       <div id="content" class="position-relative h-100">
-        @@include("../partials/topbar-second.html")
+        {% include 'dasher_admin/partials/topbar-second.html' %}
         <div class="custom-container">
           <div class="row">
             <div class="col-lg-12 col-md-12 col-12">
@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    @@include("../partials/scripts.html")
+    {% include 'dasher_admin/partials/scripts.html' %}
 
   </body>
 </html>

@@ -3,20 +3,20 @@
 <html lang="en">
 
 <head>
-  @@include("partials/head/head-meta.html")
+  {% include 'dasher_admin/partials/head/head-meta.html' %}
   <title>Dasher Free - Responsive Bootstrap 5 Admin Dashboard</title>
   <link rel="stylesheet" href="@@webRoot/node_modules/swiper/swiper-bundle.min.css" />
-  @@include("partials/head/head-links.html")
+  {% include 'dasher_admin/partials/head/head-links.html' %}
 </head>
 
 <body>
   <!-- Vertical Sidebar -->
   <div>
-    @@include("partials/sidebar-collapse.html")
+    {% include 'dasher_admin/partials/sidebar-collapse.html' %}
 
     <!-- Main Content -->
     <div id="content" class="position-relative h-100">
-      @@include("partials/topbar-second.html")
+      {% include 'dasher_admin/partials/topbar-second.html' %}
       <!-- container -->
       <div class="custom-container">
         <!-- row -->
@@ -732,7 +732,7 @@
     </div>
   </div>
 
-  @@include("partials/scripts.html")
+  {% include 'dasher_admin/partials/scripts.html' %}
   <!-- jsvectormap -->
   <script src="@@webRoot/assets/js/vendors/sidebarnav.js"></script>
   <script src="@@webRoot/node_modules/jsvectormap/dist/js/jsvectormap.min.js"></script>
