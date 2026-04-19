@@ -1,3 +1,5 @@
+from django.utils import timezone
+from promotions.models import Promotion
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
@@ -227,10 +229,17 @@ def _build_product_list_context(request, base_products, category=None, query=Non
     top_selling_products = (
         Product.objects.filter(available=True)
         .select_related('category')
-        .order_by('-stock', '-created')[:12]
+        .order_by('-stock', '-created')[:12]       
     )
     hotdeal_products = list(_get_hotdeal_products())
     hotdeal_countdown = _build_hotdeal_countdown(hotdeal_products)
+
+    now = timezone.now()
+    latest_promotions = Promotion.objects.filter(
+        is_active=True,
+        start_date__lte=now,
+        end_date__gte=now
+    ).order_by('-is_featured', '-created_at')[:3]
 
     price_bounds = base_products.aggregate(
         min_price=Min('price'),
@@ -310,6 +319,7 @@ def _build_product_list_context(request, base_products, category=None, query=Non
             top_selling_products[3:6],
             top_selling_products[6:9],
         ],
+        'latest_promotions': latest_promotions,
         'query': query,
         'sort': sort,
         'price_min_bound': price_min_bound,

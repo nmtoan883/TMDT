@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% block title %}Giấy phép kinh doanh{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+    background: #f7f8fa;
+}
+
+#breadcrumb.section {
+    background: #ffffff;
+    border-bottom: 1px solid #eceff3;
+}
+    .legal-layout {
+        margin-top: 10px;
+    }
+
+    .policy-sidebar {
+        background: #ffffff;
+        border: 1px solid #e4e7ed;
+        border-radius: 8px;
+        padding: 22px 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        margin-bottom: 20px;
+    }
+
+    .policy-sidebar-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2b2d42;
+        margin-bottom: 18px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f1f3f7;
+    }
+
+    .policy-menu {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .policy-menu li {
+        margin-bottom: 10px;
+    }
+
+    .policy-menu a {
+        display: block;
+        padding: 10px 14px;
+        border-radius: 6px;
+        color: #2b2d42;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 1.6;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+
+    .policy-menu a:hover {
+        color: #d10024;
+        background: #fff5f7;
+        border-color: #ffd7df;
+    }
+
+    .active-policy {
+        color: #d10024 !important;
+        font-weight: 700 !important;
+        background: #fff5f7 !important;
+        border: 1px solid #ffd7df !important;
+    }
+
+    .license-card {
+        background: #ffffff;
+        border: 1px solid #e4e7ed;
+        border-radius: 8px;
+        padding: 32px;
+        box-shadow: 0 3px 14px rgba(0, 0, 0, 0.05);
+    }
+
+    .license-badge {
+        display: inline-block;
+        background: #2b2d42;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 7px 12px;
+        border-radius: 30px;
+        margin-bottom: 16px;
+        letter-spacing: 0.4px;
+    }
+
+    .license-title {
+        font-size: 34px;
+        font-weight: 700;
+        color: #2b2d42;
+        margin-top: 0;
+        margin-bottom: 24px;
+    }
+
+    .license-table {
+        margin-bottom: 0;
+    }
+
+    .license-table th {
+        width: 32%;
+        background: #f8f9fb;
+        color: #2b2d42;
+        font-size: 15px;
+        font-weight: 700;
+        vertical-align: middle !important;
+    }
+
+    .license-table td {
+        color: #3f4a5a;
+        font-size: 15px;
+        line-height: 1.8 !important;
+        vertical-align: middle !important;
+    }
+
+    .license-desc {
+        margin-top: 24px;
+        padding: 18px;
+        background: #f9fafc;
+        border: 1px solid #edf1f5;
+        border-radius: 6px;
+        color: #4b5563;
+        font-size: 15px;
+        line-height: 1.9;
+    }
+
+    .license-meta {
+        margin-top: 22px;
+        padding-top: 18px;
+        border-top: 1px solid #eceff3;
+        color: #8d99ae;
+        font-size: 14px;
+    }
+
+    @media (max-width: 991px) {
+        .license-title {
+            font-size: 28px;
+        }
+
+        .license-card {
+            padding: 24px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<div id="breadcrumb" class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="breadcrumb-header">Giấy phép kinh doanh</h3>
+                <ul class="breadcrumb-tree">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li class="active">Giấy phép kinh doanh</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row legal-layout">
+    <div class="col-md-3">
+        <div class="policy-sidebar">
+            <div class="policy-sidebar-title">Trung tâm hỗ trợ</div>
+            <ul class="policy-menu">
+                <li><a href="{% url 'legal:policy_detail' slug='chinh-sach-doi-tra' %}"><i class="fa fa-refresh"></i> Chính sách đổi trả</a></li>
+                <li><a href="{% url 'legal:policy_detail' slug='chinh-sach-van-chuyen' %}"><i class="fa fa-truck"></i> Chính sách vận chuyển</a></li>
+                <li><a href="{% url 'legal:policy_detail' slug='chinh-sach-bao-hanh' %}"><i class="fa fa-shield"></i> Chính sách bảo hành</a></li>
+                <li><a href="{% url 'legal:policy_detail' slug='chinh-sach-bao-mat' %}"><i class="fa fa-lock"></i> Chính sách bảo mật</a></li>
+                <li><a href="{% url 'legal:policy_detail' slug='dieu-khoan-su-dung' %}"><i class="fa fa-file-text"></i> Điều khoản sử dụng</a></li>
+                <li><a href="{% url 'legal:policy_detail' slug='quy-trinh-mua-hang-va-thanh-toan' %}"><i class="fa fa-credit-card"></i> Quy trình mua hàng và thanh toán</a></li>
+                <li><a href="{% url 'legal:policy_detail' slug='khieu-nai-va-giai-quyet-tranh-chap' %}"><i class="fa fa-exclamation-circle"></i> Khiếu nại và giải quyết tranh chấp</a></li>
+                <li>
+                    <a href="{% url 'legal:business_license' %}" class="active-policy">
+                        <i class="fa fa-building"></i> Giấy phép kinh doanh
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        {% if license_obj %}
+        <div class="license-card">
+            <div class="license-badge">Thông tin doanh nghiệp</div>
+            <h1 class="license-title">Giấy phép kinh doanh</h1>
+
+            <table class="table table-bordered license-table">
+                <tr>
+                    <th>Tên doanh nghiệp</th>
+                    <td>{{ license_obj.company_name }}</td>
+                </tr>
+                {% if license_obj.business_name %}
+                <tr>
+                    <th>Tên thương hiệu / cửa hàng</th>
+                    <td>{{ license_obj.business_name }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <th>Mã số thuế</th>
+                    <td>{{ license_obj.tax_code }}</td>
+                </tr>
+                <tr>
+                    <th>Số giấy phép kinh doanh</th>
+                    <td>{{ license_obj.license_number }}</td>
+                </tr>
+                <tr>
+                    <th>Nơi cấp</th>
+                    <td>{{ license_obj.issued_by }}</td>
+                </tr>
+                <tr>
+                    <th>Ngày cấp</th>
+                    <td>{{ license_obj.issue_date|date:"d/m/Y" }}</td>
+                </tr>
+                <tr>
+                    <th>Địa chỉ</th>
+                    <td>{{ license_obj.address }}</td>
+                </tr>
+                {% if license_obj.phone %}
+                <tr>
+                    <th>Số điện thoại</th>
+                    <td>{{ license_obj.phone }}</td>
+                </tr>
+                {% endif %}
+                {% if license_obj.email %}
+                <tr>
+                    <th>Email</th>
+                    <td>{{ license_obj.email }}</td>
+                </tr>
+                {% endif %}
+                {% if license_obj.representative %}
+                <tr>
+                    <th>Người đại diện</th>
+                    <td>{{ license_obj.representative }}</td>
+                </tr>
+                {% endif %}
+            </table>
+
+            {% if license_obj.description %}
+            <div class="license-desc">
+                {{ license_obj.description|linebreaks }}
+            </div>
+            {% endif %}
+
+            <div class="license-meta">
+                Cập nhật lần cuối: {{ license_obj.updated_at|date:"d/m/Y H:i" }}
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+            Chưa có thông tin giấy phép kinh doanh.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
