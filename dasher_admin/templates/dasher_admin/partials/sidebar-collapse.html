@@ -1,6 +1,6 @@
 <div id="miniSidebar">
   <div class="brand-logo">
-    <a class="d-none d-md-flex align-items-center gap-2" href="@@webRoot/index.html">
+    <a class="d-none d-md-flex align-items-center gap-2" href="{% url 'dasher_admin:index' %}">
       <img src="/static/dasher_admin/assets/images/brand/logo/logo-icon.svg" alt="" />
       <span class="fw-bold fs-4  site-logo-text">Dasher</span>
     </a>
@@ -10,7 +10,7 @@
 
     <!-- Nav item -->
     <li class="nav-item">
-      <a class="nav-link" href="@@webRoot/index.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg"
+      <a class="nav-link" href="{% url 'dasher_admin:index' %}"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg"
             width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
             stroke-linecap="round" stroke-linejoin="round"
             class="icon icon-tabler icons-tabler-outline icon-tabler-shopping-bag">
@@ -71,10 +71,10 @@
 
 
         <li class="nav-item">
-          <a class="nav-link" href="@@webRoot/pages/error/maintenance.html">Maintenance</a>
+          <a class="nav-link" href="#">Maintenance</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="@@webRoot/pages/error/404-error.html">404 Error</a>
+          <a class="nav-link" href="#">404 Error</a>
         </li>
       </ul>
     </li>
@@ -95,19 +95,19 @@
       </a>
       <ul class="dropdown-menu flex-column">
         <li class="nav-item">
-          <a class="nav-link" href="@@webRoot/pages/authentication/sign-in.html">Sign In</a>
+          <a class="nav-link" href="#">Sign In</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="@@webRoot/pages/authentication/sign-up.html">Sign Up</a>
+          <a class="nav-link" href="#">Sign Up</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="@@webRoot/pages/authentication/forget-password.html">Forget Password</a>
+          <a class="nav-link" href="#">Forget Password</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="@@webRoot/pages/authentication/reset-password.html">Reset Password</a>
+          <a class="nav-link" href="#">Reset Password</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="@@webRoot/pages/authentication/otp-varification.html">Otp Varification </a>
+          <a class="nav-link" href="#">Otp Varification </a>
         </li>
       </ul>
     </li>
@@ -214,7 +214,7 @@
     </li>
     <!-- Nav item -->
     <li class="nav-item">
-      <a class="nav-link position-relative " href="@@webRoot/pages/blank.html"
+      <a class="nav-link position-relative " href="#"
         aria-label="External Link">
         <span class="nav-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -255,7 +255,7 @@
   aria-labelledby="offcanvasExampleLabel">
   <div class="offcanvas-header">
 
-    <a class="d-flex align-items-center gap-2" href="@@webRoot/index.html">
+    <a class="d-flex align-items-center gap-2" href="{% url 'dasher_admin:index' %}">
       <img src="/static/dasher_admin/assets/images/brand/logo/logo-icon.svg" alt="" />
       <span class="fw-bold fs-4  site-logo-text">Dasher</span>
     </a>
@@ -266,7 +266,7 @@
     <ul class="navbar-nav flex-column  ">
       <!-- Nav item -->
       <li class="nav-item">
-        <a class="nav-link" href="@@webRoot/index.html"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg"
+        <a class="nav-link" href="{% url 'dasher_admin:index' %}"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg"
               width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
               stroke-linecap="round" stroke-linejoin="round"
               class="icon icon-tabler icons-tabler-outline icon-tabler-files">
@@ -278,7 +278,7 @@
       </li>
       <!-- Nav item -->
       <li class="nav-item">
-        <a class="nav-link" href="@@webRoot/dashboard/analytics.html">
+        <a class="nav-link" href="#">
           <span class="nav-icon "><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
               fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
               class="icon icon-tabler icons-tabler-outline icon-tabler-chart-histogram">
@@ -293,7 +293,7 @@
       </li>
       <!-- Nav item -->
       <li class="nav-item">
-        <a class="nav-link" href="@@webRoot/dashboard/ecommerce.html"><span class="nav-icon"><svg
+        <a class="nav-link" href="#"><span class="nav-icon"><svg
               xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
               class="icon icon-tabler icons-tabler-outline icon-tabler-shopping-bag">
@@ -305,7 +305,7 @@
       </li>
       <!-- Nav item -->
       <li class="nav-item">
-        <a class="nav-link" href="@@webRoot/dashboard/crm.html"><span class="nav-icon"><svg
+        <a class="nav-link" href="#"><span class="nav-icon"><svg
               xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
               class="icon icon-tabler icons-tabler-outline icon-tabler-phone">
@@ -316,7 +316,7 @@
       </li>
       <!-- Nav item -->
       <li class="nav-item">
-        <a class="nav-link" href="@@webRoot/dashboard/finance.html"><span class="nav-icon"><svg
+        <a class="nav-link" href="#"><span class="nav-icon"><svg
               xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
               class="icon icon-tabler icons-tabler-outline icon-tabler-brand-mastercard">
@@ -328,7 +328,7 @@
       </li>
       <!-- Nav item -->
       <li class="nav-item">
-        <a class="nav-link" href="@@webRoot/dashboard/blog.html"><span class="nav-icon"><svg
+        <a class="nav-link" href="#"><span class="nav-icon"><svg
               xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
               class="icon icon-tabler icons-tabler-outline icon-tabler-news">
@@ -342,7 +342,7 @@
       </li>
       <!-- Nav item -->
       <li class="nav-item">
-        <a class="nav-link" href="@@webRoot/dashboard/file.html"><span class="nav-icon"><svg
+        <a class="nav-link" href="#"><span class="nav-icon"><svg
               xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
               class="icon icon-tabler icons-tabler-outline icon-tabler-file-text">
@@ -362,7 +362,7 @@
       </li>
       <!-- Nav item -->
       <li class="nav-item">
-        <a class="nav-link" href="@@webRoot/apps/calendar.html">
+        <a class="nav-link" href="#">
           <span class="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
@@ -381,7 +381,7 @@
       </li>
       <!-- Nav item -->
       <li class="nav-item">
-        <a class="nav-link" href="@@webRoot/apps/chat-app.html">
+        <a class="nav-link" href="#">
           <span class="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
@@ -398,7 +398,7 @@
       </li>
       <!-- Nav item -->
       <li class="nav-item">
-        <a class="nav-link" href="@@webRoot/apps/kanban.html">
+        <a class="nav-link" href="#">
           <span class="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
@@ -430,13 +430,13 @@
         </a>
         <ul class="dropdown-menu flex-column">
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/email/mail.html">Inbox</a>
+            <a class="nav-link" href="#">Inbox</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/email/mail-details.html">Email Detail</a>
+            <a class="nav-link" href="#">Email Detail</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/email/compose.html">Compose</a>
+            <a class="nav-link" href="#">Compose</a>
           </li>
         </ul>
       </li>
@@ -458,26 +458,26 @@
         </a>
         <ul class="dropdown-menu flex-column">
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/e-commerce/ecommerce-products.html">Products</a>
+            <a class="nav-link" href="#">Products</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/e-commerce/ecommerce-products-details.html">Product Detail</a>
+            <a class="nav-link" href="#">Product Detail</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/e-commerce/ecommerce-product-edit.html">Add Product</a>
+            <a class="nav-link" href="#">Add Product</a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/e-commerce/ecommerce-cart.html">Shopping cart</a>
+            <a class="nav-link" href="#">Shopping cart</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/e-commerce/ecommerce-checkout.html">Checkout</a>
+            <a class="nav-link" href="#">Checkout</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/e-commerce/ecommerce-customer.html">Customer</a>
+            <a class="nav-link" href="#">Customer</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/e-commerce/ecommerce-seller.html">Seller</a>
+            <a class="nav-link" href="#">Seller</a>
           </li>
         </ul>
       </li>
@@ -499,10 +499,10 @@
         </a>
         <ul class="dropdown-menu flex-column">
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/order/order-list.html">List</a>
+            <a class="nav-link" href="#">List</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/order/order-details.html">Details</a>
+            <a class="nav-link" href="#">Details</a>
           </li>
 
         </ul>
@@ -526,35 +526,35 @@
         </a>
         <ul class="dropdown-menu flex-column">
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/project/project-grid.html">Grid</a>
+            <a class="nav-link" href="#">Grid</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/project/project-list.html">List</a>
+            <a class="nav-link" href="#">List</a>
           </li>
           <li class="dropdown-submenu">
             <a class="nav-link dropdown-toggle" href="#!" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">Single</a>
             <ul class="dropdown-menu">
               <li class="nav-item">
-                <a class="nav-link" href="@@webRoot/apps/project/project-overview.html">Overview</a>
+                <a class="nav-link" href="#">Overview</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="@@webRoot/apps/project/project-task.html">Task</a>
+                <a class="nav-link" href="#">Task</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="@@webRoot/apps/project/project-budget.html">Budget</a>
+                <a class="nav-link" href="#">Budget</a>
               </li>
 
               <li class="nav-item">
-                <a class="nav-link" href="@@webRoot/apps/project/project-files.html">Files</a>
+                <a class="nav-link" href="#">Files</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="@@webRoot/apps/project/project-team.html">Team</a>
+                <a class="nav-link" href="#">Team</a>
               </li>
             </ul>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/project/add-project.html">Create Project</a>
+            <a class="nav-link" href="#">Create Project</a>
           </li>
         </ul>
       </li>
@@ -574,16 +574,16 @@
         </a>
         <ul class="dropdown-menu flex-column">
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/crm/crm-contacts.html">Contacts</a>
+            <a class="nav-link" href="#">Contacts</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/crm/crm-company.html">Company</a>
+            <a class="nav-link" href="#">Company</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/crm/deals.html">Deals</a>
+            <a class="nav-link" href="#">Deals</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/crm/deals-single.html">Deals Single</a>
+            <a class="nav-link" href="#">Deals Single</a>
           </li>
         </ul>
       </li>
@@ -604,10 +604,10 @@
         </a>
         <ul class="dropdown-menu flex-column">
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/invoice/invoice-list.html">List</a>
+            <a class="nav-link" href="#">List</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/invoice/invoice-detail.html">Detail</a>
+            <a class="nav-link" href="#">Detail</a>
           </li>
 
         </ul>
@@ -628,23 +628,23 @@
         </a>
         <ul class="dropdown-menu flex-column">
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/profile/profile-overview.html">Overview</a>
+            <a class="nav-link" href="#">Overview</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/profile/profile-project.html">Project</a>
+            <a class="nav-link" href="#">Project</a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/profile/profile-team.html">Team</a>
+            <a class="nav-link" href="#">Team</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/profile/profile-followers.html">Followers</a>
+            <a class="nav-link" href="#">Followers</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/profile/profile-activity.html">Activity</a>
+            <a class="nav-link" href="#">Activity</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/profile/profile-settings.html">Settings</a>
+            <a class="nav-link" href="#">Settings</a>
           </li>
         </ul>
       </li>
@@ -669,10 +669,10 @@
             <a class="nav-link" href="{% url 'dasher_admin:blog_list' %}">List</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/blog/blog-post-detail.html">Details</a>
+            <a class="nav-link" href="#">Details</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apps/blog/create-blog-post.html">Create</a>
+            <a class="nav-link" href="#">Create</a>
           </li>
         </ul>
       </li>
@@ -700,10 +700,10 @@
 
 
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/pages/error/maintenance.html">Maintenance</a>
+            <a class="nav-link" href="#">Maintenance</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/pages/error/404-error.html">404 Error</a>
+            <a class="nav-link" href="#">404 Error</a>
           </li>
         </ul>
       </li>
@@ -724,19 +724,19 @@
         </a>
         <ul class="dropdown-menu flex-column">
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/pages/authentication/sign-in.html">Sign In</a>
+            <a class="nav-link" href="#">Sign In</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/pages/authentication/sign-up.html">Sign Up</a>
+            <a class="nav-link" href="#">Sign Up</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/pages/authentication/forget-password.html">Forget Password</a>
+            <a class="nav-link" href="#">Forget Password</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/pages/authentication/reset-password.html">Reset Password</a>
+            <a class="nav-link" href="#">Reset Password</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/pages/authentication/otp-varification.html">Otp Varification </a>
+            <a class="nav-link" href="#">Otp Varification </a>
           </li>
         </ul>
       </li>
@@ -766,30 +766,30 @@
         </a>
         <ul class="dropdown-menu flex-column">
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apexchart/bar.html">Bar</a>
+            <a class="nav-link" href="#">Bar</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apexchart/line.html">Line</a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apexchart/pie.html">Pie</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apexchart/radialbar.html">Radialbar</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apexchart/radar.html">Radar</a>
+            <a class="nav-link" href="#">Line</a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="@@webRoot/apexchart/polararea.html">Polararea</a>
+            <a class="nav-link" href="#">Pie</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Radialbar</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Radar</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="#">Polararea</a>
           </li>
         </ul>
       </li>
       <!-- Nav item -->
       <li class="nav-item dropdown">
-        <a class="nav-link" href="@@webRoot/components/components.html" role="button">
+        <a class="nav-link" href="#" role="button">
           <span class="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
@@ -808,7 +808,7 @@
 
       <!-- Nav item -->
       <li class="nav-item">
-        <a class="nav-link" href="@@webRoot/docs/index.html">
+        <a class="nav-link" href="#">
           <span class="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
@@ -825,7 +825,7 @@
       </li>
       <!-- Nav item -->
       <li class="nav-item">
-        <a class="nav-link" href="@@webRoot/docs/index.html">
+        <a class="nav-link" href="#">
           <span class="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
@@ -942,7 +942,7 @@
       </li>
       <!-- Nav item -->
       <li class="nav-item">
-        <a class="nav-link position-relative " href="@@webRoot/pages/blank.html"
+        <a class="nav-link position-relative " href="#"
           aria-label="External Link">
           <span class="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
