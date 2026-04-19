@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% include 'admin/partials/head/head-meta.html' %}
+  <title>Admin - Blog Categories</title>
+  {% include 'admin/partials/head/head-links.html' %}
+</head>
+<body>
+  <div>
+    {% include 'admin/partials/sidebar-collapse.html' %}
+    <div id="content" class="position-relative h-100">
+      {% include 'admin/partials/topbar-second.html' %}
+      
+      <div class="custom-container">
+        <!-- Title and Action -->
+        <div class="row align-items-center mb-4 g-4">
+          <div class="col-12 col-md-8">
+            <h4 class="mb-0">Danh mục Blog</h4>
+            <p class="text-secondary mb-0">Quản lý các chuyên mục bài viết tại đây.</p>
+          </div>
+          <div class="col-12 col-md-4 text-md-end">
+             <a href="{% url 'admin:blog_category_add' %}" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                 Thêm Danh mục
+             </a>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card card-lg">
+              <div class="table-responsive">
+                <table class="table mb-0 table-centered table-hover text-nowrap">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Tên danh mục</th>
+                      <th>Đường dẫn (Slug)</th>
+                      <th>Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for cat in categories %}
+                    <tr>
+                      <td>
+                        <span class="fw-bold">{{ cat.name }}</span>
+                      </td>
+                      <td>
+                        <span class="text-muted">{{ cat.slug }}</span>
+                      </td>
+                      <td>
+                        <a href="{% url 'admin:blog_category_edit' pk=cat.pk %}" class="btn btn-sm btn-white">Sửa</a>
+                        <form action="{% url 'admin:blog_category_delete' pk=cat.pk %}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc xoá danh mục này không?');">
+                           {% csrf_token %}
+                           <button type="submit" class="btn btn-sm btn-danger text-white">Xóa</button>
+                        </form>
+                      </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center py-5">
+                            <p class="text-muted mb-0">Chưa có danh mục nào.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include 'admin/partials/scripts.html' %}
+  <!-- Theme JS -->
+  <script src="/static/admin/assets/js/vendors/sidebarnav.js"></script>
+</body>
+</html>

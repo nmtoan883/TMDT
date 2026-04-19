@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% include 'admin/partials/head/head-meta.html' %}
+  <title>Admin - {% if post %}Sửa Bài viết{% else %}Tạo Bài viết{% endif %}</title>
+  {% include 'admin/partials/head/head-links.html' %}
+  {{ form.media }}
+</head>
+<body>
+  <div>
+    {% include 'admin/partials/sidebar-collapse.html' %}
+    <div id="content" class="position-relative h-100">
+      {% include 'admin/partials/topbar-second.html' %}
+      
+      <div class="custom-container">
+        <!-- Title -->
+        <div class="row align-items-center mb-4 g-4">
+          <div class="col-12 col-md-8">
+            <h4 class="mb-0">{% if post %}Sửa Bài viết: {{ post.title }}{% else %}Tạo Bài viết Mới{% endif %}</h4>
+            <p class="text-secondary mb-0">Biên tập nội dung bài viết</p>
+          </div>
+          <div class="col-12 col-md-4 text-md-end">
+             <a href="{% url 'admin:blog_list' %}" class="btn btn-white d-inline-flex align-items-center gap-2">
+                 Thoát
+             </a>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card card-lg">
+              <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  
+                  <div class="row g-4">
+                      <div class="col-12 col-md-8">
+                          <div class="mb-3">
+                            <label class="form-label">Tiêu đề</label>
+                            {{ form.title }}
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label">Tóm tắt</label>
+                            {{ form.summary }}
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label">Nội dung</label>
+                            {{ form.content }}
+                          </div>
+                      </div>
+                      <div class="col-12 col-md-4">
+                          <div class="mb-3">
+                            <label class="form-label">Danh mục</label>
+                            {{ form.category }}
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label">Ảnh đại diện</label>
+                            {{ form.image }}
+                            {% if post and post.image %}
+                               <div class="mt-2">
+                                  <img src="{{ post.image.url }}" alt="" class="img-fluid rounded" style="max-height: 150px;"/>
+                               </div>
+                            {% endif %}
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label">Đường dẫn (Slug)</label>
+                            {{ form.slug }}
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label">Tác giả</label>
+                            {{ form.author }}
+                          </div>
+                          <div class="form-check form-switch mb-3 mt-4">
+                            {{ form.is_published }}
+                            <label class="form-check-label px-2" for="{{ form.is_published.id_for_label }}">Xuất bản (Hiển thị ngay)</label>
+                          </div>
+                          <div class="form-check form-switch mb-3">
+                            {{ form.is_featured }}
+                            <label class="form-check-label px-2" for="{{ form.is_featured.id_for_label }}">Bài nổi bật</label>
+                          </div>
+                      </div>
+                  </div>
+
+                  <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+                    <button type="submit" class="btn btn-primary">Lưu Bài viết</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include 'admin/partials/scripts.html' %}
+  <!-- Theme JS -->
+  <script src="/static/admin/assets/js/vendors/sidebarnav.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% include 'admin/partials/head/head-meta.html' %}
+  <title>Admin - {% if category %}Sửa Danh mục{% else %}Thêm Danh mục{% endif %}</title>
+  {% include 'admin/partials/head/head-links.html' %}
+</head>
+<body>
+  <div>
+    {% include 'admin/partials/sidebar-collapse.html' %}
+    <div id="content" class="position-relative h-100">
+      {% include 'admin/partials/topbar-second.html' %}
+      
+      <div class="custom-container">
+        <!-- Title -->
+        <div class="row align-items-center mb-4 g-4">
+          <div class="col-12 col-md-8">
+            <h4 class="mb-0">{% if category %}Sửa Danh mục: {{ category.name }}{% else %}Thêm Danh mục Mới{% endif %}</h4>
+            <p class="text-secondary mb-0">Hệ thống phân loại bài viết blog</p>
+          </div>
+          <div class="col-12 col-md-4 text-md-end">
+             <a href="{% url 'admin:blog_category_list' %}" class="btn btn-white d-inline-flex align-items-center gap-2">
+                 Thoát
+             </a>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <div class="row">
+          <div class="col-12 col-lg-6">
+            <div class="card card-lg">
+              <div class="card-body">
+                <form method="POST">
+                  {% csrf_token %}
+                  <div class="mb-3">
+                    <label class="form-label" for="categoryName">Tên Danh mục</label>
+                    <input type="text" class="form-control" id="categoryName" name="name" 
+                           placeholder="Nhập tên danh mục..." required
+                           value="{{ category.name|default:'' }}">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label" for="categorySlug">Đường dẫn Slug (Tùy chọn)</label>
+                    <input type="text" class="form-control" id="categorySlug" name="slug" 
+                           placeholder="Ex: tin-cong-nghe (Tự động sinh ra nếu để trống)" 
+                           value="{{ category.slug|default:'' }}">
+                  </div>
+                  <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" class="btn btn-primary">Lưu Danh mục</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include 'admin/partials/scripts.html' %}
+  <!-- Theme JS -->
+  <script src="/static/admin/assets/js/vendors/sidebarnav.js"></script>
+</body>
+</html>
