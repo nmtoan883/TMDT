@@ -402,10 +402,16 @@
 					</div>
 				</div>
 				<div class="chat-footer">
+					{% if user.is_authenticated %}
 					<form id="liveChatForm" onsubmit="handleChatSubmit(event)">
 						<input type="text" id="chatInput" placeholder="Nhập tin nhắn..." autocomplete="off" required>
 						<button type="submit"><i class="fa fa-paper-plane"></i></button>
 					</form>
+					{% else %}
+					<div style="text-align:center; width:100%; padding: 10px 0;">
+						<a href="{% url 'account_login' %}" style="color:#D10024; font-weight:bold; font-size:14px;"><i class="fa fa-sign-in"></i> Đăng nhập để nhắn tin</a>
+					</div>
+					{% endif %}
 				</div>
 			</div>
 
@@ -435,9 +441,11 @@
 				if (chatInterval) clearInterval(chatInterval);
 			} else {
 				chatPop.style.display = 'flex';
+				{% if user.is_authenticated %}
 				document.getElementById('chatInput').focus();
 				syncChat(); // initial load
 				chatInterval = setInterval(syncChat, 3000); // sync every 3 seconds
+				{% endif %}
 			}
 		}
 

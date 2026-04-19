@@ -499,11 +499,14 @@ from .models import LiveChatSession, LiveChatMessage
 
 @csrf_exempt
 def chat_sync_api(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'msg': 'Unauthorized'}, status=401)
+
     if not request.session.session_key:
         request.session.create()
     
     session_key = request.session.session_key
-    user = request.user if request.user.is_authenticated else None
+    user = request.user
 
     # Get or Create Session
     chat_session, created = LiveChatSession.objects.get_or_create(
