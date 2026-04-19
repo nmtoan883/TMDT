@@ -344,56 +344,7 @@
 {% else %}
 
 <!-- HOMEPAGE PROMOTION AND FLASH SALE INJECTED -->
-{% if latest_promotions %}
-<div class="section">
-    <div class="container">
-        <div class="section-title">
-            <h3 class="title">Ưu đãi mới nhất</h3>
-            <div class="section-nav">
-                <a href="{% url 'promotions:promotion_list' %}" style="font-weight:600;color:#d10024;">Xem tất cả</a>
-            </div>
-        </div>
 
-        <div class="row">
-            {% for promotion in latest_promotions %}
-            <div class="col-md-4 col-sm-6">
-                <div class="promo-card">
-                    <div class="promo-image">
-                        {% if promotion.banner_image %}
-                            <a href="{{ promotion.get_absolute_url }}">
-                                <img src="{{ promotion.banner_image.url }}" alt="{{ promotion.title }}">
-                            </a>
-                        {% else %}
-                            <a href="{{ promotion.get_absolute_url }}">
-                                <img src="https://via.placeholder.com/600x400?text=Promotion" alt="{{ promotion.title }}">
-                            </a>
-                        {% endif %}
-                    </div>
-
-                    <div class="promo-body">
-                        <div class="promo-badge">{{ promotion.display_badge }}</div>
-
-                        <h3 class="promo-title">
-                            <a href="{{ promotion.get_absolute_url }}">{{ promotion.title }}</a>
-                        </h3>
-
-                        <div class="promo-desc">
-                            {{ promotion.short_description }}
-                        </div>
-
-                        <div class="promo-meta">
-                            Áp dụng đến: {{ promotion.end_date|date:"d/m/Y H:i" }}
-                        </div>
-
-                        <a href="{{ promotion.get_absolute_url }}" class="promo-btn">Xem ưu đãi</a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-{% endif %}
 
 <div class="section">
     <div class="container">
