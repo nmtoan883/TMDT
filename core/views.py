@@ -490,3 +490,57 @@ def wishlist_remove(request, product_id):
     product = get_object_or_404(Product, id=product_id, available=True)
     wishlist.remove(product.id)
     return redirect('shop:wishlist_detail')
+
+
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import LiveChatSession, LiveChatMessage
+
+@csrf_exempt
+def chat_sync_api(request):
+    if not request.session.session_key:
+        request.session.create()
+    
+    session_key = request.session.session_key
+    user = request.user if request.user.is_authenticated else None
+
+    # Get or Create Session
+    chat_session, created = LiveChatSession.objects.get_or_create(
+        session_key=session_key,
+        defaults={'user': user}
+    )
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            message_content = data.get('message', '').strip()
+            if message_content and not chat_session.is_closed:
+                LiveChatMessage.objects.create(
+                    session=chat_session,
+                    content=message_content,
+                    is_admin=False
+                )
+            return JsonResponse({'status': 'ok'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'msg': str(e)})
+            
+    # GET method - fetch messages
+    messages = chat_session.messages.all().order_by('created_at')
+    msg_list = []
+    
+    # We will prepend a default welcome message
+    msg_list.append({
+        'content': 'Chào bạn! 👋<br>Chúng tôi có thể giúp gì cho bạn hôm nay?',
+        'is_admin': True,
+        'created_at': chat_session.created_at.isoformat()
+    })
+    
+    for m in messages:
+        msg_list.append({
+            'content': m.content,
+            'is_admin': m.is_admin,
+            'created_at': m.created_at.isoformat()
+        })
+        
+    return JsonResponse({'status': 'ok', 'messages': msg_list})

@@ -1,6 +1,20 @@
 from django.contrib import admin
 from django.utils.html import mark_safe
-from .models import Category, Product, Review, Contact, Policy, Wishlist, ContactMessage, ContactInfo
+from .models import Category, Product, Review, Contact, Policy, Wishlist, ContactMessage, ContactInfo, LiveChatSession, LiveChatMessage
+
+class LiveChatMessageInline(admin.TabularInline):
+    model = LiveChatMessage
+    extra = 1
+    fields = ('content', 'is_admin', 'created_at')
+    readonly_fields = ('created_at',)
+
+@admin.register(LiveChatSession)
+class LiveChatSessionAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'user', 'is_closed', 'updated_at')
+    list_filter = ('is_closed', 'updated_at')
+    search_fields = ('session_key',)
+    inlines = [LiveChatMessageInline]
+
 
 admin.site.register(Wishlist)
 @admin.register(Category)

@@ -16,6 +16,7 @@ urlpatterns = [
 
     path('create/', views.product_create, name='product_create'),
     path('contact/', views.contact_view, name='contact'),
+    path('api/chat-sync/', views.chat_sync_api, name='chat_sync_api'),
     path('<int:id>/<slug:slug>/', views.product_detail, name='product_detail'),
     path('<slug:category_slug>/', views.product_list, name='product_list_by_category'),
 ]

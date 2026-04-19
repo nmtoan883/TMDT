@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
@@ -135,3 +136,34 @@ class ContactInfo(models.Model):
 
     def __str__(self):
         return "Thông tin liên hệ"
+
+
+class LiveChatSession(models.Model):
+    session_key = models.CharField(max_length=100, unique=True, default=uuid.uuid4)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_closed = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-updated_at']
+        verbose_name = 'Live Chat Session'
+        verbose_name_plural = 'Live Chat Sessions'
+
+    def __str__(self):
+        return f"Chat Session: {str(self.session_key)[:8]}"
+
+class LiveChatMessage(models.Model):
+    session = models.ForeignKey(LiveChatSession, related_name='messages', on_delete=models.CASCADE)
+    content = models.TextField()
+    is_admin = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = 'Chat Message'
+        verbose_name_plural = 'Chat Messages'
+
+    def __str__(self):
+        prefix = 'Admin' if self.is_admin else 'User'
+        return f"{prefix}: {self.content[:30]}"

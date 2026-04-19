@@ -426,14 +426,44 @@
 		</div>
 
 		<script>
+		let chatInterval = null;
+
 		function toggleChat() {
 			var chatPop = document.getElementById('chatPopup');
 			if (chatPop.style.display === 'flex') {
 				chatPop.style.display = 'none';
+				if (chatInterval) clearInterval(chatInterval);
 			} else {
 				chatPop.style.display = 'flex';
 				document.getElementById('chatInput').focus();
+				syncChat(); // initial load
+				chatInterval = setInterval(syncChat, 3000); // sync every 3 seconds
 			}
+		}
+
+		function syncChat() {
+			fetch('/api/chat-sync/')
+			.then(res => res.json())
+			.then(data => {
+				if (data.status === 'ok') {
+					renderChatBox(data.messages);
+				}
+			});
+		}
+
+		function renderChatBox(messages) {
+			var chatBody = document.getElementById('chatBody');
+			let currentMsgCount = chatBody.querySelectorAll('.message').length;
+			if (messages.length === currentMsgCount) return;
+
+			chatBody.innerHTML = '';
+			messages.forEach(m => {
+				var div = document.createElement('div');
+				div.className = m.is_admin ? 'message support-msg' : 'message user-msg';
+				div.innerHTML = m.content;
+				chatBody.appendChild(div);
+			});
+			chatBody.scrollTop = chatBody.scrollHeight;
 		}
 
 		function handleChatSubmit(e) {
@@ -442,26 +472,12 @@
 			var msg = input.value.trim();
 			if (!msg) return;
 
-			var chatBody = document.getElementById('chatBody');
-			
-			// Add User Message
-			var userDiv = document.createElement('div');
-			userDiv.className = 'message user-msg';
-			userDiv.textContent = msg;
-			chatBody.appendChild(userDiv);
 			input.value = '';
-			
-			// Scroll top
-			chatBody.scrollTop = chatBody.scrollHeight;
-
-			// Add System Reply
-			setTimeout(function() {
-				var replyDiv = document.createElement('div');
-				replyDiv.className = 'message support-msg';
-				replyDiv.innerHTML = "Cảm ơn bạn đã liên hệ! Hiện tại các tư vấn viên đang bận, vui lòng để lại Số điện thoại hoặc kết nối qua Zalo để được hỗ trợ nhanh nhất nhé.";
-				chatBody.appendChild(replyDiv);
-				chatBody.scrollTop = chatBody.scrollHeight;
-			}, 1000);
+			fetch('/api/chat-sync/', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ message: msg })
+			}).then(() => syncChat());
 		}
 		</script>
 		<!-- /LIVE CHAT -->
