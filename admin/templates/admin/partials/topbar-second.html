@@ -130,8 +130,8 @@
             <div class="d-flex gap-3 align-items-center border-dashed border-bottom px-4 py-4">
               <img src="/static/admin/assets/images/avatar/avatar-1.jpg" alt="" class="avatar avatar-md rounded-circle" />
               <div>
-                <h4 class="mb-0 fs-5">Jitu Chauhan</h4>
-                <p class="mb-0 text-secondar small">@imjituchauhan</p>
+                <h4 class="mb-0 fs-5">{% if request.user.first_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}</h4>
+                <p class="mb-0 text-secondar small">@{{ request.user.username }}</p>
               </div>
             </div>
             <div class="p-3 d-flex flex-column gap-1">
