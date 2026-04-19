@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% include 'dasher_admin/partials/head/head-meta.html' %}
+  <title>Admin - Tài khoản Khách hàng</title>
+  {% include 'dasher_admin/partials/head/head-links.html' %}
+</head>
+<body>
+  <div>
+    {% include 'dasher_admin/partials/sidebar-collapse.html' %}
+    <div id="content" class="position-relative h-100">
+      {% include 'dasher_admin/partials/topbar-second.html' %}
+      
+      <div class="custom-container">
+        <!-- Title and Action -->
+        <div class="row align-items-center mb-4 g-4">
+          <div class="col-12 col-md-8">
+            <h4 class="mb-0">Danh sách Tài khoản</h4>
+            <p class="text-secondary mb-0">Quản lý người dùng, phân quyền và trạng thái hoạt động.</p>
+          </div>
+          <div class="col-12 col-md-4 text-md-end">
+             <a href="{% url 'dasher_admin:account_add' %}" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                 Thêm Tài khoản
+             </a>
+          </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Table -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card card-lg">
+              <div class="table-responsive">
+                <table class="table mb-0 table-centered table-hover text-nowrap">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Tài khoản</th>
+                      <th>Email</th>
+                      <th>Quyền hạn</th>
+                      <th>Trạng thái</th>
+                      <th>Ngày tham gia</th>
+                      <th>Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for u in users %}
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center gap-3">
+                          {% if u.customer_profile and u.customer_profile.avatar %}
+                            <img src="{{ u.customer_profile.avatar.url }}" alt="{{ u.username }}" class="rounded-circle avatar avatar-md object-fit-cover" />
+                          {% else %}
+                            <div class="avatar avatar-md rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+                               {{ u.username|make_list|first|upper }}
+                            </div>
+                          {% endif %}
+                          <div>
+                            <span class="fw-bold d-block">{{ u.get_full_name|default:u.username }}</span>
+                            <small class="text-muted">@{{ u.username }}</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                         <a href="mailto:{{ u.email }}">{{ u.email|default:"-- Chưa cập nhật --" }}</a>
+                      </td>
+                      <td>
+                        {% if u.is_superuser %}
+                           <span class="badge bg-danger-subtle text-danger">Root Admin</span>
+                        {% elif u.is_staff %}
+                           <span class="badge bg-info-subtle text-info">Nhân viên</span>
+                        {% else %}
+                           <span class="badge bg-secondary-subtle text-secondary">Khách hàng</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if u.is_active %}
+                           <span class="badge bg-success">Hoạt động</span>
+                        {% else %}
+                           <span class="badge bg-danger">Bị khóa</span>
+                        {% endif %}
+                      </td>
+                      <td>{{ u.date_joined|date:"d/m/Y" }}</td>
+                      <td>
+                        <a href="{% url 'dasher_admin:account_edit' pk=u.pk %}" class="btn btn-sm btn-white">Cập nhật</a>
+                        {% if not u.is_superuser %}
+                          <form action="{% url 'dasher_admin:account_delete' pk=u.pk %}" method="POST" class="d-inline" onsubmit="return confirm('Cảnh báo rủi ro bốc hơi dữ liệu!\nBạn có chắc chắn thực hiện chứ?');">
+                             {% csrf_token %}
+                             <button type="submit" class="btn btn-sm btn-danger text-white">Xóa</button>
+                          </form>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <p class="text-muted mb-0">Hệ thống chưa có tài khoản nào khác.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include 'dasher_admin/partials/scripts.html' %}
+  <!-- Theme JS -->
+  <script src="/static/dasher_admin/assets/js/vendors/sidebarnav.js"></script>
+</body>
+</html>
