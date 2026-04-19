@@ -1016,10 +1016,9 @@ textarea.input {
 
 .product .add-to-cart {
   padding: 15px;
-  background: #1e1f29;
+  background: transparent;
   text-align: center;
   z-index: 2;
-  margin-top: -10px; /* Optional subtle pull-up if needed, but relative usually fixes it */
 }
 
 .product:hover .add-to-cart {
