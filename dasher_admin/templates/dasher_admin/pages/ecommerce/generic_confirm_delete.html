@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% include 'dasher_admin/partials/head/head-meta.html' %}
+  <title>Admin - Delete {{ model_name }}</title>
+  {% include 'dasher_admin/partials/head/head-links.html' %}
+</head>
+<body>
+  <div>
+    {% include 'dasher_admin/partials/sidebar-collapse.html' %}
+    <div id="content" class="position-relative h-100">
+      {% include 'dasher_admin/partials/topbar-second.html' %}
+      
+      <div class="custom-container">
+        <div class="row align-items-center mb-4 g-4">
+          <div class="col-12">
+            <h4 class="mb-0">Xác nhận xoá {{ model_name }}</h4>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12 col-md-8">
+            <div class="card card-body text-danger">
+              <p>Bạn có chắc chắn muốn xoá đối tượng "{{ object }}" không? Thao tác này không thể hoàn tác.</p>
+              <form method="POST">
+                {% csrf_token %}
+                <div class="mt-4">
+                  <button type="submit" class="btn btn-danger">Xoá ngay</button>
+                  <a href="{{ cancel_url }}" class="btn btn-light ms-2">Hủy</a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  {% include 'dasher_admin/partials/scripts.html' %}
+</body>
+</html>
