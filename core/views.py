@@ -508,11 +508,10 @@ def chat_sync_api(request):
     session_key = request.session.session_key
     user = request.user
 
-    # Get or Create Session
-    chat_session, created = LiveChatSession.objects.get_or_create(
-        session_key=session_key,
-        defaults={'user': user}
-    )
+    # Get or Create Session based ON USER IDENTITY
+    chat_session = LiveChatSession.objects.filter(user=user).first()
+    if not chat_session:
+        chat_session = LiveChatSession.objects.create(user=user)
 
     if request.method == 'POST':
         try:
