@@ -687,6 +687,345 @@
 </div>
 {% endif %}
 
+<!-- PRODUCT FILTER SECTION - NEW DESIGN -->
+<div id="product-filter-new" class="section" style="background: #ffffff; padding: 40px 0; border-top: 1px solid #e4e7ed; border-bottom: 1px solid #e4e7ed;">
+    <div class="container">
+        <!-- Filter Header -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="filter-header-new">
+                    <h3 class="filter-title-new"><i class="fa fa-filter"></i> Lọc Sản Phẩm</h3>
+                    <div class="filter-summary">
+                        <span id="filterSummaryText">Tất cả sản phẩm</span>
+                    </div>
+                    <button class="filter-toggle-btn-new" onclick="toggleFilterNew()">
+                        <i class="fa fa-chevron-up" id="filterToggleIconNew"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="filterContentNew" class="filter-content-new">
+            <div class="row">
+                <!-- LEFT SIDEBAR - FILTER OPTIONS -->
+                <div class="col-md-3 col-sm-4">
+                    <div class="filter-sidebar">
+                        <form id="sidebarFilterForm" action="{% url 'shop:product_list' %}" method="get">
+                            
+                            <!-- Categories Filter - Moved to Top -->
+                            <div class="filter-section category-section">
+                                <h4 class="filter-section-title">
+                                    <i class="fa fa-th-large"></i> Loại Sản Phẩm
+                                    <button type="button" class="collapse-btn" onclick="toggleSection('category-section')">
+                                        <i class="fa fa-minus"></i>
+                                    </button>
+                                </h4>
+                                <div id="category-section" class="filter-section-content">
+                                    <div class="category-filter-new">
+                                        {% if categories %}
+                                            {% for cat in categories %}
+                                            <label class="filter-checkbox-new">
+                                                <input type="checkbox" name="category" value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}checked{% endif %}>
+                                                <span class="checkmark-new"></span>
+                                                <span class="filter-label">{{ cat.name }}</span>
+                                                <span class="filter-count">({{ cat.product_count|default:0 }})</span>
+                                            </label>
+                                            {% endfor %}
+                                        {% else %}
+                                            <label class="filter-checkbox-new">
+                                                <input type="checkbox" name="category" value="1">
+                                                <span class="checkmark-new"></span>
+                                                <span class="filter-label">Laptop</span>
+                                            </label>
+                                            <label class="filter-checkbox-new">
+                                                <input type="checkbox" name="category" value="2">
+                                                <span class="checkmark-new"></span>
+                                                <span class="filter-label">Smartphone</span>
+                                            </label>
+                                            <label class="filter-checkbox-new">
+                                                <input type="checkbox" name="category" value="3">
+                                                <span class="checkmark-new"></span>
+                                                <span class="filter-label">Máy Ảnh</span>
+                                            </label>
+                                            <label class="filter-checkbox-new">
+                                                <input type="checkbox" name="category" value="4">
+                                                <span class="checkmark-new"></span>
+                                                <span class="filter-label">Phụ Kiện</span>
+                                            </label>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Price Range Filter -->
+                            <div class="filter-section price-section">
+                                <h4 class="filter-section-title">
+                                    <i class="fa fa-money"></i> Kho Giá
+                                    <button type="button" class="collapse-btn" onclick="toggleSection('price-section')">
+                                        <i class="fa fa-minus"></i>
+                                    </button>
+                                </h4>
+                                <div id="price-section" class="filter-section-content">
+                                    <div class="price-filter-new">
+                                        <!-- Optimized Price Input -->
+                                        <div class="price-range-selector">
+                                            <select id="priceRangeSelect" class="price-range-dropdown" onchange="handlePriceRangeChange(this.value)">
+                                                <option value="">Chọn khoảng giá</option>
+                                                <option value="0-1000000">Dưới 1 triệu</option>
+                                                <option value="1000000-5000000">1 - 5 triệu</option>
+                                                <option value="5000000-10000000">5 - 10 triệu</option>
+                                                <option value="1000000-20000000">10 - 20 triệu</option>
+                                                <option value="20000000-50000000">20 - 50 triệu</option>
+                                                <option value="50000000-999999999">Trên 50 triệu</option>
+                                                <option value="custom">Tùy chỉnh...</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <!-- Custom Price Range (Hidden by default) -->
+                                        <div id="customPriceRange" class="custom-price-range" style="display: none;">
+                                            <div class="price-input-group-new">
+                                                <input type="number" name="min_price" id="minPriceNew" placeholder="Giá tối thiểu" min="0" class="price-input-new">
+                                                <span class="price-separator">-</span>
+                                                <input type="number" name="max_price" id="maxPriceNew" placeholder="Giá tối đa" min="0" class="price-input-new">
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Quick Price Buttons -->
+                                        <div class="price-quick-selects">
+                                            <button type="button" class="price-quick-btn" onclick="setPriceRange(0, 1000000)">
+                                                <i class="fa fa-tag"></i> &lt; 1M
+                                            </button>
+                                            <button type="button" class="price-quick-btn" onclick="setPriceRange(1000000, 5000000)">
+                                                <i class="fa fa-tag"></i> 1-5M
+                                            </button>
+                                            <button type="button" class="price-quick-btn" onclick="setPriceRange(5000000, 10000000)">
+                                                <i class="fa fa-tag"></i> 5-10M
+                                            </button>
+                                            <button type="button" class="price-quick-btn" onclick="setPriceRange(20000000, 50000000)">
+                                                <i class="fa fa-tag"></i> 20-50M
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Brands Filter -->
+                            <div class="filter-section brand-section">
+                                <h4 class="filter-section-title">
+                                    <i class="fa fa-tag"></i> Hãng Sản Xuất
+                                    <button type="button" class="collapse-btn" onclick="toggleSection('brand-section')">
+                                        <i class="fa fa-minus"></i>
+                                    </button>
+                                </h4>
+                                <div id="brand-section" class="filter-section-content">
+                                    <div class="brand-filter-new">
+                                        <div class="brand-grid">
+                                            <label class="filter-checkbox-new">
+                                                <input type="checkbox" name="brand" value="apple">
+                                                <span class="checkmark-new"></span>
+                                                <span class="filter-label">Apple</span>
+                                            </label>
+                                            <label class="filter-checkbox-new">
+                                                <input type="checkbox" name="brand" value="samsung">
+                                                <span class="checkmark-new"></span>
+                                                <span class="filter-label">Samsung</span>
+                                            </label>
+                                            <label class="filter-checkbox-new">
+                                                <input type="checkbox" name="brand" value="dell">
+                                                <span class="checkmark-new"></span>
+                                                <span class="filter-label">Dell</span>
+                                            </label>
+                                            <label class="filter-checkbox-new">
+                                                <input type="checkbox" name="brand" value="hp">
+                                                <span class="checkmark-new"></span>
+                                                <span class="filter-label">HP</span>
+                                            </label>
+                                            <label class="filter-checkbox-new">
+                                                <input type="checkbox" name="brand" value="lenovo">
+                                                <span class="checkmark-new"></span>
+                                                <span class="filter-label">Lenovo</span>
+                                            </label>
+                                            <label class="filter-checkbox-new">
+                                                <input type="checkbox" name="brand" value="asus">
+                                                <span class="checkmark-new"></span>
+                                                <span class="filter-label">ASUS</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Special Filters -->
+                            <div class="filter-section special-section">
+                                <h4 class="filter-section-title">
+                                    <i class="fa fa-star"></i> Ưu Tiên Sản Phẩm
+                                    <button type="button" class="collapse-btn" onclick="toggleSection('additional-section')">
+                                        <i class="fa fa-minus"></i>
+                                    </button>
+                                </h4>
+                                <div id="additional-section" class="filter-section-content">
+                                    <div class="special-filter-new">
+                                        <label class="filter-checkbox-new special-filter">
+                                            <input type="checkbox" name="sale" value="1">
+                                            <span class="checkmark-new"></span>
+                                            <span class="filter-label">Đang Giảm Giá</span>
+                                            <span class="filter-badge sale-badge">-%</span>
+                                        </label>
+                                        <label class="filter-checkbox-new special-filter">
+                                            <input type="checkbox" name="new" value="1">
+                                            <span class="checkmark-new"></span>
+                                            <span class="filter-label">Sản Phẩm Mới</span>
+                                            <span class="filter-badge new-badge">NEW</span>
+                                        </label>
+                                        <label class="filter-checkbox-new special-filter">
+                                            <input type="checkbox" name="hot" value="1">
+                                            <span class="checkmark-new"></span>
+                                            <span class="filter-label">Hot Deal</span>
+                                            <span class="filter-badge hot-badge">HOT</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Filter Actions -->
+                            <div class="filter-actions-new">
+                                <button type="submit" class="btn btn-primary filter-apply-btn">
+                                    <i class="fa fa-search"></i> Áp Dụng Lọc
+                                </button>
+                                <button type="button" onclick="clearFiltersNew()" class="btn btn-default filter-clear-btn">
+                                    <i class="fa fa-refresh"></i> Xóa Lọc
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- RIGHT SIDE - FILTERED PRODUCTS -->
+                <div class="col-md-9 col-sm-8">
+                    <div class="filter-products-area">
+                        <!-- Products Header with Sorting -->
+                        <div class="products-header">
+                            <div class="products-info">
+                                <h4 class="products-count">
+                                    <span id="filteredCount">{{ products|length }}</span> sn phm tm thy
+                                </h4>
+                                <div class="active-filters-new" id="activeFiltersNew">
+                                    <!-- Active filters will be displayed here -->
+                                </div>
+                            </div>
+                            <div class="products-sorting">
+                                <label for="sortSelectNew">Sắp xếp:</label>
+                                <select id="sortSelectNew" class="sort-select-new" onchange="applySorting()">
+                                    <option value="">Mặc định</option>
+                                    <option value="price_asc">Giá: Thấp đến Cao</option>
+                                    <option value="price_desc">Giá: Cao đến Thấp</option>
+                                    <option value="name_az">Tên: A-Z</option>
+                                    <option value="name_za">Tên: Z-A</option>
+                                    <option value="newest">Mới Nhất</option>
+                                    <option value="bestselling">Bán Chạy Nhất</option>
+                                </select>
+                                <div class="view-toggle">
+                                    <button type="button" class="view-btn active" onclick="setViewMode('grid')" title="Grid view">
+                                        <i class="fa fa-th"></i>
+                                    </button>
+                                    <button type="button" class="view-btn" onclick="setViewMode('list')" title="List view">
+                                        <i class="fa fa-list"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filtered Products Grid -->
+                        <div class="filtered-products-grid" id="filteredProducts">
+                            <div class="row">
+                                {% for product in products %}
+                                <div class="col-md-4 col-sm-6 col-xs-6 product-item">
+                                    <div class="product">
+                                        <div class="product-img">
+                                            {% if product.image %}
+                                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                                            {% else %}
+                                            <img src="{% static 'img/product01.png' %}" alt="{{ product.name }}">
+                                            {% endif %}
+                                            <div class="product-label">
+                                                {% if product.old_price %}
+                                                <span class="sale">SALE</span>
+                                                {% endif %}
+                                                {% if product.is_hotdeal %}
+                                                <span class="new">HOT</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="product-body">
+                                            <p class="product-category">{{ product.category.name }}</p>
+                                            <h3 class="product-name"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
+                                            <h4 class="product-price">{{ product.price|floatformat:0 }} VN{% if product.old_price %} <del class="product-old-price">{{ product.old_price|floatformat:0 }} VN</del>{% endif %}</h4>
+                                            <div class="product-btns">
+                                                {% if user.is_authenticated %}
+                                                <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" class="inline-form">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="add-to-wishlist btn-bare" ><i class="fa fa-heart-o"></i><span class="tooltipp">Thêm vào yêu thích</span></button>
+                                                </form>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="add-to-cart">
+                                            <form action="{% url 'cart:cart_add' product.id %}" method="post">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="quantity" value="1">
+                                                <button type="submit" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> Thêm vào gi</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if forloop.counter|divisibleby:2 %}
+                                <div class="clearfix visible-sm visible-xs"></div>
+                                {% endif %}
+                                {% if forloop.counter|divisibleby:3 %}
+                                <div class="clearfix visible-md visible-lg"></div>
+                                {% endif %}
+                                {% empty %}
+                                <div class="col-md-12">
+                                    <div class="no-products-found" style="text-align: center; padding: 60px 20px; background: #f8f9fa; border-radius: 10px; margin: 20px 0;">
+                                        <i class="fa fa-search" style="font-size: 48px; color: #d10024; margin-bottom: 20px; display: block;"></i>
+                                        <h3 style="color: #2b2d42; margin-bottom: 15px;">Không tìm thây san phm no</h3>
+                                        <p style="color: #596275; margin-bottom: 25px; font-size: 16px;">Khng c sn phm no ph hp vi iu kin l ca bn.<br>Th chnh sa li iu kin l ho thm sn phm.</p>
+                                        <div style="margin-bottom: 20px;">
+                                            <button onclick="clearFiltersNew()" class="primary-btn" style="margin-right: 10px;">
+                                                <i class="fa fa-refresh"></i> Xa b lc
+                                            </button>
+                                            <a href="{% url 'shop:product_list' %}" class="primary-btn">
+                                                <i class="fa fa-home"></i> Xem t c sn phm
+                                            </a>
+                                        </div>
+                                        <div style="font-size: 14px; color: #8d99ae;">
+                                            <p>Gop ý: Th thng kha gi, danh mc hoc thng hiu khc</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="products-pagination">
+                            <ul class="pagination">
+                                <li class="page-item disabled"><a class="page-link" href="#"><i class="fa fa-angle-left"></i></a></li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item"><a class="page-link" href="#">4</a></li>
+                                <li class="page-item"><a class="page-link" href="#">5</a></li>
+                                <li class="page-item"><a class="page-link" href="#"><i class="fa fa-angle-right"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /PRODUCT FILTER SECTION - NEW DESIGN -->
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll('.hot-deal-countdown').forEach(function (ul) {
