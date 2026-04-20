@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% include 'admin/partials/head/head-meta.html' %}
+  <title>Dashboard Chủ Shop</title>
+  {% include 'admin/partials/head/head-links.html' %}
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+<div>
+  {% include 'admin/partials/sidebar-collapse.html' %}
+
+  <div id="content" class="position-relative h-100">
+    {% include 'admin/partials/topbar-second.html' %}
+
+    <div class="custom-container">
+
+      <!-- TITLE -->
+      <div class="row mb-4">
+        <h3 class="fw-bold">Dashboard Doanh Thu</h3>
+        <p class="text-muted">Thống kê hoạt động cửa hàng</p>
+      </div>
+
+      <!-- CARDS -->
+      <div class="row g-4">
+
+        <div class="col-md-4">
+          <div class="card p-3">
+            <h6>Tổng doanh thu</h6>
+            <h3 class="text-success">{{ total_revenue }} VND</h3>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card p-3">
+            <h6>Số đơn hàng</h6>
+            <h3>{{ total_orders }}</h3>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card p-3">
+            <h6>Khách hàng</h6>
+            <h3>{{ total_customers }}</h3>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CHART -->
+      <div class="row mt-5">
+        <div class="col-12">
+          <div class="card p-4">
+            <h5 class="mb-3">Biểu đồ doanh thu</h5>
+            <canvas id="revenueChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% include 'admin/partials/scripts.html' %}
+
+<!-- 🔥 FIX CHUẨN -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const canvas = document.getElementById('revenueChart');
+
+    if (!canvas) {
+        console.log("Không tìm thấy chart");
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ labels|safe }},
+            datasets: [{
+                label: 'Doanh thu',
+                data: {{ data|safe }},
+                borderWidth: 2,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true
+                }
+            }
+        }
+    });
+
+});
+</script>
+
+</body>
+</html>
