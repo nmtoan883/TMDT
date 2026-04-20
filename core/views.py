@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Case, When, Value, IntegerField
 from django.db.models import CharField, TextField, SlugField, ForeignKey
 from .forms import ProductForm, ReviewForm
-from .models import Category, Product, Review, Wishlist
+from .models import Banner, Category, Product, Review, Wishlist
 from cart.forms import CartAddProductForm
 from django.views.decorators.http import require_POST
 from django.contrib import messages
@@ -309,7 +309,6 @@ def _build_product_list_context(request, base_products, category=None, query=Non
     elif sort == 'newest':
         products = products.order_by('-created')
 
-    from .models import Banner
     home_banners = Banner.objects.filter(is_active=True)
 
     return {
@@ -367,10 +366,17 @@ def product_list(request, category_slug=None):
 
 def hotdeal_list(request):
     hotdeal_products = list(_get_hotdeal_products(limit=24))
+    now = timezone.now()
     context = {
         'categories': Category.objects.all(),
+        'home_banners': Banner.objects.filter(is_active=True),
         'hotdeal_products': hotdeal_products,
         'hotdeal_countdown': _build_hotdeal_countdown(hotdeal_products),
+        'latest_promotions': Promotion.objects.filter(
+            is_active=True,
+            start_date__lte=now,
+            end_date__gte=now
+        ).order_by('-is_featured', '-created_at')[:3],
         'is_hotdeal_page': True,
         'page_title': 'Hot Deal',
     }
