@@ -1,4 +1,5 @@
 {% load static %}
+{% load crispy_forms_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,14 +7,6 @@
   <title>Admin - Coupon</title>
   {% include 'admin/partials/head/head-links.html' %}
   {{ form.media }}
-  <style>
-    .form-control, .form-select, .form-check-input, textarea, input[type="text"], input[type="number"], input[type="email"] { 
-      border: 1px solid #dee2e6; padding: 0.5rem; margin-bottom: 1rem; width: 100%; border-radius: 4px; display: block; 
-    }
-    .form-check-input { width: auto; display: inline-block; }
-    label { font-weight: 500; margin-bottom: 0.3rem; margin-top: 0.5rem; display: block; }
-    .helptext { font-size: 0.8rem; color: #6c757d; }
-  </style>
 </head>
 <body>
   <div>
@@ -29,10 +22,10 @@
              <a href="{% url 'admin:ec_coupon_list' %}" class="btn btn-white">Trở về</a>
           </div>
         </div>
-        <div class="row"><div class="col-12"><div class="card card-lg card-body">
+        <div class="row"><div class="col-12 col-md-8"><div class="card card-lg card-body">
                 <form method="POST" enctype="multipart/form-data">
                   {% csrf_token %}
-                  {{ form.as_p }}
+                  {{ form|crispy }}
                   <div class="mt-4 pt-3 border-top text-end">
                     <button type="submit" class="btn btn-primary px-4">Lưu</button>
                   </div>
