@@ -1,90 +1,74 @@
 {% load static %}
-{% load socialaccount %}
-{% load crispy_forms_tags %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <title>Đăng nhập - E-Electro</title>
+  <title>Signin - InApp Inventory Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <style>
-    body { background-color: #f8f9fc; }
-    .card { border: none; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-    .btn-primary { background-color: #D10024; border-color: #D10024; border-radius: 6px; padding: 10px; font-weight: 600;}
-    .btn-primary:hover { background-color: #b4001f; border-color: #b4001f; }
-    .link-primary { color: #D10024; text-decoration: none; }
-    .link-primary:hover { color: #b4001f; text-decoration: underline; }
-    .form-control:focus { border-color: #D10024; box-shadow: 0 0 0 0.25rem rgba(209, 0, 36, 0.25); }
-    
-    .social-btn { display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 6px; padding: 10px; font-weight: 500; text-decoration: none; transition: 0.2s; }
-    .btn-google { background-color: #fff; color: #444; border: 1px solid #ddd; }
-    .btn-google:hover { background-color: #f1f1f1; border-color: #ccc; }
-    .btn-facebook { background-color: #1877f2; color: #fff; border: 1px solid #1877f2; }
-    .btn-facebook:hover { background-color: #166fe5; color: #fff; }
-    .or-divider { text-align: center; margin: 1.5rem 0; color: #888; font-size: 0.875rem; position: relative; }
-    .or-divider::before, .or-divider::after { content: ""; position: absolute; top: 50%; width: 40%; height: 1px; background-color: #ddd; }
-    .or-divider::before { left: 0; }
-    .or-divider::after { right: 0; }
-  </style>
+   <link rel="apple-touch-icon" sizes="180x180" href="/static/inapp_assets/images/favicon_io/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/inapp_assets/images/favicon_io/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/inapp_assets/images/favicon_io/favicon-16x16.png">
+  <link rel="manifest" href="/static/inapp_assets/images/favicon_io/site.webmanifest">
+
+
+
 </head>
+
 <body>
 
+
 <div class="container d-flex align-items-center justify-content-center min-vh-100">
-  <div class="card" style="max-width:420px; width:100%;">
+  <div class="card " style="max-width:420px; width:100%;">
     <div class="card-body p-5">
       <div class="text-center mb-3">
-        <a href="{% url 'shop:product_list' %}" class="mb-4 d-inline-block text-decoration-none">
-          <h2 style="color: #D10024; font-weight: 800; margin: 0;">E-ELECTRO</h2>
-        </a>
-        <h1 class="card-title mb-4 h5 fw-bold text-dark">Đăng nhập tài khoản</h1>
+      <a href="{% url 'shop:product_list' %}" class="mb-4 d-inline-block"><img src="/static/inapp_assets/images/logo-icon.svg" alt="" width="36">
+      <span class=" ms-2"> <img src="/static/inapp_assets/images/logo.svg" alt=""></span>
+      </a>
+        <h1 class="card-title mb-5 h5">Sign in to your account</h1>
+
       </div>
 
-      <form action="{% url 'account_login' %}" method="post" class="needs-validation">
+      <form action="{% url 'account_login' %}" method="post" class="needs-validation mt-3" novalidate>
         {% csrf_token %}
-        
-        {% if form.errors %}
-          <div class="alert alert-danger p-2 small mb-3 text-center rounded">
-            Sai thông tin đăng nhập! Vui lòng thử lại.
-          </div>
-        {% endif %}
-
-        {{ form|crispy }}
-
-        <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
-          <a href="{% url 'account_reset_password' %}" class="small link-primary ms-auto">Quên mật khẩu?</a>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email address</label>
+          <input id="email" name="login" type="email" class="form-control" placeholder="name@example.com" required autofocus>
+          <div class="invalid-feedback">Please enter a valid email.</div>
         </div>
 
-        <button class="btn btn-primary w-100" type="submit">Đăng nhập</button>
+        <div class="mb-3">
+          <label for="password" class="form-label d-flex justify-content-between">
+            <span>Password</span>
+            <a href="#" class="small link-primary">Forgot Password?</a>
+          </label>
+          <input id="password" name="password" type="password" class="form-control" placeholder="Password" required minlength="6">
+          <div class="invalid-feedback">Please provide a password (min 6 characters).</div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="form-check">
+            <input id="remember" class="form-check-input" type="checkbox">
+            <label class="form-check-label small" for="remember">Remember me</label>
+          </div>
+        </div>
+
+        <button class="btn btn-primary w-100" type="submit">Sign in</button>
       </form>
 
-      {% get_providers as socialaccount_providers %}
-      {% if socialaccount_providers %}
-      <div class="or-divider">hoặc tiếp tục với</div>
-      <div class="d-flex flex-column gap-2">
-          {% for provider in socialaccount_providers %}
-              {% if provider.id == 'google' %}
-              <a href="{% url 'google_login' %}" class="social-btn btn-google w-100">
-                  <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" alt="Google" width="20"> Google
-              </a>
-              {% endif %}
-              {% if provider.id == 'facebook' %}
-              <a href="{% url 'facebook_login' %}" class="social-btn btn-facebook w-100">
-                  <i class="fa-brands fa-facebook fs-5"></i> Facebook
-              </a>
-              {% endif %}
-          {% endfor %}
-      </div>
-      {% endif %}
-
-      <div class="text-center mt-4 small text-muted">
-        Chưa có tài khoản? <a href="{% url 'account_signup' %}" class="link-primary fw-bold">Đăng ký ngay</a>
+      <div class="text-center mt-3 small text-muted">
+        Don't have an account? <a href="{% url 'account_signup' %}"  class="link-primary">Sign up</a>
       </div>
     </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+  <!-- Bootstrap JS -->
+  <script src="/static/inapp_assets/js/main.js" type="module"></script>
+
+
 </body>
-</html>
+
+</html>""
