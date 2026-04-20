@@ -1,0 +1,27 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Cập nhật đơn hàng #{{ order.id }}</title>
+</head>
+<body>
+    <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2 style="color: #2c3e50;">Cập nhật đơn hàng #{{ order.id }}</h2>
+        <p>{{ message }}</p>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; width: 180px;">Mã đơn hàng</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">{{ order.id }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Trạng thái</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">{{ status }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Tổng tiền</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">{{ order.get_total_cost|floatformat:0 }} VND</td>
+            </tr>
+        </table>
+        <p style="margin-top: 20px;">Cảm ơn bạn đã sử dụng dịch vụ.</p>
+    </div>
+</body>
+</html>

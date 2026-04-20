@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -15,6 +16,7 @@ from cart.cart import Cart
 
 from .forms import OrderCreateForm
 from .models import Order, OrderItem
+from .payment.sepay import Sepay
 
 
 def _send_confirmation_email(order):
@@ -69,13 +71,14 @@ def order_create(request):
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
         if form.is_valid():
+            payment_method = form.cleaned_data.get('payment_method', 'sepay')
             for item in selected_items:
                 if item['product'].stock < item['quantity']:
                     messages.error(
                         request,
                         f'Sản phẩm "{item["product"].name}" chỉ còn {item["product"].stock} cái trong kho, không đủ số lượng!'
                     )
-                    return render(request, 'checkout.html', {
+                    return render(request, 'orders/create.html', {
                         'cart': cart,
                         'form': form,
                         'selected_items': selected_items,
@@ -90,6 +93,7 @@ def order_create(request):
                     order.city = order.province
                     order.customer_name = f'{order.first_name} {order.last_name}'.strip() or request.user.get_full_name() or request.user.username
                     order.customer_email = order.email or request.user.email
+                    order.payment_method = payment_method
                     order.save()
 
                     for item in selected_items:
@@ -107,24 +111,89 @@ def order_create(request):
                     request.session['coupon_id'] = None
 
                 _send_confirmation_email(order)
-                if order.payment_method == Order.PAYMENT_SEPAY:
-                    return redirect('orders:sepay_payment', order_id=order.id)
-                else:
-                    messages.success(request, f'Đã tạo đơn hàng #{order.id} thành công.')
-                    return redirect('orders:order_detail', order_id=order.id)
+                if payment_method == 'sepay':
+                    sepay = Sepay()
+                    return_url = request.build_absolute_uri(reverse('orders:payment_return'))
+                    payment_url = sepay.create_payment_url(order.id, order.total_amount, return_url)
+                    qr_code_url = sepay.get_qr_code_url(payment_url)
+                    return render(request, 'orders/payment.html', {
+                        'order': order,
+                        'payment_url': payment_url,
+                        'qr_code_url': qr_code_url,
+                        'gateway_name': 'Sepay',
+                    })
+
+                messages.success(
+                    request,
+                    'Đơn hàng của bạn đã được gửi yêu cầu duyệt. Admin sẽ kiểm tra và cập nhật trạng thái trong thời gian sớm nhất.'
+                )
+                return redirect('orders:order_detail', order_id=order.id)
             except Exception as e:
                 messages.error(request, 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại!')
                 print(f'[ORDER ERROR] {e}')
     else:
         form = OrderCreateForm(initial=initial)
 
-    return render(request, 'checkout.html', {
+    return render(request, 'orders/create.html', {
         'cart': cart,
         'form': form,
         'selected_items': selected_items,
         'selected_total_price': cart.get_total_price(selected_product_ids),
         'selected_total_price_after_discount': cart.get_total_price_after_discount(selected_product_ids),
     })
+
+
+@login_required
+def order_payment(request, order_id):
+    order = get_object_or_404(
+        Order.objects.prefetch_related('items__product'),
+        id=order_id,
+        user=request.user,
+    )
+
+    if order.status == Order.STATUS_COMPLETED:
+        return redirect('orders:order_detail', order_id=order.id)
+
+    if order.payment_method != Order.PAYMENT_SEPAY:
+        return redirect('orders:order_detail', order_id=order.id)
+
+    payment_method = request.session.pop('payment_method', 'sepay')
+    gateway_name = 'Sepay' if payment_method == 'sepay' else payment_method.title()
+
+    sepay = Sepay()
+    return_url = request.build_absolute_uri(reverse('orders:payment_return'))
+    payment_url = sepay.create_payment_url(order.id, order.total_amount, return_url)
+    qr_code_url = sepay.get_qr_code_url(payment_url)
+
+    return render(request, 'orders/payment.html', {
+        'order': order,
+        'payment_url': payment_url,
+        'qr_code_url': qr_code_url,
+        'gateway_name': gateway_name,
+    })
+
+
+@login_required
+def payment_return(request):
+    order_id = request.GET.get('order_id') or request.GET.get('vnp_TxnRef')
+    response_code = request.GET.get('status') or request.GET.get('vnp_ResponseCode') or request.GET.get('vnp_ResponseCode')
+
+    if not order_id:
+        return render(request, 'orders/payment_return.html', {'success': False, 'error': 'Không tìm thấy đơn hàng.'})
+
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+    except Order.DoesNotExist:
+        return render(request, 'orders/payment_return.html', {'success': False, 'error': 'Không tìm thấy đơn hàng.'})
+
+    if response_code and str(response_code).lower() in ['00', 'success', 'ok', 'paid', 'completed']:
+        order.status = Order.STATUS_COMPLETED
+        order.save()
+        return render(request, 'orders/payment_return.html', {'success': True, 'order': order})
+
+    order.status = Order.STATUS_CANCELLED
+    order.save()
+    return render(request, 'orders/payment_return.html', {'success': False, 'order': order, 'error': 'Thanh toán không thành công.'})
 
 
 @login_required

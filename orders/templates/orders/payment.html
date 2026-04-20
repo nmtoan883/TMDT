@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Thanh toán Sepay cho đơn #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-card p-4">
+                <h1 class="h4 fw-bold mb-3">Thanh toán mã QR {{ gateway_name }}</h1>
+                <p class="text-muted mb-4">Chọn cổng: <span class="fw-semibold">{{ gateway_name }}</span>. Quét mã QR bằng ứng dụng ngân hàng hoặc ví điện tử hỗ trợ Sepay để hoàn tất giao dịch.</p>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-semibold">Mã đơn hàng</span>
+                        <span>#{{ order.id }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-semibold">Số tiền cần thanh toán</span>
+                        <span class="text-danger fs-5 fw-bold">{{ order.total_amount|floatformat:0 }} VND</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-semibold">Trạng thái đơn</span>
+                        <span class="badge bg-warning text-dark">{{ order.status|capfirst }}</span>
+                    </div>
+                </div>
+
+                <div class="text-center mb-4">
+                    <a href="{{ payment_url }}" target="_blank" rel="noreferrer noopener">
+                        <img src="{{ qr_code_url }}" alt="QR code Sepay" class="img-fluid" style="max-width: 320px;">
+                    </a>
+                </div>
+
+                <p class="text-center text-muted mb-4">Quét mã QR hoặc bấm vào ảnh để mở trang thanh toán Sepay.</p>
+                <p class="text-center small text-break">Nếu QR không hiển thị, dùng liên kết này:</p>
+                <p class="text-center small text-break"><a href="{{ payment_url }}" target="_blank" rel="noreferrer noopener">{{ payment_url }}</a></p>
+
+                <div class="d-grid gap-3">
+                    <a href="{{ payment_url }}" class="btn btn-primary btn-lg" target="_blank" rel="noreferrer noopener">
+                        Mở trang thanh toán Sepay
+                    </a>
+                    <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-secondary">
+                        Xem chi tiết đơn hàng
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

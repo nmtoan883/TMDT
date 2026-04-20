@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Kết quả thanh toán{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-card p-4 text-center">
+                {% if success %}
+                    <h1 class="h3 fw-bold text-success">Thanh toán thành công!</h1>
+                    <p class="text-muted mb-4">Đơn hàng #{{ order.id }} đã được thanh toán và đang chờ xử lý.</p>
+                    <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-primary">
+                        Xem chi tiết đơn hàng
+                    </a>
+                {% else %}
+                    <h1 class="h3 fw-bold text-danger">Thanh toán không thành công</h1>
+                    <p class="text-muted mb-4">{{ error|default:'Không thể xác nhận thanh toán của bạn.' }}</p>
+                    <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-secondary">
+                        Quay lại chi tiết đơn hàng
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

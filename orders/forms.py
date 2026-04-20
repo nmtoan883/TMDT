@@ -4,6 +4,18 @@ from .models import Order
 
 
 class OrderCreateForm(forms.ModelForm):
+    PAYMENT_CHOICES = [
+        ('sepay', 'Sepay (quét QR)'),
+        ('manual', 'Thanh toán sau / Duyệt admin'),
+    ]
+
+    payment_method = forms.ChoiceField(
+        choices=PAYMENT_CHOICES,
+        widget=forms.RadioSelect,
+        initial='sepay',
+        label='Cổng thanh toán',
+    )
+
     class Meta:
         model = Order
         fields = [

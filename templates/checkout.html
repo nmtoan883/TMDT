@@ -1,87 +1,30 @@
 ﻿{% extends "base.html" %}
 {% load static %}
 
+{% block title %}Thanh toán{% endblock %}
+
 {% block content %}
-<div id="breadcrumb" class="section">
-    <div class="container">
-        <h3 class="breadcrumb-header">Thanh toán (Checkout)</h3>
-    </div>
-</div>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-card p-4">
+                <h1 class="h3 fw-bold mb-4">Thanh toán</h1>
+                {% if error %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
 
-<div class="section">
-    <div class="container">
-        {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-
- 		<!-- Bootstrap -->
- 		<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css"/>
-
- 		<!-- Slick -->
- 		<link type="text/css" rel="stylesheet" href="css/slick.css"/>
- 		<link type="text/css" rel="stylesheet" href="css/slick-theme.css"/>
-
- 		<!-- nouislider -->
- 		<link type="text/css" rel="stylesheet" href="css/nouislider.min.css"/>
-
- 		<!-- Font Awesome Icon -->
- 		<link rel="stylesheet" href="css/font-awesome.min.css">
-
- 		<!-- Custom stlylesheet -->
- 		<link type="text/css" rel="stylesheet" href="css/style.css"/>
-
-                        {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {{ form.non_field_errors }}
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="col-md-5 order-details">
-                    <div class="section-title text-center">
-                        <h3 class="title">Đơn tạm tính</h3>
-                    </div>
-
-			<!-- MAIN HEADER -->
-			<div id="header">
-				<!-- container -->
-				<div class="container">
-					<!-- row -->
-					<div class="row">
-						<!-- LOGO -->
-						<div class="col-md-3">
-							<div class="header-logo">
-								<a href="#" class="logo">
-									<img src="./img/logo.png" alt="">
-								</a>
-							</div>
-						</div>
-						<!-- /LOGO -->
-
-                        <div class="order-products">
-                            {% for item in selected_items %}
-                            <div class="order-col" style="margin-bottom:10px;">
-                                <div>{{ item.quantity }}x {{ item.product.name }}</div>
-                                <div>{{ item.total_price|floatformat:0 }} VND</div>
-                            </div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="order-col">
-                            <div><strong>TỔNG TIỀN</strong></div>
-                            <div><strong class="order-total">{{ selected_total_price_after_discount|floatformat:0 }} VND</strong></div>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="primary-btn order-submit" style="width: 100%;">
-                        Xác nhận đặt hàng
-                    </button>
+                <p>Hiện tại, bạn có thể thanh toán đơn hàng tại trang giỏ hàng hoặc tạo đơn hàng mới.</p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'cart:cart_detail' %}" class="btn btn-primary">Quay lại giỏ hàng</a>
+                    <a href="{% url 'orders:order_create' %}" class="btn btn-outline-secondary">Tạo đơn mới</a>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}
