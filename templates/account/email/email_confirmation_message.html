@@ -1,43 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xác nhận Email</title>
-    <!-- Gắn file CSS gắn ngoài chuẩn (Dùng đường dẫn tuyệt đối vì Email không hiểu /static/) -->
-    <link rel="stylesheet" type="text/css" href="http://{{ current_site.domain }}/static/css/email.css">
+    <style>
+        /* Email client resets */
+        body, table, td, p, a, h1, h2 { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+        body { margin: 0; padding: 0; background-color: #f7f9fc; color: #302C4D; -webkit-font-smoothing: antialiased; }
+        a { text-decoration: none; }
+        
+        .main-wrapper { width: 100%; background-color: #f7f9fc; padding: 40px 20px; }
+        .card { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(48, 44, 77, 0.05); }
+        .card-header { background-color: #302C4D; padding: 40px 30px; text-align: center; }
+        .card-header h1 { color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 2px; }
+        .card-header span { color: #E66239; }
+        .card-body { padding: 40px 40px; }
+        .card-body h2 { font-size: 22px; margin-top: 0; color: #1a1829; font-weight: 600; }
+        .card-body p { font-size: 16px; line-height: 1.6; color: #5a576b; margin-bottom: 25px; }
+        
+        .btn-wrapper { text-align: center; margin: 35px 0; }
+        .btn-primary { display: inline-block; background-color: #E66239; color: #ffffff !important; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 16px 36px; border-radius: 50px; text-decoration: none; font-size: 15px; }
+        
+        .fallback-box { background-color: #f0f3f8; border-radius: 8px; padding: 20px; margin-top: 30px; }
+        .fallback-box p { font-size: 13px; margin: 0 0 10px 0; color: #7b788a; }
+        .fallback-box a { color: #4361ee; font-size: 13px; word-break: break-all; }
+        
+        .card-footer { background-color: #fafbfe; padding: 30px; text-align: center; border-top: 1px solid #edf0f5; }
+        .card-footer p { margin: 0; font-size: 13px; color: #9a98a6; }
+    </style>
 </head>
 <body>
-    <table class="wrapper" cellpadding="0" cellspacing="0">
+    <table class="main-wrapper" width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
             <td align="center">
-                <table class="container" cellpadding="0" cellspacing="0">
+                <!-- Main Card -->
+                <table class="card" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px;">
                     <tr>
-                        <td class="header header-primary">
-                            <h1>E-ELECTRO</h1>
+                        <td class="card-header">
+                            <h1>E<span>-</span>ELECTRO</h1>
                         </td>
                     </tr>
                     <tr>
-                        <td class="content">
-                            <h2>Xin chào {{ user.username|default:"bạn" }},</h2>
+                        <td class="card-body">
+                            <h2>Xin chào {{ user.last_name|default:user.username|default:"bạn" }},</h2>
                             <p>
-                                Cảm ơn bạn đã tạo tài khoản! Để bắt đầu mua sắm và sử dụng các dịch vụ của E-ELECTRO, vui lòng xác nhận địa chỉ email bằng cách nhấn vào nút bên dưới:
+                                Cảm ơn bạn đã lựa chọn <strong>E-Electro</strong>! Để đảm bảo an toàn cho tài khoản và bắt đầu trải nghiệm mua sắm truy cập giới hạn, vui lòng xác thực địa chỉ email của bạn ngay bây giờ.
                             </p>
-                            <div class="button-wrapper">
-                                <a href="{{ activate_url }}" class="button btn-primary">XÁC NHẬN EMAIL</a>
+                            
+                            <div class="btn-wrapper">
+                                <a href="{{ activate_url }}" class="btn-primary">Kích Hoạt Tài Khoản</a>
                             </div>
-                            <p class="fallback">
-                                Nếu nút không hoạt động, bạn có thể sao chép và dán liên kết sau vào trình duyệt:<br>
-                                <a href="{{ activate_url }}" class="text-primary">{{ activate_url }}</a>
+                            
+                            <p>
+                                Nếu bạn không thực hiện yêu cầu đăng ký này, hệ thống sẽ tự động hủy kích hoạt trong 24 giờ. Rất mong được phục vụ bạn!
                             </p>
-                            <hr class="divider">
-                            <p class="footer-note">
-                                Nếu bạn không đăng ký tài khoản tại E-ELECTRO, vui lòng bỏ qua email này.
-                            </p>
+
+                            <!-- Fallback Link -->
+                            <div class="fallback-box">
+                                <p>Hoặc sao chép đường liên kết bên dưới vào trình duyệt nếu nút bấm lỗi:</p>
+                                <a href="{{ activate_url }}">{{ activate_url }}</a>
+                            </div>
                         </td>
                     </tr>
                     <tr>
-                        <td class="footer">
-                            <p>&copy; 2026 E-ELECTRO. Tất cả các quyền được bảo lưu.</p>
+                        <td class="card-footer">
+                            <p>© 2026 E-Electro Dashboard App. Mọi bản quyền được bảo lưu.</p>
+                            <p style="margin-top: 8px;">Số 1, Phố Công Nghệ, Quận Kỹ Thuật, VN</p>
                         </td>
                     </tr>
                 </table>
