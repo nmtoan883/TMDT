@@ -445,11 +445,12 @@
 				if (chatInterval) clearInterval(chatInterval);
 			} else {
 				chatPop.style.display = 'flex';
-				{% if user.is_authenticated %}
-				document.getElementById('chatInput').focus();
-				syncChat(); // initial load
-				chatInterval = setInterval(syncChat, 3000); // sync every 3 seconds
-				{% endif %}
+				// Check if user is authenticated
+				if (document.getElementById('chatInput')) {
+					document.getElementById('chatInput').focus();
+					syncChat(); // initial load
+					chatInterval = setInterval(syncChat, 3000); // sync every 3 seconds
+				}
 			}
 		}
 

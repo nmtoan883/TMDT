@@ -1,4 +1,5 @@
-from django.utils import timezone, timedelta
+from django.utils import timezone
+from datetime import timedelta
 from promotions.models import Promotion
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse

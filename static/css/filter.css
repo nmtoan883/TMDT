@@ -1639,6 +1639,35 @@
     box-shadow: 0 4px 12px rgba(209, 0, 36, 0.3);
 }
 
+/* FILTER BUTTON IN HEADER */
+.filter-toggle-header {
+    background: #d10024;
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.filter-toggle-header:hover {
+    background: #b4001f;
+    transform: translateY(-1px);
+}
+
+.filter-toggle-header i {
+    font-size: 16px;
+}
+
+.filter-toggle-header span {
+    font-weight: 500;
+}
+
 /* LOADING STATE */
 .filter-loading,
 .filter-loading-new {

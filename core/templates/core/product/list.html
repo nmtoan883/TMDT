@@ -906,7 +906,7 @@
                         <div class="products-header">
                             <div class="products-info">
                                 <h4 class="products-count">
-                                    <span id="filteredCount">{{ products|length }}</span> sn phm tm thy
+                                    <span id="filteredCount">{{ products|length }}</span> sản phẩm tìm thấy
                                 </h4>
                                 <div class="active-filters-new" id="activeFiltersNew">
                                     <!-- Active filters will be displayed here -->
@@ -987,18 +987,18 @@
                                 <div class="col-md-12">
                                     <div class="no-products-found" style="text-align: center; padding: 60px 20px; background: #f8f9fa; border-radius: 10px; margin: 20px 0;">
                                         <i class="fa fa-search" style="font-size: 48px; color: #d10024; margin-bottom: 20px; display: block;"></i>
-                                        <h3 style="color: #2b2d42; margin-bottom: 15px;">Không tìm thây san phm no</h3>
-                                        <p style="color: #596275; margin-bottom: 25px; font-size: 16px;">Khng c sn phm no ph hp vi iu kin l ca bn.<br>Th chnh sa li iu kin l ho thm sn phm.</p>
+                                        <h3 style="color: #2b2d42; margin-bottom: 15px;">Không tìm thấy sản phẩm nào</h3>
+                                        <p style="color: #596275; margin-bottom: 25px; font-size: 16px;">Không có sản phẩm nào phù hợp với điều kiện lọc của bạn.<br>Thử chỉnh sửa lại điều kiện lọc hoặc thêm sản phẩm.</p>
                                         <div style="margin-bottom: 20px;">
                                             <button onclick="clearFiltersNew()" class="primary-btn" style="margin-right: 10px;">
-                                                <i class="fa fa-refresh"></i> Xa b lc
+                                                <i class="fa fa-refresh"></i> Xóa bộ lọc
                                             </button>
                                             <a href="{% url 'shop:product_list' %}" class="primary-btn">
-                                                <i class="fa fa-home"></i> Xem t c sn phm
+                                                <i class="fa fa-home"></i> Xem tất cả sản phẩm
                                             </a>
                                         </div>
                                         <div style="font-size: 14px; color: #8d99ae;">
-                                            <p>Gop ý: Th thng kha gi, danh mc hoc thng hiu khc</p>
+                                            <p>Gợi ý: Thử thay đổi khoảng giá, danh mục hoặc thương hiệu khác</p>
                                         </div>
                                     </div>
                                 </div>
