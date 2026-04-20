@@ -72,6 +72,10 @@ urlpatterns = [
     path('ecommerce/promotion/add/', views.ec_promotion_add, name='ec_promotion_add'),
     path('ecommerce/promotion/edit/<int:pk>/', views.ec_promotion_edit, name='ec_promotion_edit'),
     path('ecommerce/promotion/delete/<int:pk>/', views.ec_promotion_delete, name='ec_promotion_delete'),
+    path('ecommerce/banner/', views.ec_banner_list, name='ec_banner_list'),
+    path('ecommerce/banner/add/', views.ec_banner_add, name='ec_banner_add'),
+    path('ecommerce/banner/edit/<int:pk>/', views.ec_banner_edit, name='ec_banner_edit'),
+    path('ecommerce/banner/delete/<int:pk>/', views.ec_banner_delete, name='ec_banner_delete'),
 
     
     path('socialaccount/', views.socialaccount_list, name='socialaccount_list'),

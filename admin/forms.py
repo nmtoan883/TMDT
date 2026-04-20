@@ -79,3 +79,17 @@ class BusinessLicenseForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+from core.models import Banner
+class BannerForm(forms.ModelForm):
+    class Meta:
+        model = Banner
+        fields = ['title', 'image', 'link', 'is_active', 'order']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
+            'link': forms.URLInput(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'order': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+

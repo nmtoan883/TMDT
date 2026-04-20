@@ -1000,3 +1000,46 @@ from django.contrib.auth import logout as auth_logout
 def admin_logout(request):
     auth_logout(request)
     return redirect("/")
+
+@staff_member_required
+def ec_banner_list(request):
+    from core.models import Banner
+    banners = Banner.objects.all()
+    return render(request, 'admin/pages/ecommerce/banner_list.html', {'banners': banners})
+
+@staff_member_required
+def ec_banner_add(request):
+    from admin.forms import BannerForm
+    if request.method == 'POST':
+        form = BannerForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã thêm Banner thành công.')
+            return redirect('admin:ec_banner_list')
+    else:
+        form = BannerForm()
+    return render(request, 'admin/pages/ecommerce/banner_form.html', {'form': form, 'title': 'Thêm Banner mới'})
+
+@staff_member_required
+def ec_banner_edit(request, pk):
+    from core.models import Banner
+    from admin.forms import BannerForm
+    banner = get_object_or_404(Banner, pk=pk)
+    if request.method == 'POST':
+        form = BannerForm(request.POST, request.FILES, instance=banner)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã cập nhật Banner thành công.')
+            return redirect('admin:ec_banner_list')
+    else:
+        form = BannerForm(instance=banner)
+    return render(request, 'admin/pages/ecommerce/banner_form.html', {'form': form, 'banner': banner, 'title': 'Chỉnh sửa Banner'})
+
+@staff_member_required
+def ec_banner_delete(request, pk):
+    from core.models import Banner
+    banner = get_object_or_404(Banner, pk=pk)
+    banner.delete()
+    messages.success(request, 'Đã xoá Banner thành công.')
+    return redirect('admin:ec_banner_list')
+

@@ -1,0 +1,73 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% block title %}Quản lý Banner Trang chủ - Dasher{% endblock %}
+
+{% block content %}
+<div class="row mb-8">
+    <div class="col-md-12">
+        <div class="d-md-flex justify-content-between align-items-center">
+            <div>
+                <h2>Quản lý Banner Trang chủ</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0 py-0">
+                        <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="#">Ecommerce</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Banners</li>
+                    </ol>
+                </nav>
+            </div>
+            <div>
+                <a href="{% url 'admin:ec_banner_add' %}" class="btn btn-primary">Thêm Banner mới</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12 col-12 mb-5">
+        <div class="card h-100 card-lg">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-centered table-hover text-nowrap table-borderless mb-0 table-with-checkbox">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Thứ tự</th>
+                                <th>Ảnh Banner</th>
+                                <th>Tiêu đề</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for banner in banners %}
+                            <tr>
+                                <td>{{ banner.order }}</td>
+                                <td>
+                                    {% if banner.image %}
+                                        <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="img-fluid rounded" style="max-height: 50px;" />
+                                    {% endif %}
+                                </td>
+                                <td><a href="{% url 'admin:ec_banner_edit' banner.id %}" class="text-inherit">{{ banner.title }}</a></td>
+                                <td>
+                                    {% if banner.is_active %}
+                                    <span class="badge bg-light-success text-dark-success">Đang bật</span>
+                                    {% else %}
+                                    <span class="badge bg-light-danger text-dark-danger">Đã tắt</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'admin:ec_banner_edit' banner.id %}" class="text-muted"><i class="fe fe-edit fs-5"></i></a>
+                                    <a href="{% url 'admin:ec_banner_delete' banner.id %}" class="text-danger ms-2" onclick="return confirm('Bạn có chắc chắn muốn xóa banner này không?')"><i class="fe fe-trash-2 fs-5"></i></a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center py-4">Chưa có banner nào được thêm.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
