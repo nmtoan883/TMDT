@@ -1042,4 +1042,44 @@ def ec_banner_delete(request, pk):
     banner.delete()
     messages.success(request, 'Đã xoá Banner thành công.')
     return redirect('admin:ec_banner_list')
+# ================= DASHBOARD =================
+from django.db.models import Sum
+from django.db.models.functions import TruncDate
+import json
 
+@staff_member_required
+def dashboard(request):
+    from orders.models import Order
+
+    orders = Order.objects.all()
+
+    # 🔥 Tổng doanh thu
+    total_revenue = orders.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+
+    # 🔥 Tổng đơn
+    total_orders = orders.count()
+
+    # Demo khách hàng
+    total_customers = 100
+
+    # 🔥 Thống kê theo ngày
+    revenue_by_day = (
+        orders
+        .annotate(date=TruncDate('created_at'))
+        .values('date')
+        .annotate(total=Sum('total_amount'))
+        .order_by('date')
+    )
+
+    labels = [str(i['date']) for i in revenue_by_day]
+    data = [float(i['total']) for i in revenue_by_day]
+
+    context = {
+        'total_revenue': total_revenue,
+        'total_orders': total_orders,
+        'total_customers': total_customers,
+        'labels': json.dumps(labels),   # 🔥 bắt buộc
+        'data': json.dumps(data),       # 🔥 bắt buộc
+    }
+
+    return render(request, 'admin/pages/dashboard/dashboard.html', context)

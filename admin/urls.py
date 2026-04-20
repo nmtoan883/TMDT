@@ -114,4 +114,5 @@ urlpatterns = [
     path('sys-chat/<int:pk>/delete/', views.core_chat_delete, name='core_chat_delete'),
 
     path('logout/', views.admin_logout, name='logout'),
+    path('dashboard/', views.dashboard, name='dashboard'),
 ]
