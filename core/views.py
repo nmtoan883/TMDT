@@ -1,4 +1,5 @@
 from django.utils import timezone
+from datetime import timedelta
 from promotions.models import Promotion
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
@@ -13,7 +14,6 @@ from django.views.decorators.http import require_POST
 from django.contrib import messages
 from .forms import ContactForm
 from .models import ContactInfo
-from django.utils import timezone
 from orders.models import OrderItem
 SUGGESTION_QUERY_MIN_LEN = 2
 SUGGESTION_MAX_RESULTS = 6
@@ -160,26 +160,6 @@ def _parse_decimal(value):
 def _keyword_q(keyword):
     return Q(name__icontains=keyword) | Q(description__icontains=keyword)
 
-RAM_OPTIONS = ['4GB', '8GB', '16GB']
-ROM_OPTIONS = ['128GB', '256GB', '512GB']
-
-
-def _parse_decimal(value):
-    """Parse GET parameter into Decimal; return None if empty/invalid."""
-    if value is None:
-        return None
-    value = str(value).strip()
-    if not value:
-        return None
-    try:
-        return Decimal(value)
-    except (InvalidOperation, ValueError):
-        return None
-
-
-def _keyword_q(keyword):
-    """Match a keyword in Product name or description."""
-    return Q(name__icontains=keyword) | Q(description__icontains=keyword)
 
 
 def _get_hotdeal_products(limit=None):
@@ -253,9 +233,16 @@ def _build_product_list_context(request, base_products, category=None, query=Non
         base_products.values_list('brand', flat=True).distinct().order_by('brand')
     )
 
-    selected_brands = request.GET.getlist('brands')
+    # Handle both 'brand' (singular) and 'brands' (plural) for compatibility
+    selected_brands = request.GET.getlist('brands') or request.GET.getlist('brand')
+    selected_categories = request.GET.getlist('category')
     selected_rams = request.GET.getlist('rams')
     selected_roms = request.GET.getlist('roms')
+    
+    # Handle special filters
+    selected_sale = request.GET.get('sale')
+    selected_new = request.GET.get('new')
+    selected_hot = request.GET.get('hot')
 
     min_price_param = request.GET.get('min_price')
     max_price_param = request.GET.get('max_price')
@@ -284,6 +271,9 @@ def _build_product_list_context(request, base_products, category=None, query=Non
 
     if selected_brands:
         filter_q &= Q(brand__in=selected_brands)
+    
+    if selected_categories:
+        filter_q &= Q(category__id__in=selected_categories)
 
     if selected_rams:
         ram_q = Q()
@@ -296,6 +286,18 @@ def _build_product_list_context(request, base_products, category=None, query=Non
         for token in selected_roms:
             rom_q |= _keyword_q(token)
         filter_q &= rom_q
+    
+    # Handle special filters
+    if selected_sale:
+        filter_q &= Q(old_price__isnull=False)  # Products with old price are on sale
+    
+    if selected_new:
+        # Products created in the last 30 days are considered new
+        thirty_days_ago = timezone.now() - timedelta(days=30)
+        filter_q &= Q(created__gte=thirty_days_ago)
+    
+    if selected_hot:
+        filter_q &= Q(is_hotdeal=True)
 
     products = products.filter(filter_q)
     products = products.select_related('category')
