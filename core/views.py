@@ -89,6 +89,7 @@ def search_suggestions(request):
         Product.objects.filter(available=True)
         .filter(multi_field_q)
         .select_related('category')
+        .prefetch_related('hotdeal_campaigns')
         .annotate(
             match_score=(
                 Case(
@@ -118,7 +119,7 @@ def search_suggestions(request):
                 )
             )
         )
-        .only('id', 'name', 'price', 'image', 'slug', 'brand', 'category__name')
+        .only('id', 'name', 'price', 'old_price', 'discount_percent', 'is_hotdeal', 'hotdeal_start', 'hotdeal_end', 'image', 'slug', 'brand', 'category__name')
         .order_by('-match_score', 'name')[:SUGGESTION_MAX_RESULTS]
     )
 
@@ -130,7 +131,7 @@ def search_suggestions(request):
         suggestions.append({
             'id': p.id,
             'name': p.name,
-            'price': float(p.price),
+            'price': float(p.display_price),
             'image': image_url,
             'brand': p.brand or '',
             'category': p.category.name if p.category_id else '',
@@ -184,26 +185,42 @@ def _keyword_q(keyword):
 
 def _get_hotdeal_products(limit=None):
     now = timezone.now()
-    queryset = (
+    products = list(
         Product.objects.filter(
-            available=True,
-            is_hotdeal=True,
+            Q(
+                available=True,
+                is_hotdeal=True,
+            ) |
+            Q(
+                available=True,
+                hotdeal_campaigns__is_active=True,
+                hotdeal_campaigns__start_at__lte=now,
+                hotdeal_campaigns__end_at__gte=now,
+            )
         )
-        .filter(Q(hotdeal_start__isnull=True) | Q(hotdeal_start__lte=now))
-        .filter(Q(hotdeal_end__isnull=True) | Q(hotdeal_end__gte=now))
         .select_related('category')
-        .order_by('hotdeal_end', '-updated', '-created')
+        .prefetch_related('hotdeal_campaigns')
+        .distinct()
+    )
+    products = [product for product in products if product.is_hotdeal_active]
+
+    products.sort(
+        key=lambda product: (
+            product.effective_hotdeal_end or timezone.now(),
+            -int(product.updated.timestamp()),
+            -int(product.created.timestamp()),
+        )
     )
     if limit is not None:
-        return queryset[:limit]
-    return queryset
+        return products[:limit]
+    return products
 
 
 def _build_hotdeal_countdown(products):
     if not products:
         return None
 
-    first_end = next((product.hotdeal_end for product in products if product.hotdeal_end), None)
+    first_end = next((product.effective_hotdeal_end for product in products if product.effective_hotdeal_end), None)
     if not first_end:
         return None
 
@@ -220,19 +237,43 @@ def _build_hotdeal_countdown(products):
     }
 
 
+def _apply_display_pricing(products):
+    for product in products:
+        product.base_price = product.price
+        product.base_old_price = product.old_price
+        product.base_hotdeal_start = product.hotdeal_start
+        product.base_hotdeal_end = product.hotdeal_end
+        product.price = product.display_price
+        product.old_price = product.display_old_price
+        product.hotdeal_start = product.effective_hotdeal_start
+        product.hotdeal_end = product.effective_hotdeal_end
+        product.discount_percent = product.display_discount_percent
+    return products
+
+
 def _build_product_list_context(request, base_products, category=None, query=None, sort=None):
     categories = Category.objects.all()
-    latest_products = (
+    latest_products = list(
+        (
         Product.objects.filter(available=True)
         .select_related('category')
+        .prefetch_related('hotdeal_campaigns')
         .order_by('-created')[:12]
+        )
     )
-    top_selling_products = (
+    _apply_display_pricing(latest_products)
+
+    top_selling_products = list(
+        (
         Product.objects.filter(available=True)
         .select_related('category')
+        .prefetch_related('hotdeal_campaigns')
         .order_by('-stock', '-created')[:12]       
+        )
     )
-    hotdeal_products = list(_get_hotdeal_products())
+    _apply_display_pricing(top_selling_products)
+    hotdeal_products = _get_hotdeal_products()
+    _apply_display_pricing(hotdeal_products)
     hotdeal_countdown = _build_hotdeal_countdown(hotdeal_products)
 
     now = timezone.now()
@@ -298,7 +339,7 @@ def _build_product_list_context(request, base_products, category=None, query=Non
         filter_q &= rom_q
 
     products = products.filter(filter_q)
-    products = products.select_related('category')
+    products = products.select_related('category').prefetch_related('hotdeal_campaigns')
 
     if sort == 'price_asc':
         products = products.order_by('price')
@@ -306,6 +347,9 @@ def _build_product_list_context(request, base_products, category=None, query=Non
         products = products.order_by('-price')
     elif sort == 'newest':
         products = products.order_by('-created')
+
+    products = list(products)
+    _apply_display_pricing(products)
 
     home_banners = Banner.objects.filter(is_active=True)
 
@@ -363,7 +407,8 @@ def product_list(request, category_slug=None):
 
 
 def hotdeal_list(request):
-    hotdeal_products = list(_get_hotdeal_products(limit=24))
+    hotdeal_products = _get_hotdeal_products(limit=24)
+    _apply_display_pricing(hotdeal_products)
     now = timezone.now()
     context = {
         'categories': Category.objects.all(),
@@ -382,7 +427,8 @@ def hotdeal_list(request):
 
 
 def product_detail(request, id, slug):
-    product = get_object_or_404(Product, id=id, slug=slug, available=True)
+    product = get_object_or_404(Product.objects.prefetch_related('hotdeal_campaigns'), id=id, slug=slug, available=True)
+    _apply_display_pricing([product])
 
     cart_product_form = CartAddProductForm()
     reviews = product.reviews.all()
@@ -461,7 +507,9 @@ def remove_from_wishlist(request, product_id):
 def wishlist_list(request):
     wishlist_items = Wishlist.objects.filter(
         user=request.user
-    ).select_related('product')
+    ).select_related('product').prefetch_related('product__hotdeal_campaigns')
+    for item in wishlist_items:
+        _apply_display_pricing([item.product])
 
     return render(request, 'core/product/wishlist.html', {
     'wishlist_items': wishlist_items

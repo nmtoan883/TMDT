@@ -61,7 +61,7 @@
 
                     <div>
                         <h3 class="product-price">
-                            {{ product.price|floatformat:0 }}₫
+                            {{ product.price|floatformat:0 }}₫{% if product.old_price %} <del class="product-old-price">{{ product.old_price|floatformat:0 }}₫</del>{% endif %}
                         </h3>
                         <span class="product-available">In Stock</span>
                     </div>

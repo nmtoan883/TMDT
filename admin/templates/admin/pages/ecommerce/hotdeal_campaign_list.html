@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% include 'admin/partials/head/head-meta.html' %}
+  <title>Admin - Hot Deal</title>
+  {% include 'admin/partials/head/head-links.html' %}
+</head>
+<body>
+  <div>
+    {% include 'admin/partials/sidebar-collapse.html' %}
+    <div id="content" class="position-relative h-100">
+      {% include 'admin/partials/topbar-second.html' %}
+
+      <div class="custom-container">
+        <div class="row align-items-center mb-4 g-4">
+          <div class="col-12 col-md-8">
+            <h4 class="mb-0">Hot Deal</h4>
+            <p class="text-muted mb-0 mt-1">Mỗi deal có một mức giảm giá và khung giờ riêng, sau đó tick chọn các sản phẩm tham gia.</p>
+          </div>
+          <div class="col-12 col-md-4 text-md-end">
+             <a href="{% url 'admin:ec_hotdeal_campaign_add' %}" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                 Tạo Hot Deal
+             </a>
+          </div>
+        </div>
+
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show" role="alert">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <div class="row">
+          <div class="col-12">
+            <div class="card card-lg card-body p-0">
+              <div class="table-responsive">
+                <table class="table mb-0 table-centered table-hover align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Tên deal</th>
+                      <th>Giảm giá</th>
+                      <th>Thời gian</th>
+                      <th>Sản phẩm</th>
+                      <th>Trạng thái</th>
+                      <th class="text-end">Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in items %}
+                    <tr>
+                      <td>
+                        <div class="fw-semibold">{{ item.name }}</div>
+                        {% if item.description %}
+                        <div class="small text-muted">{{ item.description|truncatechars:90 }}</div>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <span class="badge bg-light-danger text-danger fs-6">-{{ item.discount_percent }}%</span>
+                        <div class="small text-muted mt-1">Ưu tiên: {{ item.priority }}</div>
+                      </td>
+                      <td>
+                        <div>{{ item.start_at|date:"d/m/Y H:i" }}</div>
+                        <div class="small text-muted">đến {{ item.end_at|date:"d/m/Y H:i" }}</div>
+                      </td>
+                      <td>
+                        <div class="fw-semibold">{{ item.products.count }} sản phẩm</div>
+                      </td>
+                      <td>
+                        {% if item.is_running %}
+                        <span class="badge bg-light-success text-dark-success">Đang chạy</span>
+                        {% elif item.is_active %}
+                        <span class="badge bg-light-warning text-dark-warning">Chờ đến giờ</span>
+                        {% else %}
+                        <span class="badge bg-light-secondary text-muted">Đã tắt</span>
+                        {% endif %}
+                      </td>
+                      <td class="text-end text-nowrap">
+                        <a href="{% url 'admin:ec_hotdeal_campaign_edit' pk=item.pk %}" class="btn btn-sm btn-white">Sửa</a>
+                        <form action="{% url 'admin:ec_hotdeal_campaign_delete' pk=item.pk %}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc xóa Hot Deal này?');">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-danger text-white">Xóa</button>
+                        </form>
+                      </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="6" class="text-center py-4">Chưa có Hot Deal nào.</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include 'admin/partials/scripts.html' %}
+</body>
+</html>
