@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
 from orders.models import Order, OrderItem, Product
-from orders.payment.vnpay import VNPay
+from orders.payment.sepay import Sepay
 
 from .forms import CouponApplyForm
 from .models import Coupon
@@ -55,7 +55,6 @@ def checkout(request):
         shipping_fee = Decimal("50000")
 
     order.total_amount = total + shipping_fee
-    order.shipping_fee = shipping_fee
     order.status = "pending"
     order.save()
 
@@ -67,12 +66,13 @@ def checkout(request):
         recipient_list=[request.user.email],
     )
 
-    # Tạo link thanh toán
-    vnpay = VNPay()
-
-    payment_url = vnpay.create_payment_url(
+    # Tạo link thanh toán Sepay
+    sepay = Sepay()
+    return_url = request.build_absolute_uri('/coupon/payment_return/')
+    payment_url = sepay.create_payment_url(
         order_id=order.id,
-        amount=int(order.total_amount)
+        amount=int(order.total_amount),
+        return_url=return_url,
     )
 
     # Xóa giỏ hàng

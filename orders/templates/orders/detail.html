@@ -24,6 +24,7 @@
                     <li class="py-2 border-bottom"><strong>Khach hang:</strong> {{ order.first_name }} {{ order.last_name }}</li>
                     <li class="py-2 border-bottom"><strong>Email:</strong> {{ order.email }}</li>
                     <li class="py-2 border-bottom"><strong>Dia chi:</strong> {{ order.full_address }}</li>
+                    <li class="py-2 border-bottom"><strong>Phương thức TT:</strong> {{ order.get_payment_method_display }}</li>
                     <li class="py-2"><strong>Khu vuc:</strong> {{ order.province_display }} - {{ order.postal_code }}</li>
                 </ul>
             </div>
@@ -47,6 +48,29 @@
                     <span class="fw-bold">Tong thanh toan</span>
                     <span class="fw-bold text-primary">{{ order.get_total_cost|floatformat:0 }} VND</span>
                 </div>
+
+                {% if order.payment_method == 'manual' %}
+                    <div class="mt-4 p-3 rounded-3 bg-light border">
+                        <h5 class="fw-semibold">Trạng thái duyệt đơn</h5>
+                        {% if order.status == 'pending' %}
+                            <p class="mb-0 text-muted">Đơn của bạn đã được gửi yêu cầu duyệt. Admin sẽ kiểm tra và cập nhật trạng thái sớm nhất.</p>
+                        {% elif order.status == 'completed' %}
+                            <p class="mb-0 text-success">Admin đã duyệt đơn. Đơn của bạn đã được hoàn thành.</p>
+                        {% elif order.status == 'cancelled' %}
+                            <p class="mb-0 text-danger">Admin đã từ chối hoặc hủy đơn. Vui lòng liên hệ hỗ trợ nếu cần.</p>
+                        {% else %}
+                            <p class="mb-0 text-muted">Đơn đang chờ xử lý.</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                {% if order.status == 'pending' and order.payment_method == 'sepay' %}
+                    <div class="mt-4 text-center">
+                        <a href="{% url 'orders:order_payment' order.id %}" class="btn btn-primary btn-lg">
+                            Thanh toán ngay bằng Sepay
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>

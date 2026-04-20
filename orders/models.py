@@ -48,6 +48,20 @@ class Order(models.Model):
         default=0
     )
 
+    PAYMENT_SEPAY = 'sepay'
+    PAYMENT_MANUAL = 'manual'
+
+    PAYMENT_CHOICES = [
+        (PAYMENT_SEPAY, 'Sepay (QR code)'),
+        (PAYMENT_MANUAL, 'Thanh toán thủ công / Admin duyệt'),
+    ]
+
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_CHOICES,
+        default=PAYMENT_SEPAY,
+    )
+
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
