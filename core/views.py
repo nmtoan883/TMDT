@@ -7,6 +7,7 @@ from .forms import ProductForm, ReviewForm
 from .models import Category, Product, Review, Wishlist
 from cart.forms import CartAddProductForm
 from django.views.decorators.http import require_POST
+from orders.models import OrderItem
 SUGGESTION_QUERY_MIN_LEN = 2
 SUGGESTION_MAX_RESULTS = 8
 SUGGESTION_QUERY_MAX_LEN = 100
@@ -85,15 +86,31 @@ def product_detail(request, id, slug):
     cart_product_form = CartAddProductForm()
     reviews = product.reviews.all()
 
+    # Check if user has purchased this product
+    has_purchased = False
+    can_review = False
     review_form = ReviewForm()
-    if request.method == 'POST' and request.user.is_authenticated:
+    
+    if request.user.is_authenticated:
+        has_purchased = OrderItem.objects.filter(
+            product=product,
+            order__user=request.user
+        ).exists()
+        can_review = has_purchased
+    
+    if request.method == 'POST' and request.user.is_authenticated and can_review:
         review_form = ReviewForm(request.POST, request.FILES)
         if review_form.is_valid():
-            review = review_form.save(commit=False)
-            review.product = product
-            review.user = request.user
-            review.save()
-            return redirect(product.get_absolute_url())
+            rating = int(request.POST.get('rating', 0))
+            if rating > 0 and rating <= 5:
+                review = review_form.save(commit=False)
+                review.product = product
+                review.user = request.user
+                review.rating = rating
+                review.save()
+                return redirect(product.get_absolute_url())
+            else:
+                review_form.add_error('rating', 'Vui lòng chọn số sao từ 1 đến 5')
 
     is_in_wishlist = False
 
@@ -108,6 +125,8 @@ def product_detail(request, id, slug):
         'cart_product_form': cart_product_form,
         'reviews': reviews,
         'review_form': review_form,
+        'can_review': can_review,
+        'has_purchased': has_purchased,
         'is_in_wishlist': is_in_wishlist
     })
 
