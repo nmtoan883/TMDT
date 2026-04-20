@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Thanh toán SePay - Đơn hàng #{{ order.id }}{% endblock %}
+
+{% block breadcrumb %}
+<div id="breadcrumb" class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="breadcrumb-header">Thanh toán SePay</h3>
+                <ul class="breadcrumb-tree">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li><a href="{% url 'orders:order_history' %}">Đơn hàng</a></li>
+                    <li class="active">SePay</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="glass-card p-4 p-lg-5 shadow-sm">
+                <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between mb-4 gap-3">
+                    <div>
+                        <h1 class="h4 fw-bold mb-1">Thanh toán SePay</h1>
+                        <p class="text-muted mb-0">Quét mã QR hoặc chuyển khoản theo thông tin bên dưới để hoàn tất đơn hàng <strong>#{{ order.id }}</strong>.</p>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-secondary">Quay lại đơn hàng</a>
+                        <a href="{% url 'orders:order_history' %}" class="btn btn-primary">Xem tất cả đơn hàng</a>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-5">
+                        <div class="p-4 rounded-4 bg-white border shadow-sm text-center">
+                            <h5 class="fw-semibold mb-3">Mã QR thanh toán</h5>
+                            {% if sepay_qr_url %}
+                                <img src="{{ sepay_qr_url }}" alt="SePay QR" class="img-fluid rounded-4" style="max-width: 100%;">
+                            {% else %}
+                                <div class="py-5">
+                                    <i class="fas fa-qrcode fa-4x text-secondary mb-3"></i>
+                                    <p class="text-muted">Mã QR đang được tạo. Vui lòng làm mới trang nếu chưa hiển thị.</p>
+                                </div>
+                            {% endif %}
+                            <p class="text-muted small mt-3">Quét bằng ứng dụng ngân hàng hoặc SePay.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="p-4 rounded-4 bg-white border shadow-sm">
+                            <h5 class="fw-semibold mb-4">Thông tin chuyển khoản</h5>
+                            <div class="mb-3">
+                                <div class="text-muted small mb-1">Chủ tài khoản</div>
+                                <div class="fw-semibold">{{ sepay_account_name }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="text-muted small mb-1">Số tài khoản</div>
+                                <div class="input-group mb-2">
+                                    <input id="accountNumber" type="text" class="form-control" value="{{ sepay_account_number }}" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('accountNumber', this)"><i class="fas fa-copy"></i></button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="text-muted small mb-1">Ngân hàng</div>
+                                <div class="fw-semibold">{{ sepay_bank_name }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="text-muted small mb-1">Số tiền</div>
+                                <div class="input-group mb-2">
+                                    <input id="amount" type="text" class="form-control fw-bold text-success" value="{{ order.get_total_cost|floatformat:0 }} VND" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('amount', this)"><i class="fas fa-copy"></i></button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="text-muted small mb-1">Nội dung chuyển khoản</div>
+                                <div class="input-group mb-2">
+                                    <input id="content" type="text" class="form-control font-monospace" value="{{ content }}" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('content', this)"><i class="fas fa-copy"></i></button>
+                                </div>
+                            </div>
+                            <div class="alert alert-light border mt-4 mb-0">
+                                <small class="text-muted">Lưu ý: dùng đúng nội dung để hệ thống tự động xác nhận đơn hàng.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 rounded-4 bg-light p-4 text-muted">
+                    <div class="d-flex align-items-center gap-2 mb-2"><i class="fas fa-info-circle"></i><strong>Hướng dẫn</strong></div>
+                    <p class="mb-2">Nếu mã QR không hiển thị, sao chép thông tin chuyển khoản và thực hiện bằng ứng dụng ngân hàng.</p>
+                    <p class="mb-0">Theo dõi trạng thái đơn hàng trong trang chi tiết. Hệ thống sẽ cập nhật thanh toán tự động sau 1-2 phút.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyToClipboard(elementId, button) {
+    const input = document.getElementById(elementId);
+    if (!input) return;
+    input.select();
+    input.setSelectionRange(0, 99999);
+
+    try {
+        document.execCommand('copy');
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i>';
+        button.classList.remove('btn-outline-secondary');
+        button.classList.add('btn-success');
+        setTimeout(() => {
+            button.innerHTML = originalHTML;
+            button.classList.remove('btn-success');
+            button.classList.add('btn-outline-secondary');
+        }, 1500);
+    } catch (err) {
+        console.error('Failed to copy:', err);
+        alert('Không thể sao chép. Vui lòng sao chép thủ công.');
+    }
+}
+</script>
+{% endblock %}

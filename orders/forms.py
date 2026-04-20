@@ -15,6 +15,7 @@ class OrderCreateForm(forms.ModelForm):
             'district',
             'ward',
             'postal_code',
+            'payment_method',
         ]
         labels = {
             'first_name': 'Ho',
@@ -25,6 +26,7 @@ class OrderCreateForm(forms.ModelForm):
             'district': 'Quan/Huyen',
             'ward': 'Phuong/Xa',
             'postal_code': 'Ma buu dien',
+            'payment_method': 'Phuong thuc thanh toan',
         }
 
         widgets = {
@@ -35,4 +37,5 @@ class OrderCreateForm(forms.ModelForm):
             'province': forms.Select(choices=[('', 'Chon tinh/thanh pho')], attrs={'class': 'input'}),
             'district': forms.Select(choices=[('', 'Chon quan/huyen')], attrs={'class': 'input'}),
             'ward': forms.Select(choices=[('', 'Chon phuong/xa')], attrs={'class': 'input'}),
+            'payment_method': forms.RadioSelect(),
         }

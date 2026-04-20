@@ -1,4 +1,4 @@
-﻿from django.conf import settings
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
@@ -8,6 +8,8 @@ from django.template.loader import render_to_string
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from urllib.parse import quote_plus
+from datetime import datetime
 
 from cart.cart import Cart
 
@@ -100,10 +102,16 @@ def order_create(request):
                         item['product'].stock -= item['quantity']
                         item['product'].save()
                         cart.remove(item['product'])
+                    
+                    cart.clear()
+                    request.session['coupon_id'] = None
 
                 _send_confirmation_email(order)
-                messages.success(request, f'Đã tạo đơn hàng #{order.id} thành công.')
-                return redirect('orders:order_detail', order_id=order.id)
+                if order.payment_method == Order.PAYMENT_SEPAY:
+                    return redirect('orders:sepay_payment', order_id=order.id)
+                else:
+                    messages.success(request, f'Đã tạo đơn hàng #{order.id} thành công.')
+                    return redirect('orders:order_detail', order_id=order.id)
             except Exception as e:
                 messages.error(request, 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại!')
                 print(f'[ORDER ERROR] {e}')
@@ -176,3 +184,51 @@ def checkout(request):
         'payment_method': payment_method,
         'payment_status': payment_status,
     })
+
+@login_required
+def sepay_payment(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if order.payment_method != Order.PAYMENT_SEPAY:
+        messages.warning(request, 'Don hang nay khong su dung SePay.')
+        return redirect('orders:order_detail', order_id=order.id)
+
+    if order.paid:
+        messages.info(request, 'Don hang da duoc thanh toan.')
+        return redirect('orders:order_detail', order_id=order.id)
+
+    account_number = getattr(settings, 'SEPAY_ACCOUNT_NUMBER', '0123456789')
+    account_name = getattr(settings, 'SEPAY_ACCOUNT_NAME', 'SePay Test Account')
+
+    content = f"Thanh toan don hang {order.id}"
+    amount = int(order.get_total_cost())
+    encoded_content = quote_plus(content)
+
+    if account_number.startswith('YOUR_') or account_name.startswith('YOUR_'):
+        payment_text = f"Tai khoan: {account_number}\nTen: {account_name}\nSo tien: {amount} VND\nNoi dung: {content}"
+        payment_url = f"https://api.qrserver.com/v1/create-qr-code/?size=320x320&data={quote_plus(payment_text)}"
+    else:
+        payment_url = (
+            f"https://qr.sepay.vn/img?acc={account_number}"
+            f"&bank=MB&amount={amount}&des={encoded_content}&template=compact"
+        )
+
+    context = {
+        'order': order,
+        'payment_url': payment_url,
+        'sepay_qr_url': payment_url,
+        'amount': amount,
+        'content': content,
+        'account_number': account_number,
+        'account_name': account_name,
+        'sepay_bank_name': 'MB',
+    }
+
+    return render(request, 'orders/sepay_payment.html', context)
+
+
+@login_required
+def sepay_callback(request):
+    # Xử lý callback từ SePay (nếu có webhook)
+    # Trong trường hợp đơn giản, có thể kiểm tra thủ công
+    return redirect('orders:order_history')

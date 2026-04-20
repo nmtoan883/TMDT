@@ -22,6 +22,13 @@ class Order(models.Model):
         (STATUS_CANCELLED, 'Cancelled'),
     ]
 
+    PAYMENT_COD = 'cod'
+    PAYMENT_SEPAY = 'sepay'
+    PAYMENT_CHOICES = [
+        (PAYMENT_COD, 'Thanh toan khi nhan hang'),
+        (PAYMENT_SEPAY, 'Thanh toan qua SePay'),
+    ]
+
     user = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -29,6 +36,8 @@ class Order(models.Model):
         blank=True,
         null=True,
     )
+    paid = models.BooleanField(default=False)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default=PAYMENT_COD)
 
     customer_name = models.CharField(max_length=255)
     customer_email = models.EmailField()
