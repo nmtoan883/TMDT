@@ -171,9 +171,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# SePay payment defaults
-SEPAY_ACCOUNT_NUMBER = '0123456789'
-SEPAY_ACCOUNT_NAME = 'SePay Test Account'
+# SePay payment config
+SEPAY_API_KEY = 'SEPAY_API_9f3a7c1e4b6d8a2f5c0e7b1d9a4c3e8f'
+SEPAY_ACCOUNT_NUMBER = '96247TV2OT'
+SEPAY_BANK = 'BIDV'
+SEPAY_ACCOUNT_NAME = 'NGUYEN MINH TOAN'
 
 # ============================================================
 # CKEDITOR CONFIGURATION

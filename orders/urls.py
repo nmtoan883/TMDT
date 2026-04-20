@@ -10,6 +10,5 @@ urlpatterns = [
     path("<int:order_id>/pay/", views.order_payment, name="order_payment"),
     path("payment_return/", views.payment_return, name="payment_return"),
     path("checkout/", views.checkout, name="checkout"),
-    path('<int:order_id>/payment/sepay/', views.sepay_payment, name='sepay_payment'),
-    path('payment/sepay/callback/', views.sepay_callback, name='sepay_callback'),
+    path('payment/sepay/webhook/', views.sepay_webhook, name='sepay_webhook'),
 ]

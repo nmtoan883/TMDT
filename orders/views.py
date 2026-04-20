@@ -113,9 +113,8 @@ def order_create(request):
                 _send_confirmation_email(order)
                 if payment_method == 'sepay':
                     sepay = Sepay()
-                    return_url = request.build_absolute_uri(reverse('orders:payment_return'))
-                    payment_url = sepay.create_payment_url(order.id, order.total_amount, return_url)
-                    qr_code_url = sepay.get_qr_code_url(payment_url)
+                    payment_url = sepay.create_payment_url(order.id, order.total_amount)
+                    qr_code_url = sepay.get_qr_code_url(order.id, order.total_amount)
                     return render(request, 'orders/payment.html', {
                         'order': order,
                         'payment_url': payment_url,
@@ -254,50 +253,53 @@ def checkout(request):
         'payment_status': payment_status,
     })
 
-@login_required
-def sepay_payment(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
-    if order.payment_method != Order.PAYMENT_SEPAY:
-        messages.warning(request, 'Don hang nay khong su dung SePay.')
-        return redirect('orders:order_detail', order_id=order.id)
+@csrf_exempt
+def sepay_webhook(request):
+    """
+    Webhook handler for SePay.
+    SePay sends a POST request with JSON data when a transaction matches the condition.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
 
-    if order.paid:
-        messages.info(request, 'Don hang da duoc thanh toan.')
-        return redirect('orders:order_detail', order_id=order.id)
+    # Lấy API Key từ header để xác thực
+    # Cấu hình "Kiểu chứng thực": API Key
+    auth_header = request.headers.get('Authorization', '')
+    expected_api_key = getattr(settings, 'SEPAY_API_KEY', '')
+    
+    if not expected_api_key or f"Apikey {expected_api_key}" != auth_header:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
 
-    account_number = getattr(settings, 'SEPAY_ACCOUNT_NUMBER', '0123456789')
-    account_name = getattr(settings, 'SEPAY_ACCOUNT_NAME', 'SePay Test Account')
+    try:
+        data = json.loads(request.body)
+        
+        transfer_type = data.get('transferType')
+        transfer_amount = data.get('transferAmount')
+        code = data.get('code')
+        
+        if transfer_type == 'in' and code and code.startswith('DH'):
+            try:
+                order_id = int(code.replace('DH', ''))
+                order = Order.objects.get(id=order_id)
+                
+                # Cập nhật trạng thái thành công
+                if int(transfer_amount) >= int(order.total_amount):
+                    order.paid = True
+                    order.status = 'processing'
+                    order.save()
+                    return JsonResponse({'success': True, 'message': 'Payment confirmed'})
+                else:
+                    return JsonResponse({'success': False, 'message': 'Insufficient amount'}, status=400)
+            except Order.DoesNotExist:
+                return JsonResponse({'success': False, 'message': 'Order not found'}, status=404)
+            except ValueError:
+                return JsonResponse({'success': False, 'message': 'Invalid order ID'}, status=400)
+                
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
-    content = f"Thanh toan don hang {order.id}"
-    amount = int(order.get_total_cost())
-    encoded_content = quote_plus(content)
-
-    if account_number.startswith('YOUR_') or account_name.startswith('YOUR_'):
-        payment_text = f"Tai khoan: {account_number}\nTen: {account_name}\nSo tien: {amount} VND\nNoi dung: {content}"
-        payment_url = f"https://api.qrserver.com/v1/create-qr-code/?size=320x320&data={quote_plus(payment_text)}"
-    else:
-        payment_url = (
-            f"https://qr.sepay.vn/img?acc={account_number}"
-            f"&bank=MB&amount={amount}&des={encoded_content}&template=compact"
-        )
-
-    context = {
-        'order': order,
-        'payment_url': payment_url,
-        'sepay_qr_url': payment_url,
-        'amount': amount,
-        'content': content,
-        'account_number': account_number,
-        'account_name': account_name,
-        'sepay_bank_name': 'MB',
-    }
-
-    return render(request, 'orders/sepay_payment.html', context)
-
-
-@login_required
-def sepay_callback(request):
-    # Xử lý callback từ SePay (nếu có webhook)
-    # Trong trường hợp đơn giản, có thể kiểm tra thủ công
-    return redirect('orders:order_history')
+    return JsonResponse({'success': True})
