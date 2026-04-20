@@ -1,50 +1,96 @@
 {% extends "base.html" %}
 
-{% block title %}Theo doi don hang #{{ order.id }} - E-ELECTRO{% endblock %}
+{% block title %}Đơn hàng #{{ order.id }} - E-ELECTRO{% endblock %}
+
+{% block breadcrumb %}
+<div id="breadcrumb" class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="breadcrumb-header">Đơn hàng #{{ order.id }}</h3>
+                <ul class="breadcrumb-tree">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li><a href="{% url 'orders:order_history' %}">Đơn hàng</a></li>
+                    <li class="active">#{{ order.id }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
 {% block content %}
 <div class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-4 gap-3">
         <div>
-            <h1 class="h3 fw-bold mb-1">Theo doi don hang #{{ order.id }}</h1>
-            <p class="text-muted mb-0">Cap nhat trang thai va thong tin giao hang.</p>
+            <h1 class="h3 fw-bold mb-1">Đơn hàng #{{ order.id }}</h1>
+            <p class="text-muted mb-0">Theo dõi trạng thái, thông tin giao hàng và thanh toán.</p>
         </div>
-        <a href="{% url 'orders:order_history' %}" class="btn btn-outline-secondary">Quay lai lich su</a>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'orders:order_history' %}" class="btn btn-outline-secondary">Xem tất cả đơn hàng</a>
+            <a href="/" class="btn btn-outline-primary">Tiếp tục mua sắm</a>
+        </div>
     </div>
 
     <div class="row g-4">
         <div class="col-lg-4">
             <div class="glass-card p-4 h-100">
-                <h2 class="h5 fw-bold mb-3">Trang thai don hang</h2>
+                <h2 class="h5 fw-bold mb-3">Thông tin đơn hàng</h2>
                 <div class="mb-3">
                     <span class="badge text-bg-{{ order.get_status_label_class }} fs-6">{{ order.get_status_display }}</span>
                 </div>
                 <ul class="list-unstyled mb-0">
-                    <li class="py-2 border-bottom"><strong>Ngay dat:</strong> {{ order.created|date:"d/m/Y H:i" }}</li>
-                    <li class="py-2 border-bottom"><strong>Khach hang:</strong> {{ order.first_name }} {{ order.last_name }}</li>
+                    <li class="py-2 border-bottom"><strong>Ngày đặt:</strong> {{ order.created|date:"d/m/Y H:i" }}</li>
+                    <li class="py-2 border-bottom"><strong>Khách hàng:</strong> {{ order.first_name }} {{ order.last_name }}</li>
                     <li class="py-2 border-bottom"><strong>Email:</strong> {{ order.email }}</li>
-                    <li class="py-2 border-bottom"><strong>Dia chi:</strong> {{ order.full_address }}</li>
-                    <li class="py-2"><strong>Khu vuc:</strong> {{ order.province_display }} - {{ order.postal_code }}</li>
+                    <li class="py-2 border-bottom"><strong>Địa chỉ:</strong> {{ order.full_address }}</li>
+                    <li class="py-2 border-bottom"><strong>Khu vực:</strong> {{ order.province_display }} - {{ order.postal_code }}</li>
+                    <li class="py-2 border-bottom"><strong>Phương thức thanh toán:</strong> {{ order.get_payment_method_display }}</li>
+                    <li class="py-2"><strong>Trạng thái thanh toán:</strong>
+                        {% if order.paid %}
+                            <span class="text-success"><i class="fas fa-check-circle me-1"></i>Đã thanh toán</span>
+                        {% else %}
+                            <span class="text-warning"><i class="fas fa-clock me-1"></i>Chưa thanh toán</span>
+                        {% endif %}
+                    </li>
                 </ul>
+
+                {% if order.payment_method == 'cod' %}
+                    <div class="alert alert-light mt-4">
+                        <i class="fas fa-truck me-2"></i>Thanh toán khi nhận hàng. Vui lòng chuẩn bị tiền để giao dịch.
+                    </div>
+                {% elif order.payment_method == 'sepay' and not order.paid %}
+                    <div class="mt-4">
+                        <a href="{% url 'orders:sepay_payment' order.id %}" class="btn btn-success w-100">
+                            <i class="fas fa-credit-card me-2"></i>Thanh toán ngay bằng SePay
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </div>
+
         <div class="col-lg-8">
             <div class="glass-card p-4">
-                <h2 class="h5 fw-bold mb-3">San pham trong don</h2>
-                {% for item in order.items.all %}
-                    <div class="d-flex justify-content-between align-items-start py-3 border-bottom">
-                        <div class="me-3">
-                            <div class="fw-semibold">{{ item.product.name }}</div>
-                            <div class="small text-muted">So luong: {{ item.quantity }}</div>
+                <h2 class="h5 fw-bold mb-3">Sản phẩm trong đơn</h2>
+                <div class="list-group list-group-flush">
+                    {% for item in order.items.all %}
+                        <div class="list-group-item px-0 py-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center gap-3">
+                                <div>
+                                    <div class="fw-semibold">{{ item.product.name }}</div>
+                                    <div class="small text-muted">Số lượng: {{ item.quantity }}</div>
+                                </div>
+                                <div class="text-end">
+                                    <div>{{ item.price|floatformat:0 }} VND</div>
+                                    <div class="fw-bold">{{ item.get_cost|floatformat:0 }} VND</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-end">
-                            <div>{{ item.price|floatformat:0 }} VND</div>
-                            <div class="fw-bold">{{ item.get_cost|floatformat:0 }} VND</div>
-                        </div>
-                    </div>
-                {% endfor %}
-                <div class="d-flex justify-content-between pt-3">
-                    <span class="fw-bold">Tong thanh toan</span>
+                    {% endfor %}
+                </div>
+
+                <div class="d-flex justify-content-between pt-3 mt-3 border-top">
+                    <span class="fw-bold">Tổng thanh toán</span>
                     <span class="fw-bold text-primary">{{ order.get_total_cost|floatformat:0 }} VND</span>
                 </div>
             </div>

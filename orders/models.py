@@ -13,6 +13,13 @@ class Order(models.Model):
         (STATUS_CANCELLED, 'Da huy'),
     ]
 
+    PAYMENT_COD = 'cod'
+    PAYMENT_SEPAY = 'sepay'
+    PAYMENT_CHOICES = [
+        (PAYMENT_COD, 'Thanh toan khi nhan hang'),
+        (PAYMENT_SEPAY, 'Thanh toan qua SePay'),
+    ]
+
     user = models.ForeignKey(User, related_name='orders', on_delete=models.SET_NULL, blank=True, null=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -27,6 +34,7 @@ class Order(models.Model):
     updated = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
     paid = models.BooleanField(default=False)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default=PAYMENT_COD)
 
     class Meta:
         ordering = ['-created']
