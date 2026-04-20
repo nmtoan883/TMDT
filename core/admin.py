@@ -1,6 +1,19 @@
 from django.contrib import admin
 from django.utils.html import mark_safe
-from .models import Category, Product, Review, Contact, Policy, Wishlist, ContactMessage, ContactInfo, LiveChatSession, LiveChatMessage
+from .models import Category, Product, Review, Contact, Policy, Wishlist, ContactMessage, ContactInfo, LiveChatSession, LiveChatMessage, Banner
+
+@admin.register(Banner)
+class BannerAdmin(admin.ModelAdmin):
+    list_display = ('title', 'is_active', 'order', 'preview_image')
+    list_editable = ('is_active', 'order')
+    list_filter = ('is_active',)
+    search_fields = ('title',)
+    
+    def preview_image(self, obj):
+        if obj.image:
+            return mark_safe(f'<img src="{obj.image.url}" style="height: 45px; border-radius: 4px;" />')
+        return "No Image"
+    preview_image.short_description = "Ảnh"
 
 class LiveChatMessageInline(admin.TabularInline):
     model = LiveChatMessage

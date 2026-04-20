@@ -306,9 +306,13 @@ def _build_product_list_context(request, base_products, category=None, query=Non
     elif sort == 'newest':
         products = products.order_by('-created')
 
+    from .models import Banner
+    home_banners = Banner.objects.filter(is_active=True)
+
     return {
         'category': category,
         'categories': categories,
+        'home_banners': home_banners,
         'products': products,
         'latest_products': latest_products,
         'hotdeal_products': hotdeal_products,

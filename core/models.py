@@ -167,3 +167,19 @@ class LiveChatMessage(models.Model):
     def __str__(self):
         prefix = 'Admin' if self.is_admin else 'User'
         return f"{prefix}: {self.content[:30]}"
+
+class Banner(models.Model):
+    title = models.CharField(max_length=200)
+    image = models.ImageField(upload_to='banners/%Y/%m/%d')
+    link = models.URLField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', '-id']
+        verbose_name = 'Banner Trang Chủ'
+        verbose_name_plural = 'Banners Trang Chủ'
+
+    def __str__(self):
+        return self.title
+
