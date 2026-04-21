@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-qlr(=fw73c4g5za%^x$4%)k()qja=#$8^hoy$f9e-8-*$cc*m(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -240,4 +240,12 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Trigger Reload 2
 
-# Trigger Hot-Reload For App Password Change
+# Trigger Reload For App Password Change
+
+# ============================================================
+# SEPAY API CONFIGURATION
+# ============================================================
+SEPAY_API_KEY = 'SEPAY_API_9f3a7c1e4b6d8a2f5c0e7b1d9a4c3e8f'
+SEPAY_ACCOUNT_NUMBER = '96247TV2OT'
+SEPAY_BANK = 'BIDV'
+SEPAY_ACCOUNT_NAME = 'NGUYEN MINH TOAN'

@@ -57,6 +57,12 @@ class Order(models.Model):
         default=0
     )
 
+    shipping_fee = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
     PAYMENT_SEPAY = 'sepay'
     PAYMENT_MANUAL = 'manual'
 

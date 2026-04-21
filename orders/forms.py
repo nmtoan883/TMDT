@@ -42,12 +42,13 @@ class OrderCreateForm(forms.ModelForm):
         }
 
         widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Ho'}),
-            'last_name': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Ten'}),
-            'email': forms.EmailInput(attrs={'class': 'input', 'placeholder': 'Email'}),
-            'address': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Dia chi'}),
-            'province': forms.Select(choices=[('', 'Chon tinh/thanh pho')], attrs={'class': 'input'}),
-            'district': forms.Select(choices=[('', 'Chon quan/huyen')], attrs={'class': 'input'}),
-            'ward': forms.Select(choices=[('', 'Chon phuong/xa')], attrs={'class': 'input'}),
+            'first_name': forms.TextInput(attrs={'class': 'input', 'placeholder': 'VD: Nguyễn'}),
+            'last_name': forms.TextInput(attrs={'class': 'input', 'placeholder': 'VD: Văn A'}),
+            'email': forms.EmailInput(attrs={'class': 'input', 'placeholder': 'email@example.com'}),
+            'address': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Số nhà, tên đường...'}),
+            'province': forms.Select(choices=[('', 'Chọn Tỉnh/Thành phố')], attrs={'class': 'input'}),
+            'district': forms.Select(choices=[('', 'Chọn Quận/Huyện')], attrs={'class': 'input'}),
+            'ward': forms.Select(choices=[('', 'Chọn Phường/Xã')], attrs={'class': 'input'}),
+            'postal_code': forms.TextInput(attrs={'class': 'input', 'placeholder': 'VD: 700000'}),
             'payment_method': forms.RadioSelect(),
         }

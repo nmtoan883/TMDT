@@ -94,6 +94,7 @@ def order_create(request):
                     order.customer_name = f'{order.first_name} {order.last_name}'.strip() or request.user.get_full_name() or request.user.username
                     order.customer_email = order.email or request.user.email
                     order.payment_method = payment_method
+                    order.total_amount = cart.get_total_price_after_discount(selected_product_ids)
                     order.save()
 
                     for item in selected_items:
@@ -110,7 +111,11 @@ def order_create(request):
                     cart.clear()
                     request.session['coupon_id'] = None
 
-                _send_confirmation_email(order)
+                try:
+                    _send_confirmation_email(order)
+                except Exception as e:
+                    print(f'[EMAIL ERROR] Failed to send confirmation email: {e}')
+                    
                 if payment_method == 'sepay':
                     sepay = Sepay()
                     payment_url = sepay.create_payment_url(order.id, order.total_amount)
