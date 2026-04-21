@@ -172,10 +172,10 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 # SePay payment config
-SEPAY_API_KEY = 'SEPAY_API_9f3a7c1e4b6d8a2f5c0e7b1d9a4c3e8f'
-SEPAY_ACCOUNT_NUMBER = '96247TV2OT'
-SEPAY_BANK = 'BIDV'
-SEPAY_ACCOUNT_NAME = 'NGUYEN MINH TOAN'
+SEPAY_API_KEY = os.environ.get('SEPAY_API_KEY', '')
+SEPAY_ACCOUNT_NUMBER = os.environ.get('SEPAY_ACCOUNT_NUMBER', '')
+SEPAY_BANK = os.environ.get('SEPAY_BANK', 'BIDV')
+SEPAY_ACCOUNT_NAME = os.environ.get('SEPAY_ACCOUNT_NAME', '')
 
 # ============================================================
 # CKEDITOR CONFIGURATION
@@ -245,7 +245,6 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # ============================================================
 # SEPAY API CONFIGURATION
 # ============================================================
-SEPAY_API_KEY = 'SEPAY_API_9f3a7c1e4b6d8a2f5c0e7b1d9a4c3e8f'
-SEPAY_ACCOUNT_NUMBER = '96247TV2OT'
-SEPAY_BANK = 'BIDV'
-SEPAY_ACCOUNT_NAME = 'NGUYEN MINH TOAN'
+SEPAY_API_KEY = os.environ.get('SEPAY_API_KEY', '')
+SEPAY_ACCOUNT_NUMBER = os.environ.get('SEPAY_ACCOUNT_NUMBER', '')
+SEPAY_BANK = os.environ.get('SEPAY_BANK', '')

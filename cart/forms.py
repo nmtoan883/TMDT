@@ -8,7 +8,7 @@ class CartAddProductForm(forms.Form):
         min_value=1,
         max_value=20,
         label='Số lượng',
-        widget=forms.HiddenInput
+        widget=forms.NumberInput(attrs={'class': 'input cart-qty-input'})
     )
     override = forms.BooleanField(
         required=False,

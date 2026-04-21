@@ -61,6 +61,7 @@ def order_create(request):
     profile = getattr(request.user, 'customer_profile', None)
     if profile is not None:
         initial.update({
+            'phone': profile.phone,
             'address': profile.address,
             'province': profile.province or profile.city,
             'district': profile.district,
@@ -97,6 +98,18 @@ def order_create(request):
                     order.total_amount = cart.get_total_price_after_discount(selected_product_ids)
                     order.save()
 
+                    profile = getattr(request.user, 'customer_profile', None)
+                    if hasattr(profile, 'address'):
+                        profile.phone = order.phone
+                        profile.address = order.address
+                        profile.ward = order.ward
+                        profile.district = order.district
+                        profile.province = order.province
+                        profile.city = order.province
+                        profile.postal_code = order.postal_code
+                        profile.save()
+
+
                     for item in selected_items:
                         OrderItem.objects.create(
                             order=order,
@@ -117,15 +130,7 @@ def order_create(request):
                     print(f'[EMAIL ERROR] Failed to send confirmation email: {e}')
                     
                 if payment_method == 'sepay':
-                    sepay = Sepay()
-                    payment_url = sepay.create_payment_url(order.id, order.total_amount)
-                    qr_code_url = sepay.get_qr_code_url(order.id, order.total_amount)
-                    return render(request, 'orders/payment.html', {
-                        'order': order,
-                        'payment_url': payment_url,
-                        'qr_code_url': qr_code_url,
-                        'gateway_name': 'Sepay',
-                    })
+                    return redirect('orders:order_payment', order_id=order.id)
 
                 messages.success(
                     request,
@@ -165,16 +170,27 @@ def order_payment(request, order_id):
     gateway_name = 'Sepay' if payment_method == 'sepay' else payment_method.title()
 
     sepay = Sepay()
-    return_url = request.build_absolute_uri(reverse('orders:payment_return'))
-    payment_url = sepay.create_payment_url(order.id, order.total_amount, return_url)
-    qr_code_url = sepay.get_qr_code_url(payment_url)
+    qr_code_url = sepay.get_qr_code_url(order.id, order.total_amount)
+    payment_url = qr_code_url  # Sepay QR tĩnh nên link & ảnh là một
+    transfer_content = f"DH{order.id}"
 
     return render(request, 'orders/payment.html', {
         'order': order,
         'payment_url': payment_url,
         'qr_code_url': qr_code_url,
         'gateway_name': gateway_name,
+        'transfer_content': transfer_content,
     })
+
+
+@login_required
+def cancel_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if order.status == Order.STATUS_PENDING:
+        order.status = Order.STATUS_CANCELLED
+        order.save()
+        messages.warning(request, f'Đơn hàng #{order.id} đã được huỷ.')
+    return redirect('orders:order_history')
 
 
 @login_required
@@ -282,27 +298,41 @@ def sepay_webhook(request):
     try:
         data = json.loads(request.body)
         
-        transfer_type = data.get('transferType')
-        transfer_amount = data.get('transferAmount')
+        transfer_type = data.get('transferType') or data.get('gateway')  # some gateways use different field
+        transfer_amount = data.get('transferAmount') or data.get('amount') or 0
         code = data.get('code')
+        content = data.get('content', '') or ''
+
+        # Nếu code trống, thử trích xuất mã đơn hàng từ nội dung giao dịch (vd: DH15)
+        if not code:
+            import re
+            match = re.search(r'DH(\d+)', content, re.IGNORECASE)
+            if match:
+                code = f"DH{match.group(1)}"
         
-        if transfer_type == 'in' and code and code.startswith('DH'):
+        # Chấp nhận cả transferType='in' hoặc khi không có transferType (một số gateway)
+        is_incoming = (not data.get('transferType')) or data.get('transferType') == 'in'
+        
+        if is_incoming and code and code.upper().startswith('DH'):
             try:
-                order_id = int(code.replace('DH', ''))
+                order_id = int(code.upper().replace('DH', ''))
                 order = Order.objects.get(id=order_id)
                 
                 # Cập nhật trạng thái thành công
-                if int(transfer_amount) >= int(order.total_amount):
+                if int(float(transfer_amount)) >= int(order.total_amount):
                     order.paid = True
-                    order.status = 'processing'
+                    order.status = Order.STATUS_CONFIRMED  # Đã TT – Chờ shop xác nhận
                     order.save()
                     return JsonResponse({'success': True, 'message': 'Payment confirmed'})
                 else:
                     return JsonResponse({'success': False, 'message': 'Insufficient amount'}, status=400)
             except Order.DoesNotExist:
                 return JsonResponse({'success': False, 'message': 'Order not found'}, status=404)
-            except ValueError:
+            except (ValueError, TypeError):
                 return JsonResponse({'success': False, 'message': 'Invalid order ID'}, status=400)
+        
+        # Không tìm thấy mã đơn, vẫn trả 200 để Sepay không retry
+        return JsonResponse({'success': True, 'message': 'No matching order'})
                 
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)

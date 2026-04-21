@@ -18,71 +18,81 @@
 {% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4 gap-3">
-        <div>
-            <h1 class="h3 fw-bold mb-1">Lịch sử mua hàng</h1>
-            <p class="text-muted mb-0">Xem lại các đơn hàng đã đặt và theo dõi trạng thái.</p>
-        </div>
-        <a href="{% url 'shop:product_list' %}" class="btn btn-outline-secondary">Tiếp tục mua sắm</a>
-    </div>
-
-    {% if orders %}
-        <div class="row g-4">
-            {% for order in orders %}
-                <div class="col-12">
-                    <div class="glass-card p-4">
-                        <div class="row align-items-center">
-                            <div class="col-md-8">
-                                <h5 class="mb-1">Đơn hàng #{{ order.id }}</h5>
-                                <div class="text-muted small mb-2">
-                                    <i class="fas fa-calendar me-1"></i>{{ order.created|date:"d/m/Y H:i" }}
-                                    <span class="mx-2">•</span>
-                                    <i class="fas fa-map-marker-alt me-1"></i>{{ order.province_display }}
-                                </div>
-                                <div class="small text-muted mb-2">
-                                    <strong>Sản phẩm:</strong>
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="order-summary" style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #E4E7ED; padding-bottom: 10px;">
+                        <h4 style="margin:0; text-transform: uppercase;">Lịch sử mua hàng</h4>
+                        <a href="{% url 'shop:product_list' %}" class="primary-btn">Tiếp tục mua sắm</a>
+                    </div>
+                    {% if orders %}
+                    <table class="table table-bordered table-striped table-hover" style="margin-top: 20px; text-align: left; background: white;">
+                        <thead>
+                            <tr style="background-color: #f9f9f9;">
+                                <th>Mã Đơn Hàng</th>
+                                <th>Ngày đặt</th>
+                                <th style="width: 35%;">Sản phẩm</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Thanh toán</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td><strong>#{{ order.id }}</strong></td>
+                                <td>{{ order.created|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    <ul style="padding-left:15px; margin:0; line-height: 1.8;">
                                     {% for item in order.items.all %}
-                                        {{ item.product.name }} (x{{ item.quantity }}){% if not forloop.last %}, {% endif %}
+                                        <li>{{ item.product.name }} <span style="color:#D10024">(x{{ item.quantity }})</span></li>
                                     {% endfor %}
-                                </div>
-                                <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <span class="badge text-bg-{{ order.get_status_label_class }}">{{ order.get_status_display }}</span>
+                                    </ul>
+                                </td>
+                                <td><strong style="color: #D10024;">{{ order.get_total_cost|floatformat:0 }} VND</strong></td>
+                                <td>
+                                    <span class="label label-{{ order.get_status_label_class }}" style="font-size: 11px; padding: 4px 8px;">{{ order.get_status_display }}</span>
+                                </td>
+                                <td>
                                     {% if order.payment_method == 'sepay' %}
                                         {% if order.paid %}
-                                            <span class="badge bg-success"><i class="fas fa-check me-1"></i>Đã thanh toán</span>
+                                            <span class="label label-success" style="font-size: 11px; padding: 4px 8px;"><i class="fa fa-check"></i> Đã thanh toán</span>
                                         {% else %}
-                                            <span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Chưa thanh toán</span>
+                                            <span class="label label-warning" style="font-size: 11px; padding: 4px 8px;"><i class="fa fa-clock-o"></i> Chưa thanh toán</span>
                                         {% endif %}
                                     {% else %}
-                                        <span class="badge bg-info"><i class="fas fa-truck me-1"></i>Thanh toán khi nhận hàng</span>
+                                        <span class="label label-info" style="font-size: 11px; padding: 4px 8px;"><i class="fa fa-truck"></i> Giao hàng COD</span>
                                     {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                <div class="fw-bold fs-5 text-primary mb-3">{{ order.get_total_cost|floatformat:0 }} VND</div>
-                                <div class="d-flex gap-2 justify-content-md-end flex-wrap">
-                                    <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-primary btn-sm">
-                                        <i class="fas fa-eye me-1"></i>Xem chi tiết
-                                    </a>
-                                    {% if order.payment_method == 'sepay' and not order.paid %}
-                                        <a href="{% url 'orders:sepay_payment' order.id %}" class="btn btn-success btn-sm">
-                                            <i class="fas fa-credit-card me-1"></i>Thanh toán
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 5px;">
+                                        <a href="{% url 'orders:order_detail' order.id %}" class="primary-btn" style="padding: 5px 10px; font-size: 11px; background: #FFF; border: 1px solid #D10024; color: #D10024; display: inline-flex; align-items: center; line-height: 1;">
+                                            <i class="fa fa-eye" style="margin-right: 4px;"></i> Chi tiết
                                         </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
+                                        {% if order.payment_method == 'sepay' and not order.paid %}
+                                        <a href="{% url 'orders:order_payment' order.id %}" class="primary-btn" style="padding: 5px 10px; font-size: 11px; background: #28a745; border-color: #28a745; color: #FFF; display: inline-flex; align-items: center; line-height: 1;">
+                                            <i class="fa fa-credit-card" style="margin-right: 4px;"></i> Thanh toán
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div style="text-align: center; padding: 50px 0; background: #f9f9f9; border: 1px dashed #d10024;">
+                        <i class="fa fa-shopping-basket" style="font-size: 60px; color: #d10024; margin-bottom: 20px;"></i>
+                        <h4 style="color: #333;">Bạn chưa có đơn hàng nào</h4>
+                        <p style="color: #666; font-size: 14px;">Tham khảo thêm các sản phẩm tuyệt vời trên cửa hàng bạn nhé.</p>
                     </div>
+                    {% endif %}
                 </div>
-            {% endfor %}
+            </div>
         </div>
-    {% else %}
-        <div class="glass-card p-5 text-center">
-            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-            <h2 class="h4 fw-bold">Bạn chưa có đơn hàng nào</h2>
-            <p class="text-muted">Đơn hàng của bạn sẽ hiện ra ở đây sau khi đặt hàng thành công.</p>
-        </div>
-    {% endif %}
+    </div>
 </div>
 {% endblock %}

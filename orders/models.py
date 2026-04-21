@@ -10,16 +10,22 @@ from core.models import Product
 
 
 class Order(models.Model):
-    STATUS_PENDING = 'pending'
-    STATUS_PROCESSING = 'processing'
-    STATUS_COMPLETED = 'completed'
-    STATUS_CANCELLED = 'cancelled'
+    STATUS_PENDING    = 'pending'      # Chờ thanh toán
+    STATUS_CONFIRMED  = 'confirmed'    # Đã TT – Chờ shop xác nhận
+    STATUS_PREPARING  = 'preparing'    # Chờ lấy hàng (đang đóng gói)
+    STATUS_SHIPPING   = 'shipping'     # Đang giao hàng
+    STATUS_COMPLETED  = 'completed'    # Đã giao hàng thành công
+    STATUS_CANCELLED  = 'cancelled'    # Đã huỷ
+    STATUS_PROCESSING = 'processing'   # Giữ lại để tương thích
 
     STATUS_CHOICES = [
-        (STATUS_PENDING, 'Pending'),
-        (STATUS_PROCESSING, 'Processing'),
-        (STATUS_COMPLETED, 'Completed'),
-        (STATUS_CANCELLED, 'Cancelled'),
+        (STATUS_PENDING,   'Chờ thanh toán'),
+        (STATUS_CONFIRMED, 'Chờ xác nhận'),
+        (STATUS_PREPARING, 'Chờ lấy hàng'),
+        (STATUS_SHIPPING,  'Đang giao hàng'),
+        (STATUS_COMPLETED, 'Đã giao hàng'),
+        (STATUS_CANCELLED, 'Đã huỷ'),
+        (STATUS_PROCESSING,'Đang xử lý'),   # tương thích cũ
     ]
 
     PAYMENT_COD = 'cod'
@@ -44,8 +50,9 @@ class Order(models.Model):
     first_name = models.CharField(max_length=50, default="")
     last_name = models.CharField(max_length=50, default="")
     email = models.EmailField(default="")
+    phone = models.CharField(max_length=20, blank=True, default="")
     address = models.CharField(max_length=250, default="")
-    postal_code = models.CharField(max_length=20, default="")
+    postal_code = models.CharField(max_length=20, blank=True, default="")
     province = models.CharField(max_length=100, blank=True, null=True)
     district = models.CharField(max_length=100, blank=True, null=True)
     ward = models.CharField(max_length=100, blank=True, null=True)

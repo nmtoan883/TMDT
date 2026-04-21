@@ -1,49 +1,103 @@
 {% extends "base.html" %}
 {% block title %}Thanh toán Sepay cho đơn #{{ order.id }}{% endblock %}
 
-{% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="glass-card p-4">
-                <h1 class="h4 fw-bold mb-3">Thanh toán mã QR {{ gateway_name }}</h1>
-                <p class="text-muted mb-4">Chọn cổng: <span class="fw-semibold">{{ gateway_name }}</span>. Quét mã QR bằng ứng dụng ngân hàng hoặc ví điện tử hỗ trợ Sepay để hoàn tất giao dịch.</p>
-
-                <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fw-semibold">Mã đơn hàng</span>
-                        <span>#{{ order.id }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fw-semibold">Số tiền cần thanh toán</span>
-                        <span class="text-danger fs-5 fw-bold">{{ order.total_amount|floatformat:0 }} VND</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fw-semibold">Trạng thái đơn</span>
-                        <span class="badge bg-warning text-dark">{{ order.status|capfirst }}</span>
-                    </div>
-                </div>
-
-                <div class="text-center mb-4">
-                    <a href="{{ payment_url }}" target="_blank" rel="noreferrer noopener">
-                        <img src="{{ qr_code_url }}" alt="QR code Sepay" class="img-fluid" style="max-width: 320px;">
-                    </a>
-                </div>
-
-                <p class="text-center text-muted mb-4">Quét mã QR hoặc bấm vào ảnh để mở trang thanh toán Sepay.</p>
-                <p class="text-center small text-break">Nếu QR không hiển thị, dùng liên kết này:</p>
-                <p class="text-center small text-break"><a href="{{ payment_url }}" target="_blank" rel="noreferrer noopener">{{ payment_url }}</a></p>
-
-                <div class="d-grid gap-3">
-                    <a href="{{ payment_url }}" class="btn btn-primary btn-lg" target="_blank" rel="noreferrer noopener">
-                        Mở trang thanh toán Sepay
-                    </a>
-                    <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-secondary">
-                        Xem chi tiết đơn hàng
-                    </a>
-                </div>
+{% block breadcrumb %}
+<div id="breadcrumb" class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="breadcrumb-header">Thanh Toán Đơn Hàng</h3>
+                <ul class="breadcrumb-tree">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li><a href="{% url 'orders:order_history' %}">Lịch sử đơn hàng</a></li>
+                    <li class="active">Thanh toán #{{ order.id }}</li>
+                </ul>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                {% if order.status == 'processing' or order.status == 'confirmed' or order.status == 'preparing' or order.status == 'shipping' or order.status == 'completed' or order.paid %}
+                <div class="order-summary" style="border: 1px solid #5cb85c; padding: 30px; border-radius: 5px; background: white; text-align: center; margin-bottom: 40px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                    <div style="font-size: 64px; margin-bottom: 15px;">✅</div>
+                    <h4 style="color: #5cb85c; text-transform: uppercase;">Thanh toán thành công!</h4>
+                    <p style="color: #8D99AE; font-size: 14px; margin-bottom: 5px;">Đơn hàng <strong>#{{ order.id }}</strong> đã được xác nhận thanh toán.</p>
+                    <p style="color: #8D99AE; font-size: 13px; margin-bottom: 20px;">Shop đang chuẩn bị và giao hàng đến bạn. Cảm ơn đã mua hàng! 🚚</p>
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <a href="{% url 'orders:order_detail' order.id %}" class="primary-btn" style="background: #5cb85c; color: white; border: 1px solid #5cb85c; font-size: 13px; padding: 10px 20px;">
+                            <i class="fa fa-check" style="margin-right: 5px;"></i> Xem chi tiết đơn hàng
+                        </a>
+                        <a href="{% url 'shop:product_list' %}" class="primary-btn" style="background: white; color: #333; border: 1px solid #ccc; font-size: 13px; padding: 10px 20px;">
+                            <i class="fa fa-shopping-bag" style="margin-right: 5px;"></i> Tiếp tục mua sắm
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="order-summary" style="border: 1px solid #E4E7ED; padding: 30px; border-radius: 5px; background: white; text-align: center; margin-bottom: 40px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="text-transform: uppercase;">Mã QR Thanh Toán {{ gateway_name }}</h4>
+                        <p style="color: #8D99AE; font-size: 13px;">Sử dụng App Ngân hàng hoặc Ví điện tử để quét mã</p>
+                    </div>
+
+                    <div style="background: #FBFBFC; padding: 20px; border-radius: 5px; text-align: left; margin-bottom: 30px; border: 1px dashed #E4E7ED;">
+                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 15px;">
+                            <li style="border-bottom: 1px solid #E4E7ED; padding-bottom: 15px; margin-bottom: 15px;">
+                                <strong>Mã đơn hàng:</strong> <span class="pull-right">#{{ order.id }}</span>
+                            </li>
+                            <li style="border-bottom: 1px solid #E4E7ED; padding-bottom: 15px; margin-bottom: 15px;">
+                                <strong>Số tiền:</strong> <strong class="pull-right" style="color: #D10024; font-size: 20px;">{{ order.total_amount|floatformat:0 }} VND</strong>
+                            </li>
+                            <li style="border-bottom: 1px solid #E4E7ED; padding-bottom: 15px; margin-bottom: 15px;">
+                                <strong>Nội dung đơn hàng:</strong>
+                                <span class="pull-right" style="font-weight: bold; color: #2B2D42; letter-spacing: 1px;">
+                                    {{ transfer_content }}
+                                    <button type="button" onclick="navigator.clipboard.writeText('{{ transfer_content }}'); this.textContent='✓ Đã sao chép'; setTimeout(()=>this.textContent='Sao chép',1500);"
+                                        style="margin-left: 8px; font-size: 12px; border: 1px solid #ccc; background: white; padding: 2px 8px; border-radius: 3px; cursor: pointer;">Sao chép</button>
+                                </span>
+                            </li>
+                            <li>
+                                <strong>Trạng thái:</strong> <span class="pull-right label label-warning" style="font-size: 13px; padding: 6px 10px;"><i class="fa fa-clock-o"></i> Đang chờ thanh toán</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div style="display: inline-block; padding: 15px; background: white; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 0 15px rgba(209, 0, 36, 0.15);">
+                        <a href="{{ payment_url }}" target="_blank" rel="noreferrer noopener">
+                            <img src="{{ qr_code_url }}" alt="QR code Sepay" style="width: 100%; max-width: 280px; display: block; margin: 0 auto; border-radius: 5px;">
+                        </a>
+                    </div>
+                    
+                    <p style="font-size: 13px; color: #8D99AE; margin-bottom: 10px;"><i class="fa fa-info-circle"></i> Bấm vào mã QR nếu bạn không quét được mã trực tiếp.</p>
+                    <p style="font-size: 12px; color: #aaa; margin-bottom: 25px;"><i class="fa fa-refresh fa-spin"></i> Trang sẽ tự kiểm tra thanh toán mỗi 10 giây...</p>
+
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <a href="{% url 'orders:order_detail' order.id %}" class="primary-btn" style="background: white; color: #333; border: 1px solid #ccc; font-size: 13px; padding: 10px 20px;"><i class="fa fa-chevron-left" style="margin-right: 5px;"></i> Chi tiết đơn hàng</a>
+                        <a href="{% url 'orders:cancel_order' order.id %}"
+                           class="primary-btn"
+                           style="background: white; color: #D10024; border: 1px solid #D10024; font-size: 13px; padding: 10px 20px;"
+                           onclick="return confirm('Bạn có chắc muốn huỷ đơn hàng #{{ order.id }} không?')">
+                            <i class="fa fa-times" style="margin-right: 5px;"></i> Huỷ đơn hàng
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not order.status == 'completed' and not order.paid %}
+<script>
+    // Tự động tải lại trang mỗi 10 giây để kiểm tra trạng thái thanh toán
+    setTimeout(function() {
+        window.location.reload();
+    }, 10000);
+</script>
+{% endif %}
 {% endblock %}

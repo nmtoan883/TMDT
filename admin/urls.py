@@ -64,6 +64,7 @@ urlpatterns = [
     path('ecommerce/order/add/', views.ec_order_add, name='ec_order_add'),
     path('ecommerce/order/edit/<int:pk>/', views.ec_order_edit, name='ec_order_edit'),
     path('ecommerce/order/delete/<int:pk>/', views.ec_order_delete, name='ec_order_delete'),
+    path('ecommerce/order/<int:pk>/set-status/<str:new_status>/', views.ec_order_set_status, name='ec_order_set_status'),
     path('ecommerce/coupon/', views.ec_coupon_list, name='ec_coupon_list'),
     path('ecommerce/coupon/add/', views.ec_coupon_add, name='ec_coupon_add'),
     path('ecommerce/coupon/edit/<int:pk>/', views.ec_coupon_edit, name='ec_coupon_edit'),

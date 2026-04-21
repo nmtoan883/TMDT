@@ -36,10 +36,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label style="font-weight: 500; font-size: 13px; margin-bottom: 5px;">Email <span class="text-danger">*</span></label>
-                    {{ form.email }}
-                    {% if form.email.errors %}<div class="text-danger" style="font-size: 12px; margin-top: 5px;">{{ form.email.errors }}</div>{% endif %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label style="font-weight: 500; font-size: 13px; margin-bottom: 5px;">Email <span class="text-danger">*</span></label>
+                            {{ form.email }}
+                            {% if form.email.errors %}<div class="text-danger" style="font-size: 12px; margin-top: 5px;">{{ form.email.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label style="font-weight: 500; font-size: 13px; margin-bottom: 5px;">Số điện thoại <span class="text-danger">*</span></label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}<div class="text-danger" style="font-size: 12px; margin-top: 5px;">{{ form.phone.errors }}</div>{% endif %}
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label style="font-weight: 500; font-size: 13px; margin-bottom: 5px;">Số nhà, tên đường... <span class="text-danger">*</span></label>
@@ -157,9 +168,13 @@
     if (!provinceSelect || !districtSelect || !wardSelect) return;
 
     var apiBase = 'https://provinces.open-api.vn/api/v1';
-    var initialProvince = provinceSelect.value;
-    var initialDistrict = districtSelect.value;
-    var initialWard = wardSelect.value;
+    var initialProvince = "{{ form.province.value|default_if_none:''|escapejs }}";
+    var initialDistrict = "{{ form.district.value|default_if_none:''|escapejs }}";
+    var initialWard = "{{ form.ward.value|default_if_none:''|escapejs }}";
+    
+    if (!initialProvince && provinceSelect.value) initialProvince = provinceSelect.value;
+    if (!initialDistrict && districtSelect.value) initialDistrict = districtSelect.value;
+    if (!initialWard && wardSelect.value) initialWard = wardSelect.value;
 
     function setOptions(select, items, placeholder, selectedValue) {
         select.innerHTML = '';

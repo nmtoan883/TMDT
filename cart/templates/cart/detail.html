@@ -1,159 +1,184 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% load static %}
 
 {% block title %}Giỏ hàng{% endblock %}
 
-{% block content %}
-<div class="container my-5">
-    <h1 class="mb-5 fw-bold">Giỏ hàng của bạn</h1>
-
-    {% if cart %}
+{% block breadcrumb %}
+<div id="breadcrumb" class="section">
+    <div class="container">
         <div class="row">
-            <div class="col-lg-8">
+            <div class="col-md-12">
+                <h3 class="breadcrumb-header">Giỏ Hàng Của Bạn</h3>
+                <ul class="breadcrumb-tree">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li class="active">Giỏ hàng</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<style>
+    .cart-qty-input {
+        width: 40px;
+        height: 35px;
+        text-align: center;
+        border: 1px solid #E4E7ED;
+        padding: 0;
+        font-weight: bold;
+        -moz-appearance: textfield;
+        box-sizing: border-box;
+    }
+    .qty-btn-custom {
+        width: 30px;
+        height: 35px;
+        border: 1px solid #E4E7ED;
+        background: #fbfbfc;
+        font-weight: bold;
+        cursor: pointer;
+        color: #D10024;
+        box-sizing: border-box;
+    }
+    .qty-btn-minus {
+        border-right: none;
+        border-radius: 3px 0 0 3px;
+    }
+    .qty-btn-plus {
+        border-left: none;
+        border-radius: 0 3px 3px 0;
+    }
+    .cart-qty-input::-webkit-outer-spin-button,
+    .cart-qty-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+</style>
+<div class="section">
+    <div class="container">
+        {% if cart %}
+        <div class="row">
+            <div class="col-md-8">
                 <form id="cart-checkout-form" action="{% url 'cart:cart_checkout' %}" method="post">
                     {% csrf_token %}
                 </form>
-                <div class="glass-card p-0 overflow-hidden mb-4">
-                    <table class="table table-hover mb-0">
-                        <thead class="bg-light">
-                            <tr>
-                                <th class="ps-4 py-3" style="width: 52px;">
-                                    <input type="checkbox" id="select-all-cart-items" checked>
-                                </th>
-                                <th class="ps-4 py-3">Sản phẩm</th>
-                                <th class="py-3">Số lượng</th>
-                                <th class="py-3">Đơn giá</th>
-                                <th class="py-3 text-end pe-4">Tổng cộng</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in cart %}
-                                {% with product=item.product %}
-                                    <tr class="align-middle">
-                                        <td class="ps-4 py-4">
-                                            <input
-                                                type="checkbox"
-                                                name="selected_products"
-                                                value="{{ product.id }}"
-                                                class="cart-item-checkbox"
-                                                form="cart-checkout-form"
-                                                {% if product.id|stringformat:"s" in selected_product_ids %}checked{% endif %}>
-                                        </td>
-                                        <td class="ps-4 py-4">
-                                            <div class="d-flex align-items-center">
-                                                <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}"
-                                                     alt="{{ product.name }}"
-                                                     style="width: 80px; height: 80px; object-fit: contain;"
-                                                     class="me-3">
-                                                <div>
-                                                    <h6 class="mb-0">{{ product.name }}</h6>
-                                                    <form action="{% url 'cart:cart_remove' product.id %}" method="post">
-                                                        {% csrf_token %}
-                                                        <button type="submit" class="btn btn-link btn-sm text-danger p-0 text-decoration-none">
-                                                            <i class="fas fa-trash-alt me-1"></i>Xóa
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <form action="{% url 'cart:cart_add' product.id %}" method="post" class="d-flex align-items-center">
-                                                {% csrf_token %}
-                                                {{ item.update_quantity_form.quantity }}
-                                                {{ item.update_quantity_form.override }}
-                                                <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Cập nhật</button>
-                                            </form>
-                                        </td>
-                                        <td>{{ item.price|floatformat:0 }} VND</td>
-                                        <td class="text-end pe-4">{{ item.total_price|floatformat:0 }} VND</td>
-                                    </tr>
-                                {% endwith %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <div class="p-4 border-top bg-white" style="display: flex; gap: 12px; flex-wrap: wrap;">
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
-                            form="cart-checkout-form"
-                            style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 999px; font-weight: 600;">
-                            <i class="fa fa-credit-card"></i>
-                            Tiến hành thanh toán các sản phẩm đã chọn
+                <div class="order-summary" style="margin-bottom: 30px;">
+                    <div class="order-col" style="display: flex; justify-content: space-between; border-bottom: 2px solid #E4E7ED; padding-bottom: 15px; margin-bottom: 15px;">
+                        <div>
+                            <strong><input type="checkbox" id="select-all-cart-items" checked style="margin-right: 10px;"> Sản phẩm</strong>
+                        </div>
+                        <div style="display: flex; gap: 20px; font-weight: bold; width: 350px; flex-shrink: 0;">
+                            <div style="flex: 1; text-align: center;">Số lượng</div>
+                            <div style="flex: 1; text-align: right;">Đơn giá</div>
+                            <div style="flex: 1; text-align: right;">Tổng cộng</div>
+                        </div>
+                    </div>
+                    {% for item in cart %}
+                        {% with product=item.product %}
+                        <div class="order-col" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E4E7ED; padding-bottom: 15px; margin-bottom: 15px;">
+                            <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
+                                <input
+                                    type="checkbox"
+                                    name="selected_products"
+                                    value="{{ product.id }}"
+                                    class="cart-item-checkbox"
+                                    form="cart-checkout-form"
+                                    {% if product.id|stringformat:"s" in selected_product_ids %}checked{% endif %}
+                                    style="margin-top: 0;">
+                                <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" alt="{{ product.name }}" style="width: 60px; height: 60px; object-fit: contain; border: 1px solid #eee; border-radius: 4px;">
+                                <div style="display: flex; flex-direction: column; justify-content: center;">
+                                    <h6 style="margin: 0 0 5px 0;">{{ product.name }}</h6>
+                                    <form action="{% url 'cart:cart_remove' product.id %}" method="post" style="margin: 0;">
+                                        {% csrf_token %}
+                                        <button type="submit" style="background: none; border: none; color: #D10024; padding: 0; font-size: 13px; text-decoration: underline;">
+                                            <i class="fa fa-trash"></i> Xóa
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 20px; align-items: center; width: 350px; flex-shrink: 0;">
+                                <div style="flex: 1; text-align: center; display: flex; justify-content: center;">
+                                    <form action="{% url 'cart:cart_add' product.id %}" method="post" style="display: flex; gap: 0; align-items: center;" class="qty-auto-form">
+                                        {% csrf_token %}
+                                        <button type="button" class="qty-btn-custom qty-btn-minus">-</button>
+                                        {{ item.update_quantity_form.quantity }}
+                                        <button type="button" class="qty-btn-custom qty-btn-plus">+</button>
+                                        {{ item.update_quantity_form.override }}
+                                    </form>
+                                </div>
+                                <div style="flex: 1; text-align: right; color: #8D99AE; font-size: 14px;">{{ item.price|floatformat:0 }}đ</div>
+                                <div style="flex: 1; text-align: right; color: #D10024; font-weight: bold; font-size: 14px;">{{ item.total_price|floatformat:0 }}đ</div>
+                            </div>
+                        </div>
+                        {% endwith %}
+                    {% endfor %}
+                    <div style="padding-top: 15px; display: flex; gap: 10px;">
+                        <button type="submit" class="primary-btn" form="cart-checkout-form" style="display: flex; align-items: center; gap: 5px;">
+                            <i class="fa fa-credit-card"></i> Thanh toán sản phẩm chọn
                         </button>
-                        <a
-                            href="{% url 'shop:product_list' %}"
-                            class="btn btn-outline-primary"
-                            style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 999px; font-weight: 600; text-decoration: none;">
-                            <i class="fa fa-arrow-left"></i>
-                            <span>Tiếp tục mua sắm</span>
-                        </a>
+                        <a href="{% url 'shop:product_list' %}" class="primary-btn" style="background: white; border: 1px solid #D10024; color: #D10024;"><i class="fa fa-arrow-left"></i> Tiếp tục mua hàng</a>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-4">
-                <div class="glass-card p-4">
-                    <h5 class="mb-4 fw-bold">Tóm tắt đơn hàng</h5>
-
-                    <form action="{% url 'coupon:apply' %}" method="post" class="mb-3">
+            <div class="col-md-4">
+                <div class="order-details">
+                    <div class="section-title text-center">
+                        <h3 class="title">Tổng Quan</h3>
+                    </div>
+                    
+                    <form action="{% url 'coupon:apply' %}" method="post" style="margin-bottom: 20px;">
                         {% csrf_token %}
-                        <label class="form-label fw-semibold">Mã giảm giá</label>
-                        {{ coupon_form.code }}
-                        <button type="submit" class="btn btn-outline-primary w-100 mt-2">
-                            Áp dụng
-                        </button>
+                        <div style="display: flex; gap: 5px;">
+                            {{ coupon_form.code }}
+                            <button class="primary-btn" type="submit" style="white-space: nowrap;">Áp dụng</button>
+                        </div>
                     </form>
-
+                    
                     {% if request.session.coupon_id %}
-                        <div class="alert alert-success py-2">
-                            Đã áp dụng mã giảm giá!
-                            <a href="{% url 'coupon:remove' %}" class="btn btn-sm btn-danger float-end">
-                                Xóa
-                            </a>
-                        </div>
+                    <div style="background: #e8f5e9; padding: 10px; border-radius: 4px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #2e7d32; font-size: 13px;"><i class="fa fa-check-circle"></i> Đã kích hoạt mã</span>
+                        <a href="{% url 'coupon:remove' %}" style="color: #D10024; font-size: 13px;"><i class="fa fa-times"></i> Xóa</a>
+                    </div>
                     {% endif %}
 
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Tạm tính (đã chọn)</span>
-                        <span>{{ selected_total_price|floatformat:0 }} VND</span>
-                    </div>
-
-                    {% if coupon %}
-                        <div class="d-flex justify-content-between mb-2 text-success fw-semibold">
-                            <span>Giảm giá ({{ coupon.discount }}%)</span>
-                            <span>-{{ selected_discount|floatformat:0 }} VND</span>
+                    <div class="order-summary">
+                        <div class="order-col">
+                            <div><strong>Tạm tính ({{ selected_items|length }} SP)</strong></div>
+                            <div>{{ selected_total_price|floatformat:0 }} VND</div>
                         </div>
-                    {% endif %}
-
-                    <div class="d-flex justify-content-between mb-4">
-                        <span>Phí vận chuyển</span>
-                        <span class="text-success">Miễn phí</span>
-                    </div>
-
-                    <hr>
-
-                    <div class="d-flex justify-content-between mb-3">
-                        <span class="fw-bold fs-5">Tổng tiền</span>
-                        <span class="fw-bold fs-4 text-danger">
-                            {{ selected_total_price_after_discount|floatformat:0 }} VND
-                        </span>
-                    </div>
-
-                    <div class="small text-muted">
-                        Bạn đang chọn {{ selected_items|length }} dòng sản phẩm để thanh toán.
+                        {% if coupon %}
+                        <div class="order-col">
+                            <div><strong>Giảm giá (-{{ coupon.discount }}%)</strong></div>
+                            <div style="color: #4CAF50;">-{{ selected_discount|floatformat:0 }} VND</div>
+                        </div>
+                        {% endif %}
+                        <div class="order-col">
+                            <div><strong>Phí Vận Chuyển</strong></div>
+                            <div><strong>MIỄN PHÍ</strong></div>
+                        </div>
+                        <div class="order-col" style="border-top: 1px solid #E4E7ED; padding-top: 15px; margin-top: 15px;">
+                            <div><strong>TỔNG TIỀN KIẾN TÍNH</strong></div>
+                            <div><strong class="order-total">{{ selected_total_price_after_discount|floatformat:0 }} VND</strong></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    {% else %}
-        <div class="text-center py-5">
-            <i class="fas fa-shopping-basket fa-4x text-muted mb-4"></i>
-            <h3>Giỏ hàng của bạn đang trống</h3>
-            <p class="text-muted mb-4">Hãy chọn những sản phẩm ưng ý nhất và quay lại đây nhé.</p>
-            <a href="{% url 'shop:product_list' %}" class="btn btn-primary px-5 py-3">Bắt đầu mua sắm</a>
+        {% else %}
+        <div class="row">
+            <div class="col-md-12 text-center" style="padding: 100px 0; background: #fbfbfc; border: 2px dashed #E4E7ED; margin-bottom: 40px;">
+                <i class="fa fa-shopping-cart" style="font-size: 70px; color: #D10024; margin-bottom: 20px;"></i>
+                <h3 style="margin-bottom: 10px;">Giỏ hàng của bạn đang trống</h3>
+                <p style="color: #8D99AE; margin-bottom: 30px;">Chưa có sản phẩm nào trong giỏ hàng. Quét sạch cửa hàng ngay thôi!</p>
+                <a href="{% url 'shop:product_list' %}" class="primary-btn"><i class="fa fa-arrow-right"></i> Bắt đầu mua sắm</a>
+            </div>
         </div>
-    {% endif %}
+        {% endif %}
+    </div>
 </div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     var selectAll = document.getElementById('select-all-cart-items');
@@ -180,6 +205,42 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     syncHeaderCheckbox();
+
+    // Auto submit quantity
+    document.querySelectorAll('.qty-auto-form').forEach(function(form) {
+        var minusBtn = form.querySelector('.qty-btn-minus');
+        var plusBtn = form.querySelector('.qty-btn-plus');
+        var input = form.querySelector('.cart-qty-input');
+        
+        if (minusBtn && input) {
+            minusBtn.addEventListener('click', function() {
+                var currentVal = parseInt(input.value) || 1;
+                if (currentVal > 1) {
+                    input.value = currentVal - 1;
+                    form.submit();
+                }
+            });
+        }
+        
+        if (plusBtn && input) {
+            plusBtn.addEventListener('click', function() {
+                var currentVal = parseInt(input.value) || 1;
+                if (currentVal < parseInt(input.max || 20)) {
+                    input.value = currentVal + 1;
+                    form.submit();
+                }
+            });
+        }
+
+        if (input) {
+            input.addEventListener('change', function() {
+                var currentVal = parseInt(input.value) || 1;
+                if (currentVal >= 1 && currentVal <= parseInt(input.max || 20)) {
+                    form.submit();
+                }
+            });
+        }
+    });
 });
 </script>
 {% endblock %}

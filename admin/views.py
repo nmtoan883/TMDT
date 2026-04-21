@@ -547,6 +547,7 @@ def ec_order_add(request):
 @staff_member_required
 def ec_order_edit(request, pk):
     from orders.models import Order
+    from django.urls import reverse
     obj = get_object_or_404(Order, pk=pk)
     FormClass = modelform_factory(Order, exclude=[])
     if request.method == 'POST':
@@ -557,7 +558,47 @@ def ec_order_edit(request, pk):
             return redirect('admin:ec_order_list')
     else:
         form = FormClass(instance=obj)
-    return render(request, 'admin/pages/ecommerce/order_form.html', {'form': form, 'obj': obj})
+
+    # Stepper config
+    steps = [
+        ('pending',   'Đặt hàng',    'bi bi-qr-code'),
+        ('confirmed', 'Chờ xác nhận','bi bi-check-circle'),
+        ('preparing', 'Chờ lấy hàng','bi bi-archive'),
+        ('shipping',  'Đang giao',   'bi bi-truck'),
+        ('completed', 'Đã giao',     'bi bi-house-check'),
+    ]
+    status_order = [s for s, _, _ in steps]
+    current_idx = status_order.index(obj.status) if obj.status in status_order else 0
+    completed_steps = status_order[:current_idx]
+
+    # Action buttons theo trạng thái
+    stage_actions = {
+        'pending': [
+            ('✅ Xác nhận đơn', reverse('admin:ec_order_set_status', args=[pk, 'confirmed']), '#9b59b6'),
+            ('❌ Từ chối / Huỷ', reverse('admin:ec_order_set_status', args=[pk, 'cancelled']), '#d9534f'),
+        ],
+        'confirmed': [
+            ('📦 Xác nhận → Chuẩn bị hàng', reverse('admin:ec_order_set_status', args=[pk, 'preparing']), '#e67e22'),
+            ('❌ Từ chối / Huỷ', reverse('admin:ec_order_set_status', args=[pk, 'cancelled']), '#d9534f'),
+        ],
+        'preparing': [
+            ('🚚 Chuyển → Đang giao hàng', reverse('admin:ec_order_set_status', args=[pk, 'shipping']), '#3498db'),
+            ('❌ Huỷ đơn', reverse('admin:ec_order_set_status', args=[pk, 'cancelled']), '#d9534f'),
+        ],
+        'shipping': [
+            ('✅ Đã giao hàng thành công', reverse('admin:ec_order_set_status', args=[pk, 'completed']), '#5cb85c'),
+            ('❌ Huỷ đơn', reverse('admin:ec_order_set_status', args=[pk, 'cancelled']), '#d9534f'),
+        ],
+    }
+    action_buttons = stage_actions.get(obj.status, [])
+
+    return render(request, 'admin/pages/ecommerce/order_form.html', {
+        'form': form,
+        'obj': obj,
+        'steps': steps,
+        'completed_steps': completed_steps,
+        'action_buttons': action_buttons,
+    })
 
 @staff_member_required
 def ec_order_delete(request, pk):
@@ -566,6 +607,19 @@ def ec_order_delete(request, pk):
     obj.delete()
     messages.success(request, 'Đã xóa đối tượng.')
     return redirect('admin:ec_order_list')
+
+@staff_member_required
+def ec_order_set_status(request, pk, new_status):
+    from orders.models import Order
+    obj = get_object_or_404(Order, pk=pk)
+    allowed = [s for s, _ in Order.STATUS_CHOICES]
+    if new_status in allowed:
+        obj.status = new_status
+        obj.save()
+        messages.success(request, f'Đơn hàng #{pk} → {obj.get_status_display()}')
+    else:
+        messages.error(request, 'Trạng thái không hợp lệ.')
+    return redirect('admin:ec_order_edit', pk=pk)
 
 @staff_member_required
 def ec_coupon_list(request):
