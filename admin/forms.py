@@ -1,5 +1,7 @@
 from django import forms
+from django.utils import timezone
 from blog.models import Post
+from core.models import Banner, HotDealCampaign, Product
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -80,7 +82,6 @@ class BusinessLicenseForm(forms.ModelForm):
             'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
-from core.models import Banner
 class BannerForm(forms.ModelForm):
     class Meta:
         model = Banner
@@ -92,4 +93,55 @@ class BannerForm(forms.ModelForm):
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'order': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+
+class ProductAdminForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['category', 'name', 'slug', 'brand', 'image', 'description', 'price', 'old_price', 'stock', 'available']
+        widgets = {
+            'category': forms.Select(attrs={'class': 'form-select'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'slug': forms.TextInput(attrs={'class': 'form-control'}),
+            'brand': forms.TextInput(attrs={'class': 'form-control'}),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
+            'old_price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
+            'stock': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
+            'available': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+
+class HotDealCampaignAdminForm(forms.ModelForm):
+    products = forms.ModelMultipleChoiceField(
+        queryset=Product.objects.order_by('name'),
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        label='Sản phẩm áp dụng',
+    )
+
+    class Meta:
+        model = HotDealCampaign
+        fields = ['name', 'description', 'discount_percent', 'start_at', 'end_at', 'is_active', 'priority', 'products']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'discount_percent': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '99'}),
+            'start_at': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'end_at': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'priority': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        datetime_formats = ['%Y-%m-%dT%H:%M']
+        self.fields['start_at'].input_formats = datetime_formats
+        self.fields['end_at'].input_formats = datetime_formats
+
+        for field_name in ('start_at', 'end_at'):
+            value = self.initial.get(field_name) or getattr(self.instance, field_name, None)
+            if value:
+                self.initial[field_name] = timezone.localtime(value).strftime('%Y-%m-%dT%H:%M')
 

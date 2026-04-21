@@ -368,34 +368,34 @@ def ec_policy_delete(request, pk):
 
 @staff_member_required
 def ec_product_list(request):
-    items = core_models.Product.objects.all()
+    items = core_models.Product.objects.select_related('category').order_by('-updated', '-created')
     return render(request, 'admin/pages/ecommerce/product_list.html', {'items': items})
 
 @staff_member_required
 def ec_product_add(request):
-    FormClass = modelform_factory(core_models.Product, exclude=[])
+    from admin.forms import ProductAdminForm
     if request.method == 'POST':
-        form = FormClass(request.POST, request.FILES)
+        form = ProductAdminForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, 'Đã thêm mới thành công.')
             return redirect('admin:ec_product_list')
     else:
-        form = FormClass()
+        form = ProductAdminForm()
     return render(request, 'admin/pages/ecommerce/product_form.html', {'form': form})
 
 @staff_member_required
 def ec_product_edit(request, pk):
+    from admin.forms import ProductAdminForm
     obj = get_object_or_404(core_models.Product, pk=pk)
-    FormClass = modelform_factory(core_models.Product, exclude=[])
     if request.method == 'POST':
-        form = FormClass(request.POST, request.FILES, instance=obj)
+        form = ProductAdminForm(request.POST, request.FILES, instance=obj)
         if form.is_valid():
             form.save()
             messages.success(request, 'Đã cập nhật thành công.')
             return redirect('admin:ec_product_list')
     else:
-        form = FormClass(instance=obj)
+        form = ProductAdminForm(instance=obj)
     return render(request, 'admin/pages/ecommerce/product_form.html', {'form': form, 'obj': obj})
 
 @staff_member_required
@@ -404,6 +404,50 @@ def ec_product_delete(request, pk):
     obj.delete()
     messages.success(request, 'Đã xóa đối tượng.')
     return redirect('admin:ec_product_list')
+
+@staff_member_required
+def ec_hotdeal_campaign_list(request):
+    items = core_models.HotDealCampaign.objects.prefetch_related('products').order_by('priority', 'start_at', '-created')
+    return render(request, 'admin/pages/ecommerce/hotdeal_campaign_list.html', {'items': items})
+
+
+@staff_member_required
+def ec_hotdeal_campaign_add(request):
+    from admin.forms import HotDealCampaignAdminForm
+
+    if request.method == 'POST':
+        form = HotDealCampaignAdminForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã tạo Hot Deal thành công.')
+            return redirect('admin:ec_hotdeal_campaign_list')
+    else:
+        form = HotDealCampaignAdminForm()
+    return render(request, 'admin/pages/ecommerce/hotdeal_campaign_form.html', {'form': form})
+
+
+@staff_member_required
+def ec_hotdeal_campaign_edit(request, pk):
+    from admin.forms import HotDealCampaignAdminForm
+
+    obj = get_object_or_404(core_models.HotDealCampaign, pk=pk)
+    if request.method == 'POST':
+        form = HotDealCampaignAdminForm(request.POST, instance=obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Đã cập nhật Hot Deal thành công.')
+            return redirect('admin:ec_hotdeal_campaign_list')
+    else:
+        form = HotDealCampaignAdminForm(instance=obj)
+    return render(request, 'admin/pages/ecommerce/hotdeal_campaign_form.html', {'form': form, 'obj': obj})
+
+
+@staff_member_required
+def ec_hotdeal_campaign_delete(request, pk):
+    obj = get_object_or_404(core_models.HotDealCampaign, pk=pk)
+    obj.delete()
+    messages.success(request, 'Đã xóa Hot Deal.')
+    return redirect('admin:ec_hotdeal_campaign_list')
 
 @staff_member_required
 def ec_review_list(request):

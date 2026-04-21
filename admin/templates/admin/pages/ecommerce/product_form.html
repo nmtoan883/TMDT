@@ -1,5 +1,4 @@
 {% load static %}
-{% load crispy_forms_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +6,18 @@
   <title>Admin - Product</title>
   {% include 'admin/partials/head/head-links.html' %}
   {{ form.media }}
+  <style>
+    .form-help {
+      color: #6c757d;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+    .field-error {
+      color: #dc3545;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+  </style>
 </head>
 <body>
   <div>
@@ -17,20 +28,100 @@
         <div class="row align-items-center mb-4 g-4">
           <div class="col-12 col-md-8">
             <h4 class="mb-0">{% if obj %}Sửa: {{ obj }}{% else %}Soạn Product mới{% endif %}</h4>
+            <p class="text-muted mb-0 mt-1">Trang Product chỉ giữ thông tin cơ bản. Nếu muốn tạo deal, anh vào mục Hot Deal riêng.</p>
           </div>
           <div class="col-12 col-md-4 text-md-end">
              <a href="{% url 'admin:ec_product_list' %}" class="btn btn-white">Trở về</a>
           </div>
         </div>
-        <div class="row"><div class="col-12 col-md-8"><div class="card card-lg card-body">
-                <form method="POST" enctype="multipart/form-data">
-                  {% csrf_token %}
-                  {{ form|crispy }}
-                  <div class="mt-4 pt-3 border-top text-end">
-                    <button type="submit" class="btn btn-primary px-4">Lưu</button>
+
+        <div class="row">
+          <div class="col-12 col-xl-9">
+            <div class="card card-lg card-body">
+              {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+              <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <label class="form-label" for="{{ form.category.id_for_label }}">Danh mục</label>
+                    {{ form.category }}
+                    {% for error in form.category.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
                   </div>
-                </form>
-        </div></div></div>
+
+                  <div class="col-md-6">
+                    <label class="form-label" for="{{ form.name.id_for_label }}">Tên sản phẩm</label>
+                    {{ form.name }}
+                    {% for error in form.name.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label" for="{{ form.slug.id_for_label }}">Slug</label>
+                    {{ form.slug }}
+                    <div class="form-help">Có thể để trống nếu anh muốn tự nhập sau.</div>
+                    {% for error in form.slug.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label" for="{{ form.brand.id_for_label }}">Thương hiệu</label>
+                    {{ form.brand }}
+                    {% for error in form.brand.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                  </div>
+
+                  <div class="col-12">
+                    <label class="form-label" for="{{ form.description.id_for_label }}">Mô tả</label>
+                    {{ form.description }}
+                    {% for error in form.description.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                  </div>
+
+                  <div class="col-md-4">
+                    <label class="form-label" for="{{ form.price.id_for_label }}">Giá gốc</label>
+                    {{ form.price }}
+                    {% for error in form.price.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                  </div>
+
+                  <div class="col-md-4">
+                    <label class="form-label" for="{{ form.old_price.id_for_label }}">Giá so sánh</label>
+                    {{ form.old_price }}
+                    <div class="form-help">Dùng cho sale thường, tách biệt với Hot Deal campaign.</div>
+                    {% for error in form.old_price.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                  </div>
+
+                  <div class="col-md-4">
+                    <label class="form-label" for="{{ form.stock.id_for_label }}">Tồn kho</label>
+                    {{ form.stock }}
+                    {% for error in form.stock.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label" for="{{ form.image.id_for_label }}">Ảnh sản phẩm</label>
+                    {{ form.image }}
+                    {% for error in form.image.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                  </div>
+
+                  <div class="col-md-3 d-flex align-items-center">
+                    <div class="form-check mt-4">
+                      {{ form.available }}
+                      <label class="form-check-label" for="{{ form.available.id_for_label }}">Đang bán</label>
+                    </div>
+                    {% for error in form.available.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                  </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top text-end">
+                  <button type="submit" class="btn btn-primary px-4">Lưu</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
