@@ -110,6 +110,7 @@
       <ul class="dropdown-menu flex-column {% if '/ecommerce/' in request.path %}show{% endif %}">
         <li class="nav-item"><a class="nav-link" href="{% url 'admin:ec_category_list' %}">Categories (Product)</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'admin:ec_product_list' %}">Products</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'admin:ec_hotdeal_campaign_list' %}">Hot Deal</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'admin:ec_review_list' %}">Reviews</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'admin:ec_wishlist_list' %}">Wishlists</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'admin:ec_policy_list' %}">Policies (Core)</a></li>

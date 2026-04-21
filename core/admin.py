@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import mark_safe
-from .models import Category, Product, Review, Contact, Policy, Wishlist, ContactMessage, ContactInfo, LiveChatSession, LiveChatMessage, Banner
+from .models import Category, Product, Review, Contact, Policy, Wishlist, ContactMessage, ContactInfo, LiveChatSession, LiveChatMessage, Banner, HotDealCampaign
 
 @admin.register(Banner)
 class BannerAdmin(admin.ModelAdmin):
@@ -45,7 +45,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     list_display = [
         'name', 'category', 'slug', 'price', 'old_price', 'stock', 'available',
-        'is_hotdeal', 'hotdeal_start', 'hotdeal_end', 'created', 'updated'
+        'is_hotdeal', 'discount_percent', 'hotdeal_start', 'hotdeal_end', 'created', 'updated'
     ]
     list_filter = ['available', 'is_hotdeal', 'created', 'updated', 'category']
     list_editable = ['price', 'stock', 'available', 'is_hotdeal']
@@ -59,10 +59,17 @@ class ProductAdmin(admin.ModelAdmin):
             'fields': ('price', 'old_price', 'stock', 'available')
         }),
         ('Hot Deal', {
-            'fields': ('is_hotdeal', 'hotdeal_start', 'hotdeal_end'),
+            'fields': ('is_hotdeal', 'discount_percent', 'hotdeal_start', 'hotdeal_end'),
             'description': 'Bật Hot Deal và chọn thời gian hiệu lực để hiển thị ở trang chủ.'
         }),
     )
+
+
+@admin.register(HotDealCampaign)
+class HotDealCampaignAdmin(admin.ModelAdmin):
+    list_display = ('name', 'discount_percent', 'start_at', 'end_at', 'is_active', 'priority')
+    list_filter = ('is_active', 'start_at', 'end_at')
+    filter_horizontal = ('products',)
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):

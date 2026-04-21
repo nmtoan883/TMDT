@@ -4,6 +4,10 @@
 {% block breadcrumb %}{% endblock %}
 {% block content %}
 <style>
+    html {
+        scroll-behavior: smooth;
+    }
+
     .promo-card {
         background: #fff;
         border: 1px solid #e4e7ed;
@@ -376,7 +380,7 @@
 </style>
 {% if category or query %}
 <!-- BỘ CỤC DANH MỤC / TÌM KIẾM SẢN PHẨM -->
-<div class="section" id="hotdeal-products">
+<div class="section">
     <div class="container">
         <div class="row">
             <div class="col-md-12">
@@ -459,22 +463,22 @@
                     <p class="hotdeal-hero-desc">
                         Không khí săn sale kiểu sàn thương mại điện tử, nhưng dành riêng cho E-Electro: giá gọn, deal gắt, sản phẩm công nghệ nổi bật và thời gian hiển thị rõ ràng.
                     </p>
-                    <div class="hotdeal-hero-countdown">
+                    <div class="hotdeal-hero-countdown" {% if hotdeal_countdown and hotdeal_countdown.expires_at %}data-countdown-expires="{{ hotdeal_countdown.expires_at|date:'c' }}"{% endif %}>
                         <span class="hotdeal-hero-countdown-label">Kết thúc trong</span>
                         <div class="hotdeal-hero-time">
-                            <strong>{% if hotdeal_countdown %}{{ hotdeal_countdown.days }}{% else %}00{% endif %}</strong>
+                            <strong data-countdown-part="days">{% if hotdeal_countdown %}{{ hotdeal_countdown.days }}{% else %}00{% endif %}</strong>
                             <span>Ngày</span>
                         </div>
                         <div class="hotdeal-hero-time">
-                            <strong>{% if hotdeal_countdown %}{{ hotdeal_countdown.hours }}{% else %}00{% endif %}</strong>
+                            <strong data-countdown-part="hours">{% if hotdeal_countdown %}{{ hotdeal_countdown.hours }}{% else %}00{% endif %}</strong>
                             <span>Giờ</span>
                         </div>
                         <div class="hotdeal-hero-time">
-                            <strong>{% if hotdeal_countdown %}{{ hotdeal_countdown.minutes }}{% else %}00{% endif %}</strong>
+                            <strong data-countdown-part="minutes">{% if hotdeal_countdown %}{{ hotdeal_countdown.minutes }}{% else %}00{% endif %}</strong>
                             <span>Phút</span>
                         </div>
                         <div class="hotdeal-hero-time">
-                            <strong>{% if hotdeal_countdown %}{{ hotdeal_countdown.seconds }}{% else %}00{% endif %}</strong>
+                            <strong data-countdown-part="seconds">{% if hotdeal_countdown %}{{ hotdeal_countdown.seconds }}{% else %}00{% endif %}</strong>
                             <span>Giây</span>
                         </div>
                     </div>
@@ -509,11 +513,11 @@
                     <h3 class="title pg-hd-title" >⚡ FLASH SALE</h3>
                 </div>
                 {% if hotdeal_countdown %}
-                <ul class="hot-deal-countdown pg-hd-timer" >
-                    <li><div><h3>{{ hotdeal_countdown.days }}</h3><span>Ngày</span></div></li>
-                    <li><div><h3>{{ hotdeal_countdown.hours }}</h3><span>Giờ</span></div></li>
-                    <li><div><h3>{{ hotdeal_countdown.minutes }}</h3><span>Phút</span></div></li>
-                    <li><div><h3>{{ hotdeal_countdown.seconds }}</h3><span>Giây</span></div></li>
+                <ul class="hot-deal-countdown pg-hd-timer" {% if hotdeal_countdown and hotdeal_countdown.expires_at %}data-countdown-expires="{{ hotdeal_countdown.expires_at|date:'c' }}"{% endif %}>
+                    <li><div><h3 data-countdown-part="days">{{ hotdeal_countdown.days }}</h3><span>Ngày</span></div></li>
+                    <li><div><h3 data-countdown-part="hours">{{ hotdeal_countdown.hours }}</h3><span>Giờ</span></div></li>
+                    <li><div><h3 data-countdown-part="minutes">{{ hotdeal_countdown.minutes }}</h3><span>Phút</span></div></li>
+                    <li><div><h3 data-countdown-part="seconds">{{ hotdeal_countdown.seconds }}</h3><span>Giây</span></div></li>
                 </ul>
                 {% endif %}
             </div>
@@ -558,18 +562,18 @@
 </div>
 
 
-<div class="section">
+<div class="section" id="hotdeal-products">
     <div class="container">
         <div class="row">
             <div class="col-md-12">
                 <div class="section-title fs-header" >
                     <h3 class="title fs-title" >⚡ FLASH SALE HÔM NAY</h3>
                     {% if hotdeal_countdown %}
-                    <ul class="hot-deal-countdown" style="margin: 0;">
-                        <li class="mr-2px"><div><h3 class="fs-timer-val">{{ hotdeal_countdown.days }}</h3><span class="fs-timer-unit">Ngày</span></div></li>
-                        <li class="mr-2px"><div><h3 class="fs-timer-val">{{ hotdeal_countdown.hours }}</h3><span class="fs-timer-unit">Giờ</span></div></li>
-                        <li class="mr-2px"><div><h3 class="fs-timer-val">{{ hotdeal_countdown.minutes }}</h3><span class="fs-timer-unit">Phút</span></div></li>
-                        <li><div><h3 class="fs-timer-val">{{ hotdeal_countdown.seconds }}</h3><span class="fs-timer-unit">Giây</span></div></li>
+                    <ul class="hot-deal-countdown" style="margin: 0;" {% if hotdeal_countdown and hotdeal_countdown.expires_at %}data-countdown-expires="{{ hotdeal_countdown.expires_at|date:'c' }}"{% endif %}>
+                        <li class="mr-2px"><div><h3 class="fs-timer-val" data-countdown-part="days">{{ hotdeal_countdown.days }}</h3><span class="fs-timer-unit">Ngày</span></div></li>
+                        <li class="mr-2px"><div><h3 class="fs-timer-val" data-countdown-part="hours">{{ hotdeal_countdown.hours }}</h3><span class="fs-timer-unit">Giờ</span></div></li>
+                        <li class="mr-2px"><div><h3 class="fs-timer-val" data-countdown-part="minutes">{{ hotdeal_countdown.minutes }}</h3><span class="fs-timer-unit">Phút</span></div></li>
+                        <li><div><h3 class="fs-timer-val" data-countdown-part="seconds">{{ hotdeal_countdown.seconds }}</h3><span class="fs-timer-unit">Giây</span></div></li>
                     </ul>
                     {% endif %}
                 </div>
@@ -727,11 +731,11 @@
                     <div class="fs-wrapper">
                         <h3 class="title fs-title" >⚡ FLASH SALE</h3>
                         {% if hotdeal_countdown %}
-                        <ul class="hot-deal-countdown fs-timer" >
-                            <li class="mr-2px"><div><h3 class="fs-timer-val">{{ hotdeal_countdown.days }}</h3><span class="fs-timer-unit">Ngày</span></div></li>
-                            <li class="mr-2px"><div><h3 class="fs-timer-val">{{ hotdeal_countdown.hours }}</h3><span class="fs-timer-unit">Giờ</span></div></li>
-                            <li class="mr-2px"><div><h3 class="fs-timer-val">{{ hotdeal_countdown.minutes }}</h3><span class="fs-timer-unit">Phút</span></div></li>
-                            <li><div><h3 class="fs-timer-val">{{ hotdeal_countdown.seconds }}</h3><span class="fs-timer-unit">Giây</span></div></li>
+                        <ul class="hot-deal-countdown fs-timer" {% if hotdeal_countdown and hotdeal_countdown.expires_at %}data-countdown-expires="{{ hotdeal_countdown.expires_at|date:'c' }}"{% endif %}>
+                            <li class="mr-2px"><div><h3 class="fs-timer-val" data-countdown-part="days">{{ hotdeal_countdown.days }}</h3><span class="fs-timer-unit">Ngày</span></div></li>
+                            <li class="mr-2px"><div><h3 class="fs-timer-val" data-countdown-part="hours">{{ hotdeal_countdown.hours }}</h3><span class="fs-timer-unit">Giờ</span></div></li>
+                            <li class="mr-2px"><div><h3 class="fs-timer-val" data-countdown-part="minutes">{{ hotdeal_countdown.minutes }}</h3><span class="fs-timer-unit">Phút</span></div></li>
+                            <li><div><h3 class="fs-timer-val" data-countdown-part="seconds">{{ hotdeal_countdown.seconds }}</h3><span class="fs-timer-unit">Giây</span></div></li>
                         </ul>
                         {% endif %}
                     </div>
@@ -1315,41 +1319,39 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll('.hot-deal-countdown').forEach(function (ul) {
-            let h3s = ul.querySelectorAll('h3');
-            if (h3s.length === 4) {
-                let el_d = h3s[0];
-                let el_h = h3s[1];
-                let el_m = h3s[2];
-                let el_s = h3s[3];
+        document.querySelectorAll('[data-countdown-expires]').forEach(function (container) {
+            const expiresAt = container.dataset.countdownExpires;
+            if (!expiresAt) return;
 
-                let d = parseInt(el_d.innerText) || 0;
-                let h = parseInt(el_h.innerText) || 0;
-                let m = parseInt(el_m.innerText) || 0;
-                let s = parseInt(el_s.innerText) || 0;
+            const dayEl = container.querySelector('[data-countdown-part="days"]');
+            const hourEl = container.querySelector('[data-countdown-part="hours"]');
+            const minuteEl = container.querySelector('[data-countdown-part="minutes"]');
+            const secondEl = container.querySelector('[data-countdown-part="seconds"]');
 
-                let totalSeconds = d * 86400 + h * 3600 + m * 60 + s;
+            if (!dayEl || !hourEl || !minuteEl || !secondEl) return;
 
-                if (totalSeconds > 0) {
-                    let interval = setInterval(function () {
-                        if (totalSeconds <= 0) {
-                            clearInterval(interval);
-                            return;
-                        }
-                        totalSeconds--;
+            const expiresMs = new Date(expiresAt).getTime();
+            if (Number.isNaN(expiresMs)) return;
 
-                        let rem_d = Math.floor(totalSeconds / 86400);
-                        let rem_h = Math.floor((totalSeconds % 86400) / 3600);
-                        let rem_m = Math.floor((totalSeconds % 3600) / 60);
-                        let rem_s = totalSeconds % 60;
+            function renderCountdown() {
+                const nowMs = Date.now();
+                let totalSeconds = Math.max(Math.floor((expiresMs - nowMs) / 1000), 0);
 
-                        el_d.innerText = String(rem_d).padStart(2, '0');
-                        el_h.innerText = String(rem_h).padStart(2, '0');
-                        el_m.innerText = String(rem_m).padStart(2, '0');
-                        el_s.innerText = String(rem_s).padStart(2, '0');
-                    }, 1000);
-                }
+                const remDays = Math.floor(totalSeconds / 86400);
+                totalSeconds %= 86400;
+                const remHours = Math.floor(totalSeconds / 3600);
+                totalSeconds %= 3600;
+                const remMinutes = Math.floor(totalSeconds / 60);
+                const remSeconds = totalSeconds % 60;
+
+                dayEl.innerText = String(remDays).padStart(2, '0');
+                hourEl.innerText = String(remHours).padStart(2, '0');
+                minuteEl.innerText = String(remMinutes).padStart(2, '0');
+                secondEl.innerText = String(remSeconds).padStart(2, '0');
             }
+
+            renderCountdown();
+            setInterval(renderCountdown, 1000);
         });
     });
 </script>

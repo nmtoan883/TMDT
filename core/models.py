@@ -1,7 +1,10 @@
 import uuid
+from decimal import Decimal, ROUND_HALF_UP
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
@@ -40,6 +43,7 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=12, decimal_places=2)
     old_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    discount_percent = models.PositiveSmallIntegerField(blank=True, null=True)
     stock = models.PositiveIntegerField(default=10)
     available = models.BooleanField(default=True)
     is_hotdeal = models.BooleanField(default=False)
@@ -62,6 +66,141 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         return reverse('shop:product_detail', args=[self.id, self.slug])
+
+    def _active_prefetched_campaign(self):
+        campaigns = getattr(self, '_prefetched_objects_cache', {}).get('hotdeal_campaigns')
+        if campaigns is None:
+            return None
+
+        now = timezone.now()
+        active_campaigns = [
+            campaign for campaign in campaigns
+            if campaign.is_active
+            and campaign.start_at <= now
+            and campaign.end_at >= now
+        ]
+        if not active_campaigns:
+            return None
+        active_campaigns.sort(key=lambda campaign: (campaign.priority, campaign.end_at, campaign.id))
+        return active_campaigns[0]
+
+    @property
+    def active_hotdeal_campaign(self):
+        prefetched_campaign = self._active_prefetched_campaign()
+        if prefetched_campaign is not None:
+            return prefetched_campaign
+
+        now = timezone.now()
+        return (
+            self.hotdeal_campaigns.filter(
+                is_active=True,
+                start_at__lte=now,
+                end_at__gte=now,
+            )
+            .order_by('priority', 'end_at', 'id')
+            .first()
+        )
+
+    def clean(self):
+        if self.is_hotdeal:
+            if not self.discount_percent:
+                raise ValidationError({'discount_percent': 'Vui lòng nhập phần trăm giảm giá khi bật Hot Deal.'})
+            if self.discount_percent < 1 or self.discount_percent > 99:
+                raise ValidationError({'discount_percent': 'Phần trăm giảm giá phải nằm trong khoảng 1 đến 99.'})
+            if not self.hotdeal_end:
+                raise ValidationError({'hotdeal_end': 'Vui lòng chọn thời gian kết thúc cho Hot Deal.'})
+            if self.hotdeal_start and self.hotdeal_end and self.hotdeal_start >= self.hotdeal_end:
+                raise ValidationError({'hotdeal_end': 'Thời gian kết thúc phải sau thời gian bắt đầu.'})
+        elif self.discount_percent:
+            raise ValidationError({'discount_percent': 'Hãy bật Hot Deal nếu muốn sử dụng phần trăm giảm giá.'})
+
+    @property
+    def is_hotdeal_active(self):
+        if self.active_hotdeal_campaign:
+            return True
+        if not self.is_hotdeal or not self.discount_percent:
+            return False
+        now = timezone.now()
+        if self.hotdeal_start and self.hotdeal_start > now:
+            return False
+        if self.hotdeal_end and self.hotdeal_end < now:
+            return False
+        return True
+
+    @property
+    def hotdeal_price(self):
+        discount_percent = self.display_discount_percent
+        if not discount_percent:
+            return None
+        base_price = getattr(self, 'base_price', self.price)
+        discount_value = (base_price * Decimal(discount_percent) / Decimal('100')).quantize(
+            Decimal('0.01'),
+            rounding=ROUND_HALF_UP,
+        )
+        discounted_price = (base_price - discount_value).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        return max(discounted_price, Decimal('0.00'))
+
+    @property
+    def display_price(self):
+        base_price = getattr(self, 'base_price', self.price)
+        return self.hotdeal_price if self.is_hotdeal_active and self.hotdeal_price is not None else base_price
+
+    @property
+    def display_old_price(self):
+        if self.is_hotdeal_active and self.hotdeal_price is not None:
+            return getattr(self, 'base_price', self.price)
+        return getattr(self, 'base_old_price', self.old_price)
+
+    @property
+    def display_discount_percent(self):
+        active_campaign = self.active_hotdeal_campaign
+        if active_campaign:
+            return active_campaign.discount_percent
+        return self.discount_percent if self.is_hotdeal_active else None
+
+    @property
+    def effective_hotdeal_start(self):
+        active_campaign = self.active_hotdeal_campaign
+        if active_campaign:
+            return active_campaign.start_at
+        return self.hotdeal_start
+
+    @property
+    def effective_hotdeal_end(self):
+        active_campaign = self.active_hotdeal_campaign
+        if active_campaign:
+            return active_campaign.end_at
+        return self.hotdeal_end
+
+
+class HotDealCampaign(models.Model):
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    discount_percent = models.PositiveSmallIntegerField()
+    start_at = models.DateTimeField()
+    end_at = models.DateTimeField()
+    is_active = models.BooleanField(default=True)
+    priority = models.PositiveSmallIntegerField(default=0)
+    products = models.ManyToManyField(Product, related_name='hotdeal_campaigns', blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['priority', 'start_at', '-created']
+
+    def __str__(self):
+        return self.name
+
+    def clean(self):
+        if self.discount_percent < 1 or self.discount_percent > 99:
+            raise ValidationError({'discount_percent': 'Phần trăm giảm giá phải nằm trong khoảng 1 đến 99.'})
+        if self.start_at >= self.end_at:
+            raise ValidationError({'end_at': 'Thời gian kết thúc phải sau thời gian bắt đầu.'})
+
+    @property
+    def is_running(self):
+        now = timezone.now()
+        return self.is_active and self.start_at <= now <= self.end_at
 
 class Review(models.Model):
     product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
