@@ -1,6 +1,7 @@
 ﻿from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import redirect, render
 
 from .forms import CustomerProfileForm, UserRegistrationForm, UserUpdateForm
@@ -60,3 +61,18 @@ def dashboard(request):
             'is_editing': is_editing,
         },
     )
+
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Mật khẩu đã được cập nhật.')
+            return redirect('accounts:dashboard')
+    else:
+        form = PasswordChangeForm(user=request.user)
+
+    return render(request, 'accounts/change_password.html', {'form': form})

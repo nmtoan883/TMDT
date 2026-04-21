@@ -134,7 +134,7 @@
                     <div class="step-icon"><i class="fa fa-truck"></i></div>
                     <div class="step-label">Đang giao hàng</div>
                 </div>
-                <div class="step {% if s == 'completed' %}active{% endif %}">
+                <div class="step {% if s == 'completed' %}done active{% endif %}">
                     <div class="step-icon"><i class="fa fa-home"></i></div>
                     <div class="step-label">Đã giao hàng</div>
                 </div>
@@ -240,7 +240,17 @@
                     <!-- Tổng -->
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 20px;">
                         <div>
+                            <span style="font-size: 13px; color: #8D99AE;">Tạm tính: <strong>{{ order.items_total|floatformat:0 }} VNĐ</strong></span>
+                            {% if order.discount_total %}
+                            <br>
+                            <span style="font-size: 13px; color: #4CAF50;">Khuyến mãi / Giảm giá: <strong>-{{ order.discount_total|floatformat:0 }} VNĐ</strong></span>
+                            {% endif %}
+                            <br>
                             <span style="font-size: 13px; color: #8D99AE;">Phí vận chuyển: <strong>Miễn phí</strong></span>
+                            {% if order.shipping_fee %}
+                            <br>
+                            <span style="font-size: 13px; color: #8D99AE;">Phí COD: <strong>{{ order.shipping_fee|floatformat:0 }} VNĐ</strong></span>
+                            {% endif %}
                         </div>
                         <div style="text-align: right;">
                             <div style="font-size: 13px; color: #8D99AE; margin-bottom: 4px;">TỔNG THANH TOÁN</div>

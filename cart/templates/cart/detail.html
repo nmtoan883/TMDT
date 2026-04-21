@@ -54,9 +54,19 @@
         -webkit-appearance: none;
         margin: 0;
     }
+    .cart-stock-note {
+        font-size: 12px;
+        color: #8D99AE;
+        margin-top: 5px;
+    }
 </style>
 <div class="section">
     <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
         {% if cart %}
         <div class="row">
             <div class="col-md-8">
@@ -74,7 +84,7 @@
                             <div style="flex: 1; text-align: right;">Tổng cộng</div>
                         </div>
                     </div>
-                    {% for item in cart %}
+                    {% for item in cart_items %}
                         {% with product=item.product %}
                         <div class="order-col" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E4E7ED; padding-bottom: 15px; margin-bottom: 15px;">
                             <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
@@ -84,6 +94,8 @@
                                     value="{{ product.id }}"
                                     class="cart-item-checkbox"
                                     form="cart-checkout-form"
+                                    data-line-total="{{ item.line_total_value }}"
+                                    data-promotion-discount="{{ item.promotion_discount_value }}"
                                     {% if product.id|stringformat:"s" in selected_product_ids %}checked{% endif %}
                                     style="margin-top: 0;">
                                 <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" alt="{{ product.name }}" style="width: 60px; height: 60px; object-fit: contain; border: 1px solid #eee; border-radius: 4px;">
@@ -98,14 +110,25 @@
                                 </div>
                             </div>
                             <div style="display: flex; gap: 20px; align-items: center; width: 350px; flex-shrink: 0;">
-                                <div style="flex: 1; text-align: center; display: flex; justify-content: center;">
-                                    <form action="{% url 'cart:cart_add' product.id %}" method="post" style="display: flex; gap: 0; align-items: center;" class="qty-auto-form">
-                                        {% csrf_token %}
-                                        <button type="button" class="qty-btn-custom qty-btn-minus">-</button>
-                                        {{ item.update_quantity_form.quantity }}
-                                        <button type="button" class="qty-btn-custom qty-btn-plus">+</button>
-                                        {{ item.update_quantity_form.override }}
-                                    </form>
+                                <div style="flex: 1; text-align: center;">
+                                    <div style="display: flex; justify-content: center;">
+                                        <form action="{% url 'cart:cart_add' product.id %}" method="post" style="display: flex; gap: 0; align-items: center;" class="qty-auto-form">
+                                            {% csrf_token %}
+                                            <button type="button" class="qty-btn-custom qty-btn-minus">-</button>
+                                            <input
+                                                type="number"
+                                                name="quantity"
+                                                value="{{ item.quantity }}"
+                                                min="1"
+                                                max="{{ product.stock }}"
+                                                data-stock="{{ product.stock }}"
+                                                class="input cart-qty-input"
+                                                required>
+                                            <button type="button" class="qty-btn-custom qty-btn-plus">+</button>
+                                            <input type="hidden" name="override" value="True">
+                                        </form>
+                                    </div>
+                                    <div class="cart-stock-note">Còn {{ product.stock }} sản phẩm</div>
                                 </div>
                                 <div style="flex: 1; text-align: right; color: #8D99AE; font-size: 14px;">{{ item.price|floatformat:0 }}đ</div>
                                 <div style="flex: 1; text-align: right; color: #D10024; font-weight: bold; font-size: 14px;">{{ item.total_price|floatformat:0 }}đ</div>
@@ -143,17 +166,19 @@
                     </div>
                     {% endif %}
 
-                    <div class="order-summary">
+                    <div
+                        class="order-summary"
+                        id="cart-live-summary"
+                        data-coupon-percent="{{ coupon_discount_percent|default:0 }}"
+                        data-coupon-amount="{{ coupon_discount_amount|default:0 }}">
                         <div class="order-col">
-                            <div><strong>Tạm tính ({{ selected_items|length }} SP)</strong></div>
-                            <div>{{ selected_total_price|floatformat:0 }} VND</div>
+                            <div><strong>Tạm tính (<span id="selected-item-count">{{ selected_items|length }}</span> SP)</strong></div>
+                            <div id="cart-subtotal">{{ selected_total_price|floatformat:0 }} VND</div>
                         </div>
-                        {% if coupon %}
-                        <div class="order-col">
-                            <div><strong>Giảm giá (-{{ coupon.discount }}%)</strong></div>
-                            <div style="color: #4CAF50;">-{{ selected_discount|floatformat:0 }} VND</div>
+                        <div class="order-col" id="cart-discount-row" {% if not selected_discount %}style="display: none;"{% endif %}>
+                            <div><strong>Khuyến mãi / Giảm giá</strong></div>
+                            <div style="color: #4CAF50;" id="cart-discount">-{{ selected_discount|floatformat:0 }} VND</div>
                         </div>
-                        {% endif %}
                         <div class="order-col">
                             <div><strong>Phí Vận Chuyển</strong></div>
                             <div><strong>MIỄN PHÍ</strong></div>
@@ -193,53 +218,122 @@ document.addEventListener('DOMContentLoaded', function () {
         selectAll.indeterminate = !selectAll.checked && checkboxes.some(function (checkbox) { return checkbox.checked; });
     }
 
+    function formatMoney(value) {
+        return new Intl.NumberFormat('vi-VN', {
+            maximumFractionDigits: 0
+        }).format(Math.max(Math.round(value || 0), 0)) + ' VND';
+    }
+
+    function updateLiveSummary() {
+        var summary = document.getElementById('cart-live-summary');
+        var countEl = document.getElementById('selected-item-count');
+        var subtotalEl = document.getElementById('cart-subtotal');
+        var discountRow = document.getElementById('cart-discount-row');
+        var discountEl = document.getElementById('cart-discount');
+        var totalEl = document.querySelector('.order-total');
+
+        if (!summary || !countEl || !subtotalEl || !discountRow || !discountEl || !totalEl) {
+            return;
+        }
+
+        var selected = checkboxes.filter(function (checkbox) { return checkbox.checked; });
+        var subtotal = 0;
+        var promotionDiscount = 0;
+
+        selected.forEach(function (checkbox) {
+            subtotal += parseFloat(checkbox.dataset.lineTotal || '0') || 0;
+            promotionDiscount += parseFloat(checkbox.dataset.promotionDiscount || '0') || 0;
+        });
+
+        var afterPromotion = Math.max(subtotal - promotionDiscount, 0);
+        var couponPercent = parseFloat(summary.dataset.couponPercent || '0') || 0;
+        var couponAmount = parseFloat(summary.dataset.couponAmount || '0') || 0;
+        var couponDiscount = 0;
+
+        if (afterPromotion > 0 && couponPercent > 0) {
+            couponDiscount = afterPromotion * couponPercent / 100;
+        } else if (afterPromotion > 0 && couponAmount > 0) {
+            couponDiscount = Math.min(couponAmount, afterPromotion);
+        }
+
+        var totalDiscount = Math.min(promotionDiscount + couponDiscount, subtotal);
+        var total = Math.max(subtotal - totalDiscount, 0);
+
+        countEl.textContent = selected.length;
+        subtotalEl.textContent = formatMoney(subtotal);
+        discountEl.textContent = '-' + formatMoney(totalDiscount);
+        totalEl.textContent = formatMoney(total);
+        discountRow.style.display = totalDiscount > 0 ? '' : 'none';
+    }
+
     selectAll.addEventListener('change', function () {
         checkboxes.forEach(function (checkbox) {
             checkbox.checked = selectAll.checked;
         });
         syncHeaderCheckbox();
+        updateLiveSummary();
     });
 
     checkboxes.forEach(function (checkbox) {
-        checkbox.addEventListener('change', syncHeaderCheckbox);
+        checkbox.addEventListener('change', function () {
+            syncHeaderCheckbox();
+            updateLiveSummary();
+        });
     });
 
     syncHeaderCheckbox();
+    updateLiveSummary();
 
     // Auto submit quantity
     document.querySelectorAll('.qty-auto-form').forEach(function(form) {
         var minusBtn = form.querySelector('.qty-btn-minus');
         var plusBtn = form.querySelector('.qty-btn-plus');
         var input = form.querySelector('.cart-qty-input');
+        if (!input) {
+            return;
+        }
+
+        var stock = parseInt(input.dataset.stock || input.max || '1', 10);
+        if (!Number.isFinite(stock) || stock < 1) {
+            stock = 1;
+        }
+
+        function submitQuantity(nextValue) {
+            nextValue = parseInt(nextValue, 10) || 1;
+            if (nextValue < 1) {
+                nextValue = 1;
+            }
+            if (nextValue > stock) {
+                nextValue = stock;
+                alert('Sản phẩm này chỉ còn ' + stock + ' sản phẩm trong kho.');
+            }
+            input.value = nextValue;
+            form.submit();
+        }
         
-        if (minusBtn && input) {
+        if (minusBtn) {
             minusBtn.addEventListener('click', function() {
-                var currentVal = parseInt(input.value) || 1;
+                var currentVal = parseInt(input.value, 10) || 1;
                 if (currentVal > 1) {
-                    input.value = currentVal - 1;
-                    form.submit();
+                    submitQuantity(currentVal - 1);
                 }
             });
         }
         
-        if (plusBtn && input) {
+        if (plusBtn) {
             plusBtn.addEventListener('click', function() {
-                var currentVal = parseInt(input.value) || 1;
-                if (currentVal < parseInt(input.max || 20)) {
-                    input.value = currentVal + 1;
-                    form.submit();
+                var currentVal = parseInt(input.value, 10) || 1;
+                if (currentVal < stock) {
+                    submitQuantity(currentVal + 1);
+                } else {
+                    alert('Sản phẩm này chỉ còn ' + stock + ' sản phẩm trong kho.');
                 }
             });
         }
 
-        if (input) {
-            input.addEventListener('change', function() {
-                var currentVal = parseInt(input.value) || 1;
-                if (currentVal >= 1 && currentVal <= parseInt(input.max || 20)) {
-                    form.submit();
-                }
-            });
-        }
+        input.addEventListener('change', function() {
+            submitQuantity(input.value);
+        });
     });
 });
 </script>

@@ -50,7 +50,7 @@ class Cart:
         return sum(item['quantity'] for item in self.cart.values())
 
     def clear(self):
-        del self.session[settings.CART_SESSION_ID]
+        self.session.pop(settings.CART_SESSION_ID, None)
         self.session.pop(self.SELECTED_ITEMS_SESSION_KEY, None)
         self.save()
 
@@ -111,7 +111,10 @@ class Cart:
     def get_items(self, product_ids=None):
         product_ids = [str(pid) for pid in (product_ids or self.cart.keys()) if str(pid) in self.cart]
         products = Product.objects.filter(id__in=product_ids)
-        cart = self.cart.copy()
+        cart = {
+            product_id: item.copy()
+            for product_id, item in self.cart.items()
+        }
 
         for product in products:
             cart[str(product.id)]['product'] = product

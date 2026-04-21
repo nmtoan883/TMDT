@@ -101,13 +101,13 @@
                         </div>
                     </div>
                     <div class="input-radio">
-                        <input type="radio" name="payment_method" id="payment-2" value="manual">
+                        <input type="radio" name="payment_method" id="payment-2" value="cod">
                         <label for="payment-2">
                             <span></span>
-                            Thanh toán sau (Duyệt thủ công)
+                            Thanh toán khi nhận hàng (COD)
                         </label>
                         <div class="caption">
-                            <p>Admin sẽ gọi điện xác nhận đơn hàng của bạn trước khi giao hóa đơn chuyển tiền hoặc thu hộ.</p>
+                            <p>Shop sẽ xác nhận đơn hàng và thu tiền khi giao. Phí COD được cộng vào tổng đơn.</p>
                         </div>
                     </div>
                     {% if form.payment_method.errors %}
@@ -135,20 +135,30 @@
                 <div><strong>THÀNH TIỀN</strong></div>
             </div>
             <div class="order-products">
-                {% for item in cart %}
+                {% for item in selected_items %}
                 <div class="order-col">
                     <div>{{ item.quantity }}x {{ item.product.name }}</div>
                     <div>{{ item.total_price|floatformat:0 }} VNĐ</div>
                 </div>
                 {% endfor %}
             </div>
+            {% if selected_discount %}
+            <div class="order-col">
+                <div>Khuyến mãi / Giảm giá</div>
+                <div style="color: #4CAF50;"><strong>-{{ selected_discount|floatformat:0 }} VNĐ</strong></div>
+            </div>
+            {% endif %}
             <div class="order-col">
                 <div>Phí giao hàng</div>
                 <div><strong>Miễn phí</strong></div>
             </div>
+            <div class="order-col" id="cod-fee-row" style="display:none;">
+                <div>Phí COD</div>
+                <div><strong>{{ cod_fee|floatformat:0 }} VNĐ</strong></div>
+            </div>
             <div class="order-col">
                 <div><strong>TỔNG TIỀN</strong></div>
-                <div><strong class="order-total" style="color: #D10024; font-size: 24px;">{{ cart.get_total_price_after_discount|floatformat:0 }} VNĐ</strong></div>
+                <div><strong class="order-total" id="checkout-total" data-base-total="{{ selected_total_price_after_discount|floatformat:0 }}" data-cod-fee="{{ cod_fee }}" style="color: #D10024; font-size: 24px;">{{ selected_total_price_after_discount|floatformat:0 }} VNĐ</strong></div>
             </div>
         </div>
     </div>
@@ -161,6 +171,29 @@
 (function () {
     var form = document.querySelector('[data-address-form]');
     if (!form) return;
+
+    var codFeeRow = document.getElementById('cod-fee-row');
+    var checkoutTotal = document.getElementById('checkout-total');
+    var paymentInputs = form.querySelectorAll('input[name="payment_method"]');
+
+    function formatVnd(value) {
+        return Math.round(value).toLocaleString('vi-VN') + ' VNĐ';
+    }
+
+    function updateCheckoutTotal() {
+        if (!checkoutTotal) return;
+        var selectedPayment = form.querySelector('input[name="payment_method"]:checked');
+        var baseTotal = Number(checkoutTotal.dataset.baseTotal || 0);
+        var codFee = Number(checkoutTotal.dataset.codFee || 0);
+        var useCod = selectedPayment && selectedPayment.value === 'cod';
+        if (codFeeRow) codFeeRow.style.display = useCod ? '' : 'none';
+        checkoutTotal.textContent = formatVnd(baseTotal + (useCod ? codFee : 0));
+    }
+
+    paymentInputs.forEach(function (input) {
+        input.addEventListener('change', updateCheckoutTotal);
+    });
+    updateCheckoutTotal();
 
     var provinceSelect = form.querySelector('#id_province');
     var districtSelect = form.querySelector('#id_district');

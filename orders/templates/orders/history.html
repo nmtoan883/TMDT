@@ -25,7 +25,7 @@
                 <div class="order-summary" style="margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #E4E7ED; padding-bottom: 10px;">
                         <h4 style="margin:0; text-transform: uppercase;">Lịch sử mua hàng</h4>
-                        <a href="{% url 'shop:product_list' %}" class="primary-btn">Tiếp tục mua sắm</a>
+                        <a href="{% url 'orders:order_tracking' %}" class="primary-btn">Theo dõi đơn hàng</a>
                     </div>
                     {% if orders %}
                     <table class="table table-bordered table-striped table-hover" style="margin-top: 20px; text-align: left; background: white;">
@@ -86,8 +86,8 @@
                     {% else %}
                     <div style="text-align: center; padding: 50px 0; background: #f9f9f9; border: 1px dashed #d10024;">
                         <i class="fa fa-shopping-basket" style="font-size: 60px; color: #d10024; margin-bottom: 20px;"></i>
-                        <h4 style="color: #333;">Bạn chưa có đơn hàng nào</h4>
-                        <p style="color: #666; font-size: 14px;">Tham khảo thêm các sản phẩm tuyệt vời trên cửa hàng bạn nhé.</p>
+                        <h4 style="color: #333;">Bạn chưa có đơn hàng đã giao</h4>
+                        <p style="color: #666; font-size: 14px;">Các đơn hàng đã giao thành công sẽ được lưu tại đây.</p>
                     </div>
                     {% endif %}
                 </div>

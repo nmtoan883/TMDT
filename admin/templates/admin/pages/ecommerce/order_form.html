@@ -1,12 +1,10 @@
 {% load static %}
-{% load crispy_forms_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   {% include 'admin/partials/head/head-meta.html' %}
   <title>Admin - Order</title>
   {% include 'admin/partials/head/head-links.html' %}
-  {{ form.media }}
 </head>
 <body>
   <div>
@@ -16,44 +14,108 @@
       <div class="custom-container">
         <div class="row align-items-center mb-4 g-4">
           <div class="col-12 col-md-8">
-            <h4 class="mb-0">{% if obj %}Sửa: {{ obj }}{% else %}Soạn Order mới{% endif %}</h4>
+            <h4 class="mb-0">{% if obj %}Đơn hàng #{{ obj.id }}{% else %}Tạo đơn hàng mới{% endif %}</h4>
           </div>
           <div class="col-12 col-md-4 text-md-end">
-             <a href="{% url 'admin:ec_order_list' %}" class="btn btn-white">Trở về</a>
+            <a href="{% url 'admin:ec_order_list' %}" class="btn btn-white">Trở về</a>
           </div>
         </div>
 
-        {% if obj %}
-        <!-- Thanh tiến độ -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'success' }} alert-dismissible fade show" role="alert">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+
+        <div class="row g-4 mb-4">
+          <div class="col-12 col-xl-4">
+            <div class="card card-body h-100">
+              <h6 class="text-muted text-uppercase mb-3" style="font-size:12px;letter-spacing:1px;">Khách hàng</h6>
+              <div class="fw-bold">{{ obj.customer_name|default:obj.email }}</div>
+              <div class="text-muted small">{{ obj.customer_email|default:obj.email }}</div>
+              <div class="mt-2">{{ obj.phone|default:"Chưa có SĐT" }}</div>
+              <div class="text-muted small mt-2">{{ obj.full_address|default:"Chưa có địa chỉ" }}</div>
+            </div>
+          </div>
+
+          <div class="col-12 col-xl-4">
+            <div class="card card-body h-100">
+              <h6 class="text-muted text-uppercase mb-3" style="font-size:12px;letter-spacing:1px;">Thanh toán</h6>
+              {% if obj.paid %}
+                <span class="badge bg-success align-self-start mb-2">Đã thanh toán</span>
+              {% elif obj.payment_method == 'cod' %}
+                <span class="badge bg-info text-dark align-self-start mb-2">COD - thu khi nhận</span>
+              {% else %}
+                <span class="badge bg-warning text-dark align-self-start mb-2">Chưa thanh toán</span>
+              {% endif %}
+              <div>Phương thức: <strong>{{ obj.get_payment_method_display }}</strong></div>
+              <div>Tạm tính: <strong>{{ obj.items_total|floatformat:0 }} VND</strong></div>
+              {% if obj.discount_total %}
+              <div>Khuyến mãi: <strong class="text-success">-{{ obj.discount_total|floatformat:0 }} VND</strong></div>
+              {% endif %}
+              {% if obj.shipping_fee %}
+              <div>Phí COD: <strong>{{ obj.shipping_fee|floatformat:0 }} VND</strong></div>
+              {% endif %}
+              <div>Tổng tiền: <strong class="text-danger">{{ obj.get_total_cost|floatformat:0 }} VND</strong></div>
+              <div class="text-muted small mt-2">Đơn SePay cần thanh toán trước khi xác nhận. Đơn COD có thể xác nhận ngay và thu tiền khi giao.</div>
+            </div>
+          </div>
+
+          <div class="col-12 col-xl-4">
+            <div class="card card-body h-100">
+              <h6 class="text-muted text-uppercase mb-3" style="font-size:12px;letter-spacing:1px;">Mặt hàng</h6>
+              {% for line in obj.items.all %}
+                <div class="d-flex justify-content-between gap-3 border-bottom py-2">
+                  <div>
+                    <div class="fw-semibold">{{ line.product.name }}</div>
+                    <div class="text-muted small">{{ line.price|floatformat:0 }} VND x {{ line.quantity }}</div>
+                  </div>
+                  <strong>{{ line.get_cost|floatformat:0 }} VND</strong>
+                </div>
+              {% empty %}
+                <div class="text-muted">Chưa có mặt hàng.</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
         <div class="card card-body mb-4">
           <h6 class="text-muted text-uppercase mb-3" style="font-size:12px;letter-spacing:1px;">Tiến độ đơn hàng</h6>
           {% with s=obj.status %}
+          {% if s == 'completed' %}
+          <div class="alert alert-success py-2 mb-3">Đơn hàng đã giao thành công.</div>
+          {% elif s == 'cancelled' %}
+          <div class="alert alert-danger py-2 mb-3">Đơn hàng đã huỷ.</div>
+          {% endif %}
           <div class="d-flex align-items-center" style="gap:0;">
             {% for step_status, step_label, step_icon in steps %}
             <div class="text-center" style="flex:1;">
               <div style="width:40px;height:40px;border-radius:50%;margin:0 auto 6px;
-                background:{% if step_status in completed_steps %}#5cb85c{% elif step_status == s %}#D10024{% else %}#dee2e6{% endif %};
-                color:{% if step_status in completed_steps or step_status == s %}white{% else %}#aaa{% endif %};
+                background:{% if step_status in completed_steps or s == 'completed' %}#5cb85c{% elif step_status == s %}#D10024{% else %}#dee2e6{% endif %};
+                color:{% if step_status in completed_steps or step_status == s or s == 'completed' %}white{% else %}#aaa{% endif %};
                 display:flex;align-items:center;justify-content:center;font-size:16px;">
                 <i class="{{ step_icon }}"></i>
               </div>
               <div style="font-size:11px;font-weight:{% if step_status == s %}bold{% else %}normal{% endif %};
-                color:{% if step_status == s %}#D10024{% elif step_status in completed_steps %}#5cb85c{% else %}#aaa{% endif %};">
+                color:{% if s == 'completed' or step_status in completed_steps %}#5cb85c{% elif step_status == s %}#D10024{% else %}#aaa{% endif %};">
                 {{ step_label }}
               </div>
             </div>
             {% if not forloop.last %}
-            <div style="flex:2;height:3px;background:#dee2e6;margin-bottom:24px;"></div>
+            <div style="flex:2;height:3px;background:{% if s == 'completed' or step_status in completed_steps %}#5cb85c{% else %}#dee2e6{% endif %};margin-bottom:24px;"></div>
             {% endif %}
             {% endfor %}
           </div>
           {% endwith %}
         </div>
 
-        <!-- Nút nhanh theo trạng thái -->
+        {% if payment_notice %}
+        <div class="alert alert-warning">{{ payment_notice }}</div>
+        {% endif %}
+
         {% if action_buttons %}
         <div class="card card-body mb-4" style="border-left: 4px solid #D10024;">
-          <h6 class="mb-3"><i class="bi bi-lightning-charge-fill text-danger"></i> Thao tác nhanh</h6>
+          <h6 class="mb-3">Thao tác xử lý</h6>
           <div class="d-flex gap-2 flex-wrap">
             {% for label, url, color in action_buttons %}
             <a href="{{ url }}" class="btn" style="background:{{ color }};color:white;font-weight:600;">{{ label }}</a>
@@ -61,17 +123,36 @@
           </div>
         </div>
         {% endif %}
-        {% endif %}
 
-        <div class="row"><div class="col-12 col-md-8"><div class="card card-lg card-body">
-                <form method="POST" enctype="multipart/form-data">
-                  {% csrf_token %}
-                  {{ form|crispy }}
-                  <div class="mt-4 pt-3 border-top text-end">
-                    <button type="submit" class="btn btn-primary px-4">Lưu</button>
-                  </div>
-                </form>
-        </div></div></div>
+        <div class="row">
+          <div class="col-12">
+            <div class="card card-lg card-body">
+              <h6 class="text-muted text-uppercase mb-3" style="font-size:12px;letter-spacing:1px;">Thông tin đơn hàng</h6>
+              <div class="row g-3">
+                <div class="col-12 col-md-4">
+                  <div class="text-muted small">Mã đơn</div>
+                  <div class="fw-bold">#{{ obj.id }}</div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="text-muted small">Ngày đặt</div>
+                  <div class="fw-bold">{{ obj.created_at|date:"d/m/Y H:i" }}</div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="text-muted small">Trạng thái</div>
+                  <div class="fw-bold">{{ obj.get_status_display }}</div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="text-muted small">Phí COD</div>
+                  <div class="fw-bold">{{ obj.shipping_fee|floatformat:0 }} VND</div>
+                </div>
+                <div class="col-12 col-md-8">
+                  <div class="text-muted small">Ghi chú xử lý</div>
+                  <div>Trang này chỉ dùng để xem và xử lý trạng thái. Muốn sửa dữ liệu đơn hàng sâu hơn thì dùng Django admin mặc định.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

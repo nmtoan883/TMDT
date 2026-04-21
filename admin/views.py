@@ -14,7 +14,7 @@ def staff_member_required(view_func=None, redirect_field_name='next', login_url=
 # Ensure only staff (Admins) can see dashboard
 @staff_member_required
 def index(request):
-    return render(request, 'admin/index.html')
+    return redirect('admin:dashboard')
 
 @staff_member_required
 def blog_list(request):
@@ -571,7 +571,13 @@ def ec_wishlist_delete(request, pk):
 @staff_member_required
 def ec_order_list(request):
     from orders.models import Order
-    items = Order.objects.all()
+    from django.db.models import Q
+    items = (
+        Order.objects.all()
+        .filter(Q(paid=True) | Q(payment_method=Order.PAYMENT_COD))
+        .prefetch_related('items__product')
+        .order_by('-created_at')
+    )
     return render(request, 'admin/pages/ecommerce/order_list.html', {'items': items})
 
 @staff_member_required
@@ -593,55 +599,52 @@ def ec_order_edit(request, pk):
     from orders.models import Order
     from django.urls import reverse
     obj = get_object_or_404(Order, pk=pk)
-    FormClass = modelform_factory(Order, exclude=[])
-    if request.method == 'POST':
-        form = FormClass(request.POST, request.FILES, instance=obj)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Đã cập nhật thành công.')
-            return redirect('admin:ec_order_list')
-    else:
-        form = FormClass(instance=obj)
 
-    # Stepper config
     steps = [
-        ('pending',   'Đặt hàng',    'bi bi-qr-code'),
-        ('confirmed', 'Chờ xác nhận','bi bi-check-circle'),
-        ('preparing', 'Chờ lấy hàng','bi bi-archive'),
-        ('shipping',  'Đang giao',   'bi bi-truck'),
-        ('completed', 'Đã giao',     'bi bi-house-check'),
+        (Order.STATUS_PENDING, 'Đặt hàng', 'bi bi-qr-code'),
+        (Order.STATUS_CONFIRMED, 'Chờ xác nhận', 'bi bi-check-circle'),
+        (Order.STATUS_PREPARING, 'Chờ lấy hàng', 'bi bi-archive'),
+        (Order.STATUS_SHIPPING, 'Đang giao', 'bi bi-truck'),
+        (Order.STATUS_COMPLETED, 'Đã giao', 'bi bi-house-check'),
     ]
     status_order = [s for s, _, _ in steps]
     current_idx = status_order.index(obj.status) if obj.status in status_order else 0
     completed_steps = status_order[:current_idx]
 
-    # Action buttons theo trạng thái
-    stage_actions = {
-        'pending': [
-            ('✅ Xác nhận đơn', reverse('admin:ec_order_set_status', args=[pk, 'confirmed']), '#9b59b6'),
-            ('❌ Từ chối / Huỷ', reverse('admin:ec_order_set_status', args=[pk, 'cancelled']), '#d9534f'),
-        ],
-        'confirmed': [
-            ('📦 Xác nhận → Chuẩn bị hàng', reverse('admin:ec_order_set_status', args=[pk, 'preparing']), '#e67e22'),
-            ('❌ Từ chối / Huỷ', reverse('admin:ec_order_set_status', args=[pk, 'cancelled']), '#d9534f'),
-        ],
-        'preparing': [
-            ('🚚 Chuyển → Đang giao hàng', reverse('admin:ec_order_set_status', args=[pk, 'shipping']), '#3498db'),
-            ('❌ Huỷ đơn', reverse('admin:ec_order_set_status', args=[pk, 'cancelled']), '#d9534f'),
-        ],
-        'shipping': [
-            ('✅ Đã giao hàng thành công', reverse('admin:ec_order_set_status', args=[pk, 'completed']), '#5cb85c'),
-            ('❌ Huỷ đơn', reverse('admin:ec_order_set_status', args=[pk, 'cancelled']), '#d9534f'),
-        ],
-    }
-    action_buttons = stage_actions.get(obj.status, [])
+    action_buttons = []
+    payment_notice = ''
+    is_cod = obj.payment_method == Order.PAYMENT_COD
+    can_confirm_order = obj.paid or is_cod
+    if obj.status == Order.STATUS_PENDING:
+        if can_confirm_order:
+            action_buttons = [
+                ('Xác nhận đơn hàng', reverse('admin:ec_order_set_status', args=[pk, Order.STATUS_CONFIRMED]), '#9b59b6'),
+                ('Từ chối / Huỷ', reverse('admin:ec_order_set_status', args=[pk, Order.STATUS_CANCELLED]), '#d9534f'),
+            ]
+        else:
+            payment_notice = 'Đơn hàng chưa thanh toán nên chưa thể xác nhận. Hãy chờ hệ thống cập nhật thanh toán hoặc kiểm tra thủ công trước.'
+    elif obj.status in [Order.STATUS_CONFIRMED, Order.STATUS_PROCESSING]:
+        action_buttons = [
+            ('Xác nhận đơn hàng', reverse('admin:ec_order_set_status', args=[pk, Order.STATUS_PREPARING]), '#e67e22'),
+            ('Từ chối / Huỷ', reverse('admin:ec_order_set_status', args=[pk, Order.STATUS_CANCELLED]), '#d9534f'),
+        ]
+    elif obj.status == Order.STATUS_PREPARING:
+        action_buttons = [
+            ('Chuyển sang đang giao', reverse('admin:ec_order_set_status', args=[pk, Order.STATUS_SHIPPING]), '#3498db'),
+            ('Huỷ đơn', reverse('admin:ec_order_set_status', args=[pk, Order.STATUS_CANCELLED]), '#d9534f'),
+        ]
+    elif obj.status == Order.STATUS_SHIPPING:
+        action_buttons = [
+            ('Đã giao hàng thành công', reverse('admin:ec_order_set_status', args=[pk, Order.STATUS_COMPLETED]), '#5cb85c'),
+            ('Huỷ đơn', reverse('admin:ec_order_set_status', args=[pk, Order.STATUS_CANCELLED]), '#d9534f'),
+        ]
 
     return render(request, 'admin/pages/ecommerce/order_form.html', {
-        'form': form,
         'obj': obj,
         'steps': steps,
         'completed_steps': completed_steps,
         'action_buttons': action_buttons,
+        'payment_notice': payment_notice,
     })
 
 @staff_member_required
@@ -655,10 +658,23 @@ def ec_order_delete(request, pk):
 @staff_member_required
 def ec_order_set_status(request, pk, new_status):
     from orders.models import Order
+    from orders.services import deduct_stock_for_completed_order
+    from django.core.exceptions import ValidationError
     obj = get_object_or_404(Order, pk=pk)
     allowed = [s for s, _ in Order.STATUS_CHOICES]
     if new_status in allowed:
+        if new_status in [Order.STATUS_CONFIRMED, Order.STATUS_PREPARING] and not obj.paid and obj.payment_method != Order.PAYMENT_COD:
+            messages.error(request, 'Đơn hàng chưa thanh toán nên chưa thể xác nhận.')
+            return redirect('admin:ec_order_edit', pk=pk)
+        if new_status == Order.STATUS_COMPLETED:
+            try:
+                deduct_stock_for_completed_order(obj)
+            except ValidationError as exc:
+                messages.error(request, exc.messages[0] if hasattr(exc, 'messages') else str(exc))
+                return redirect('admin:ec_order_edit', pk=pk)
         obj.status = new_status
+        if new_status == Order.STATUS_COMPLETED and obj.payment_method == Order.PAYMENT_COD:
+            obj.paid = True
         obj.save()
         messages.success(request, f'Đơn hàng #{pk} → {obj.get_status_display()}')
     else:
@@ -667,37 +683,44 @@ def ec_order_set_status(request, pk, new_status):
 
 @staff_member_required
 def ec_coupon_list(request):
+    from django.core.paginator import Paginator
     from coupon.models import Coupon
-    items = Coupon.objects.all()
-    return render(request, 'admin/pages/ecommerce/coupon_list.html', {'items': items})
+    items = Coupon.objects.all().order_by('-valid_from', '-id')
+    paginator = Paginator(items, 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    return render(request, 'admin/pages/ecommerce/coupon_list.html', {
+        'items': page_obj.object_list,
+        'page_obj': page_obj,
+        'paginator': paginator,
+    })
 
 @staff_member_required
 def ec_coupon_add(request):
     from coupon.models import Coupon
-    FormClass = modelform_factory(Coupon, exclude=[])
+    from admin.forms import CouponAdminForm
     if request.method == 'POST':
-        form = FormClass(request.POST, request.FILES)
+        form = CouponAdminForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Đã thêm mới thành công.')
+            coupons = form.save_many()
+            messages.success(request, f'Đã tạo {len(coupons)} mã giảm giá thành công.')
             return redirect('admin:ec_coupon_list')
     else:
-        form = FormClass()
+        form = CouponAdminForm()
     return render(request, 'admin/pages/ecommerce/coupon_form.html', {'form': form})
 
 @staff_member_required
 def ec_coupon_edit(request, pk):
     from coupon.models import Coupon
+    from admin.forms import CouponAdminForm
     obj = get_object_or_404(Coupon, pk=pk)
-    FormClass = modelform_factory(Coupon, exclude=[])
     if request.method == 'POST':
-        form = FormClass(request.POST, request.FILES, instance=obj)
+        form = CouponAdminForm(request.POST, request.FILES, instance=obj)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Đã cập nhật thành công.')
+            messages.success(request, 'Đã cập nhật mã giảm giá.')
             return redirect('admin:ec_coupon_list')
     else:
-        form = FormClass(instance=obj)
+        form = CouponAdminForm(instance=obj)
     return render(request, 'admin/pages/ecommerce/coupon_form.html', {'form': form, 'obj': obj})
 
 @staff_member_required
@@ -1141,28 +1164,46 @@ def ec_banner_delete(request, pk):
     messages.success(request, 'Đã xoá Banner thành công.')
     return redirect('admin:ec_banner_list')
 # ================= DASHBOARD =================
-from django.db.models import Sum
+from django.db.models import Count, Sum
 from django.db.models.functions import TruncDate
+from django.utils import timezone
 import json
 
 @staff_member_required
 def dashboard(request):
-    from orders.models import Order
+    from orders.models import Order, OrderItem
+    from django.contrib.auth.models import User
+    from core.models import Product
 
     orders = Order.objects.all()
+    completed_orders = orders.filter(status=Order.STATUS_COMPLETED)
+    active_orders = orders.filter(
+        status__in=[
+            Order.STATUS_CONFIRMED,
+            Order.STATUS_PREPARING,
+            Order.STATUS_SHIPPING,
+            Order.STATUS_PROCESSING,
+        ]
+    )
+    admin_visible_orders = orders.filter(paid=True) | orders.filter(payment_method=Order.PAYMENT_COD)
 
-    # 🔥 Tổng doanh thu
-    total_revenue = orders.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
-
-    # 🔥 Tổng đơn
+    total_revenue = completed_orders.aggregate(total=Sum('total_amount'))['total'] or 0
     total_orders = orders.count()
+    completed_count = completed_orders.count()
+    active_count = active_orders.count()
+    cancelled_count = orders.filter(status=Order.STATUS_CANCELLED).count()
+    pending_payment_count = orders.filter(status=Order.STATUS_PENDING, payment_method=Order.PAYMENT_SEPAY, paid=False).count()
+    pending_confirmation_count = orders.filter(status=Order.STATUS_CONFIRMED).count()
+    preparing_count = orders.filter(status=Order.STATUS_PREPARING).count()
+    shipping_count = orders.filter(status=Order.STATUS_SHIPPING).count()
+    total_customers = User.objects.filter(is_staff=False, is_superuser=False).count()
+    total_products = Product.objects.count()
+    today = timezone.localdate()
+    today_revenue = completed_orders.filter(created_at__date=today).aggregate(total=Sum('total_amount'))['total'] or 0
+    avg_order_value = (total_revenue / completed_count) if completed_count else 0
 
-    # Demo khách hàng
-    total_customers = 100
-
-    # 🔥 Thống kê theo ngày
     revenue_by_day = (
-        orders
+        completed_orders
         .annotate(date=TruncDate('created_at'))
         .values('date')
         .annotate(total=Sum('total_amount'))
@@ -1171,13 +1212,81 @@ def dashboard(request):
 
     labels = [str(i['date']) for i in revenue_by_day]
     data = [float(i['total']) for i in revenue_by_day]
+    recent_orders = (
+        admin_visible_orders
+        .distinct()
+        .prefetch_related('items__product')
+        .order_by('-created_at')[:8]
+    )
+
+    status_counts = {
+        row['status']: row['count']
+        for row in orders.values('status').annotate(count=Count('id'))
+    }
+    status_summary = [
+        {
+            'key': Order.STATUS_PENDING,
+            'label': 'Chờ thanh toán',
+            'count': status_counts.get(Order.STATUS_PENDING, 0),
+            'class': 'warning',
+        },
+        {
+            'key': Order.STATUS_CONFIRMED,
+            'label': 'Chờ xác nhận',
+            'count': status_counts.get(Order.STATUS_CONFIRMED, 0),
+            'class': 'info',
+        },
+        {
+            'key': Order.STATUS_PREPARING,
+            'label': 'Chờ lấy hàng',
+            'count': status_counts.get(Order.STATUS_PREPARING, 0),
+            'class': 'primary',
+        },
+        {
+            'key': Order.STATUS_SHIPPING,
+            'label': 'Đang giao',
+            'count': status_counts.get(Order.STATUS_SHIPPING, 0),
+            'class': 'secondary',
+        },
+        {
+            'key': Order.STATUS_COMPLETED,
+            'label': 'Đã giao',
+            'count': status_counts.get(Order.STATUS_COMPLETED, 0),
+            'class': 'success',
+        },
+        {
+            'key': Order.STATUS_CANCELLED,
+            'label': 'Đã huỷ',
+            'count': status_counts.get(Order.STATUS_CANCELLED, 0),
+            'class': 'danger',
+        },
+    ]
+    top_products = (
+        OrderItem.objects.filter(order__status=Order.STATUS_COMPLETED)
+        .values('product__name')
+        .annotate(quantity=Sum('quantity'), revenue=Sum('price'))
+        .order_by('-quantity')[:5]
+    )
 
     context = {
         'total_revenue': total_revenue,
+        'today_revenue': today_revenue,
+        'avg_order_value': avg_order_value,
         'total_orders': total_orders,
+        'completed_count': completed_count,
+        'active_count': active_count,
+        'cancelled_count': cancelled_count,
+        'pending_payment_count': pending_payment_count,
+        'pending_confirmation_count': pending_confirmation_count,
+        'preparing_count': preparing_count,
+        'shipping_count': shipping_count,
         'total_customers': total_customers,
-        'labels': json.dumps(labels),   # 🔥 bắt buộc
-        'data': json.dumps(data),       # 🔥 bắt buộc
+        'total_products': total_products,
+        'recent_orders': recent_orders,
+        'status_summary': status_summary,
+        'top_products': top_products,
+        'labels': json.dumps(labels),
+        'data': json.dumps(data),
     }
 
     return render(request, 'admin/pages/dashboard/dashboard.html', context)

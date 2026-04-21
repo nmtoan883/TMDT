@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   {% include 'admin/partials/head/head-meta.html' %}
-  <title>Admin - Order</title>
+  <title>Admin - Orders</title>
   {% include 'admin/partials/head/head-links.html' %}
 </head>
 <body>
@@ -11,50 +11,91 @@
     {% include 'admin/partials/sidebar-collapse.html' %}
     <div id="content" class="position-relative h-100">
       {% include 'admin/partials/topbar-second.html' %}
-      
+
       <div class="custom-container">
         <div class="row align-items-center mb-4 g-4">
           <div class="col-12 col-md-8">
-            <h4 class="mb-0">Quản lý Order</h4>
-          </div>
-          <div class="col-12 col-md-4 text-md-end">
-             <a href="{% url 'admin:ec_order_add' %}" class="btn btn-primary d-inline-flex align-items-center gap-2">
-                 Thêm mới
-             </a>
+            <h4 class="mb-0">Quản lý đơn hàng</h4>
           </div>
         </div>
 
         {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-success alert-dismissible fade show" role="alert">{{ message }}</div>
-            {% endfor %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'success' }} alert-dismissible fade show" role="alert">{{ message }}</div>
+          {% endfor %}
         {% endif %}
 
         <div class="row">
           <div class="col-12">
             <div class="card card-lg card-body">
               <div class="table-responsive">
-                <table class="table mb-0 table-centered table-hover text-nowrap">
+                <table class="table mb-0 table-centered table-hover align-middle">
                   <thead class="table-light">
                     <tr>
-                      <th>Thông tin - ID</th>
+                      <th>Mã đơn</th>
+                      <th>Khách hàng</th>
+                      <th>Mặt hàng</th>
+                      <th>Tổng tiền</th>
+                      <th>Thanh toán</th>
+                      <th>Trạng thái</th>
                       <th>Thao tác</th>
                     </tr>
                   </thead>
                   <tbody>
                     {% for item in items %}
                     <tr>
-                      <td>{{ item }}</td>
                       <td>
-                        <a href="{% url 'admin:ec_order_edit' pk=item.pk %}" class="btn btn-sm btn-white">Sửa</a>
-                        <form action="{% url 'admin:ec_order_delete' pk=item.pk %}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc xoá?');">
-                           {% csrf_token %}
-                           <button type="submit" class="btn btn-sm btn-danger text-white">Xóa</button>
+                        <strong>#{{ item.id }}</strong>
+                        <div class="text-muted small">{{ item.created_at|date:"d/m/Y H:i" }}</div>
+                      </td>
+                      <td>
+                        <strong>{{ item.customer_name|default:item.email }}</strong>
+                        <div class="text-muted small">{{ item.phone|default:"Chưa có SĐT" }}</div>
+                      </td>
+                      <td style="min-width:260px; white-space:normal;">
+                        {% for line in item.items.all %}
+                          <div>{{ line.product.name }} <span class="text-danger">x{{ line.quantity }}</span></div>
+                        {% empty %}
+                          <span class="text-muted">Chưa có mặt hàng</span>
+                        {% endfor %}
+                      </td>
+                      <td><strong class="text-danger">{{ item.get_total_cost|floatformat:0 }} VND</strong></td>
+                      <td>
+                        {% if item.paid %}
+                          <span class="badge bg-success">Đã thanh toán</span>
+                        {% elif item.payment_method == 'cod' %}
+                          <span class="badge bg-info text-dark">COD - thu khi nhận</span>
+                        {% else %}
+                          <span class="badge bg-warning text-dark">Chưa thanh toán</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if item.status == 'pending' %}
+                          <span class="badge bg-warning text-dark">Chờ thanh toán</span>
+                        {% elif item.status == 'confirmed' %}
+                          <span class="badge bg-info text-dark">Chờ xác nhận</span>
+                        {% elif item.status == 'preparing' %}
+                          <span class="badge bg-primary">Chờ lấy hàng</span>
+                        {% elif item.status == 'shipping' %}
+                          <span class="badge bg-secondary">Đang giao</span>
+                        {% elif item.status == 'completed' %}
+                          <span class="badge bg-success">Đã giao</span>
+                        {% elif item.status == 'cancelled' %}
+                          <span class="badge bg-danger">Đã huỷ</span>
+                        {% else %}
+                          <span class="badge bg-light text-dark">{{ item.get_status_display }}</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <a href="{% url 'admin:ec_order_edit' pk=item.pk %}" class="btn btn-sm btn-primary">Xử lý</a>
+                        <form action="{% url 'admin:ec_order_delete' pk=item.pk %}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc xoá đơn này?');">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
                         </form>
                       </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="2">Trống.</td></tr>
+                    <tr><td colspan="7">Chưa có đơn hàng.</td></tr>
                     {% endfor %}
                   </tbody>
                 </table>

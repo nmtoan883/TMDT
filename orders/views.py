@@ -18,6 +18,8 @@ from .forms import OrderCreateForm
 from .models import Order, OrderItem
 from .payment.sepay import Sepay
 
+COD_FEE = 30000
+
 
 def _send_confirmation_email(order):
     try:
@@ -84,7 +86,9 @@ def order_create(request):
                         'form': form,
                         'selected_items': selected_items,
                         'selected_total_price': cart.get_total_price(selected_product_ids),
+                        'selected_discount': cart.get_discount(selected_product_ids),
                         'selected_total_price_after_discount': cart.get_total_price_after_discount(selected_product_ids),
+                        'cod_fee': COD_FEE,
                     })
 
             try:
@@ -95,7 +99,10 @@ def order_create(request):
                     order.customer_name = f'{order.first_name} {order.last_name}'.strip() or request.user.get_full_name() or request.user.username
                     order.customer_email = order.email or request.user.email
                     order.payment_method = payment_method
-                    order.total_amount = cart.get_total_price_after_discount(selected_product_ids)
+                    order.shipping_fee = COD_FEE if payment_method == Order.PAYMENT_COD else 0
+                    order.total_amount = cart.get_total_price_after_discount(selected_product_ids) + order.shipping_fee
+                    if payment_method == Order.PAYMENT_COD:
+                        order.status = Order.STATUS_CONFIRMED
                     order.save()
 
                     profile = getattr(request.user, 'customer_profile', None)
@@ -117,12 +124,14 @@ def order_create(request):
                             price=item['price'],
                             quantity=item['quantity'],
                         )
-                        item['product'].stock -= item['quantity']
-                        item['product'].save()
                         cart.remove(item['product'])
                     
+                    coupon = cart.get_coupon()
+                    if coupon:
+                        coupon.delete()
+
                     cart.clear()
-                    request.session['coupon_id'] = None
+                    request.session.pop('coupon_id', None)
 
                 try:
                     _send_confirmation_email(order)
@@ -132,10 +141,7 @@ def order_create(request):
                 if payment_method == 'sepay':
                     return redirect('orders:order_payment', order_id=order.id)
 
-                messages.success(
-                    request,
-                    'Đơn hàng của bạn đã được gửi yêu cầu duyệt. Admin sẽ kiểm tra và cập nhật trạng thái trong thời gian sớm nhất.'
-                )
+                messages.success(request, 'Đơn COD của bạn đã được ghi nhận. Shop sẽ xác nhận và chuẩn bị giao hàng.')
                 return redirect('orders:order_detail', order_id=order.id)
             except Exception as e:
                 messages.error(request, 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại!')
@@ -148,7 +154,9 @@ def order_create(request):
         'form': form,
         'selected_items': selected_items,
         'selected_total_price': cart.get_total_price(selected_product_ids),
+        'selected_discount': cart.get_discount(selected_product_ids),
         'selected_total_price_after_discount': cart.get_total_price_after_discount(selected_product_ids),
+        'cod_fee': COD_FEE,
     })
 
 
@@ -190,7 +198,7 @@ def cancel_order(request, order_id):
         order.status = Order.STATUS_CANCELLED
         order.save()
         messages.warning(request, f'Đơn hàng #{order.id} đã được huỷ.')
-    return redirect('orders:order_history')
+    return redirect('orders:order_detail', order_id=order.id)
 
 
 @login_required
@@ -207,7 +215,8 @@ def payment_return(request):
         return render(request, 'orders/payment_return.html', {'success': False, 'error': 'Không tìm thấy đơn hàng.'})
 
     if response_code and str(response_code).lower() in ['00', 'success', 'ok', 'paid', 'completed']:
-        order.status = Order.STATUS_COMPLETED
+        order.paid = True
+        order.status = Order.STATUS_CONFIRMED
         order.save()
         return render(request, 'orders/payment_return.html', {'success': True, 'order': order})
 
@@ -219,11 +228,28 @@ def payment_return(request):
 @login_required
 def order_history(request):
     orders = (
-        Order.objects.filter(user=request.user)
+        Order.objects.filter(user=request.user, status=Order.STATUS_COMPLETED)
         .prefetch_related('items__product')
         .order_by('-created_at')
     )
     return render(request, 'orders/history.html', {'orders': orders})
+
+
+@login_required
+def order_tracking(request):
+    active_statuses = [
+        Order.STATUS_PENDING,
+        Order.STATUS_CONFIRMED,
+        Order.STATUS_PREPARING,
+        Order.STATUS_SHIPPING,
+        Order.STATUS_PROCESSING,
+    ]
+    orders = (
+        Order.objects.filter(user=request.user, status__in=active_statuses)
+        .prefetch_related('items__product')
+        .order_by('-created_at')
+    )
+    return render(request, 'orders/tracking.html', {'orders': orders})
 
 
 @login_required

@@ -1,7 +1,13 @@
+import secrets
+import string
+
 from django import forms
 from django.utils import timezone
 from blog.models import Post
 from core.models import Banner, HotDealCampaign, Product
+from coupon.models import Coupon
+
+COUPON_CODE_LENGTH = 16
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -144,4 +150,102 @@ class HotDealCampaignAdminForm(forms.ModelForm):
             value = self.initial.get(field_name) or getattr(self.instance, field_name, None)
             if value:
                 self.initial[field_name] = timezone.localtime(value).strftime('%Y-%m-%dT%H:%M')
+
+
+class CouponAdminForm(forms.ModelForm):
+    quantity = forms.IntegerField(
+        min_value=1,
+        max_value=500,
+        initial=1,
+        label='Số lượng mã',
+        help_text='Nhập số mã cần tạo. Mỗi mã sẽ tự sinh 16 ký tự in hoa và số.',
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'min': '1',
+            'max': '500',
+            'placeholder': 'VD: 10',
+        })
+    )
+
+    class Meta:
+        model = Coupon
+        fields = ['discount_percent', 'valid_to', 'active']
+        labels = {
+            'discount_percent': 'Giảm theo phần trăm',
+            'valid_to': 'Kết thúc',
+            'active': 'Đang bật',
+        }
+        widgets = {
+            'discount_percent': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '99', 'placeholder': 'VD: 20'}),
+            'valid_to': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        datetime_formats = ['%Y-%m-%dT%H:%M']
+        self.fields['valid_to'].input_formats = datetime_formats
+
+        if self.instance and self.instance.pk:
+            self.fields.pop('quantity', None)
+
+        value = self.initial.get('valid_to') or getattr(self.instance, 'valid_to', None)
+        if value:
+            self.initial['valid_to'] = timezone.localtime(value).strftime('%Y-%m-%dT%H:%M')
+
+    def _generate_code(self, reserved_codes=None):
+        reserved_codes = reserved_codes or set()
+        alphabet = string.ascii_uppercase + string.digits
+        while True:
+            code = ''.join(secrets.choice(alphabet) for _ in range(COUPON_CODE_LENGTH))
+            if code not in reserved_codes and not Coupon.objects.filter(code=code).exists():
+                return code
+
+    def save_many(self):
+        if self.instance and self.instance.pk:
+            return [self.save()]
+
+        quantity = self.cleaned_data.get('quantity') or 1
+        coupons = []
+        generated_codes = set()
+        now = timezone.now()
+
+        for _ in range(quantity):
+            code = self._generate_code(generated_codes)
+            generated_codes.add(code)
+            coupons.append(Coupon(
+                code=code,
+                discount_percent=self.cleaned_data['discount_percent'],
+                discount_amount=None,
+                valid_from=now,
+                valid_to=self.cleaned_data['valid_to'],
+                active=self.cleaned_data.get('active', True),
+            ))
+
+        Coupon.objects.bulk_create(coupons)
+        return coupons
+
+    def clean(self):
+        cleaned = super().clean()
+        discount_percent = cleaned.get('discount_percent')
+        valid_to = cleaned.get('valid_to')
+
+        if not discount_percent:
+            self.add_error('discount_percent', 'Vui lòng nhập phần trăm giảm.')
+        if discount_percent and discount_percent > 99:
+            self.add_error('discount_percent', 'Phần trăm giảm phải nhỏ hơn 100.')
+        if valid_to and valid_to <= timezone.now():
+            self.add_error('valid_to', 'Ngày hết hạn phải ở tương lai.')
+
+        return cleaned
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.discount_amount = None
+        if not instance.pk:
+            instance.code = self._generate_code()
+            instance.valid_from = timezone.now()
+        if commit:
+            instance.save()
+        return instance
 

@@ -635,9 +635,13 @@
                             <i class="fa fa-shopping-bag"></i>
                             <span>Lịch sử mua hàng</span>
                         </a>
-                        <a href="{% url 'orders:order_history' %}" class="account-quick-link">
+                        <a href="{% url 'orders:order_tracking' %}" class="account-quick-link">
                             <i class="fa fa-truck"></i>
                             <span>Theo dõi đơn hàng</span>
+                        </a>
+                        <a href="{% url 'accounts:change_password' %}" class="account-quick-link">
+                            <i class="fa fa-lock"></i>
+                            <span>Đổi mật khẩu</span>
                         </a>
                     </div>
                 {% endif %}

@@ -6,7 +6,7 @@ from .models import Order
 class OrderCreateForm(forms.ModelForm):
     PAYMENT_CHOICES = [
         ('sepay', 'Sepay (quét QR)'),
-        ('manual', 'Thanh toán sau / Duyệt admin'),
+        ('cod', 'Thanh toán khi nhận hàng'),
     ]
 
     payment_method = forms.ChoiceField(
