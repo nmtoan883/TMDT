@@ -1,4 +1,5 @@
 {% load static %}
+{% load money_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,7 +40,8 @@
                   <th style="width: 70px;">STT</th>
                   <th>Mã</th>
                   <th>Giảm giá</th>
-                  <th>Thời hạn</th>
+                  <th>Đơn tối thiểu</th>
+                  <th>Claim</th>
                   <th>Trạng thái</th>
                   <th class="text-end">Thao tác</th>
                 </tr>
@@ -53,17 +55,45 @@
                     {% if item.discount_percent %}
                       <span class="badge bg-success">-{{ item.discount_percent }}%</span>
                     {% elif item.discount_amount %}
-                      <span class="badge bg-info text-dark">-{{ item.discount_amount|floatformat:0 }} VND</span>
+                      <span class="badge bg-info text-dark">-{{ item.discount_amount|vnd }}</span>
                     {% else %}
                       <span class="text-muted">Chưa cấu hình</span>
                     {% endif %}
                   </td>
                   <td>
-                    <div>{{ item.valid_from|date:"d/m/Y H:i" }}</div>
-                    <div class="text-muted small">đến {{ item.valid_to|date:"d/m/Y H:i" }}</div>
+                    {% if item.min_order_amount %}
+                      {{ item.min_order_amount|vnd }}
+                    {% else %}
+                      <span class="text-muted">Không yêu cầu</span>
+                    {% endif %}
                   </td>
                   <td>
-                    {% if item.is_valid %}
+                    {% if item.claimable and not item.assigned_user_id %}
+                      <span class="badge bg-primary">Mã công khai</span>
+                      <div class="text-muted small">Hiệu lực {{ item.claim_valid_days }} ngày sau khi claim</div>
+                      {% if item.public_batch_date %}
+                        <div class="text-muted small">Đã đẩy: {{ item.public_batch_date|date:"d/m/Y" }} - {{ item.public_batch_slot }}</div>
+                      {% else %}
+                        <div class="text-muted small">Chưa đẩy lên kho chung</div>
+                      {% endif %}
+                    {% elif item.claimed_coupons.exists %}
+                      {% with claimed_coupon=item.claimed_coupons.first %}
+                        <span class="badge bg-success">Đã được claim</span>
+                        <div class="text-muted small">Người nhận: {{ claimed_coupon.assigned_user.username|default:"Không rõ" }}</div>
+                        <div class="text-muted small">Lúc claim: {{ claimed_coupon.valid_from|date:"d/m/Y H:i" }}</div>
+                      {% endwith %}
+                    {% elif item.claimed_from_id %}
+                      <span class="badge bg-info text-dark">Đã claim</span>
+                      <div class="text-muted small">đến {{ item.valid_to|date:"d/m/Y H:i" }}</div>
+                    {% else %}
+                      <div>{{ item.valid_from|date:"d/m/Y H:i" }}</div>
+                      <div class="text-muted small">đến {{ item.valid_to|date:"d/m/Y H:i" }}</div>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if item.claimed_coupons.exists %}
+                      <span class="badge bg-success">Đã được claim</span>
+                    {% elif item.is_valid %}
                       <span class="badge bg-success">Đang hiệu lực</span>
                     {% elif item.active %}
                       <span class="badge bg-warning text-dark">Ngoài thời gian</span>
@@ -73,6 +103,12 @@
                   </td>
                   <td class="text-end">
                     <a href="{% url 'admin:ec_coupon_edit' pk=item.pk %}" class="btn btn-sm btn-white">Sửa</a>
+                    {% if item.claimable and item.active and not item.assigned_user_id and not item.claimed_from_id and not item.public_batch_date and not item.claimed_coupons.exists %}
+                    <form action="{% url 'admin:ec_coupon_push_public' pk=item.pk %}" method="POST" class="d-inline" onsubmit="return confirm('Đẩy mã này lên kho voucher chung ngay bây giờ?');">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-success">Đẩy lên kho chung</button>
+                    </form>
+                    {% endif %}
                     <form action="{% url 'admin:ec_coupon_delete' pk=item.pk %}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc xoá mã này?');">
                       {% csrf_token %}
                       <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
@@ -80,7 +116,7 @@
                   </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="6" class="text-center text-muted py-5">Chưa có mã giảm giá.</td></tr>
+                <tr><td colspan="7" class="text-center text-muted py-5">Chưa có mã giảm giá.</td></tr>
                 {% endfor %}
               </tbody>
             </table>

@@ -1,5 +1,6 @@
 import secrets
 import string
+from datetime import timedelta
 
 from django import forms
 from django.utils import timezone
@@ -169,29 +170,24 @@ class CouponAdminForm(forms.ModelForm):
 
     class Meta:
         model = Coupon
-        fields = ['discount_percent', 'valid_to', 'active']
+        fields = ['discount_percent', 'min_order_amount', 'claim_valid_days', 'active']
         labels = {
             'discount_percent': 'Giảm theo phần trăm',
-            'valid_to': 'Kết thúc',
+            'min_order_amount': 'Giá trị đơn hàng tối thiểu',
+            'claim_valid_days': 'Số ngày hiệu lực sau khi user claim',
             'active': 'Đang bật',
         }
         widgets = {
             'discount_percent': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '99', 'placeholder': 'VD: 20'}),
-            'valid_to': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'min_order_amount': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'step': '1000', 'placeholder': 'VD: 5000000'}),
+            'claim_valid_days': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '365', 'placeholder': 'VD: 3'}),
             'active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        datetime_formats = ['%Y-%m-%dT%H:%M']
-        self.fields['valid_to'].input_formats = datetime_formats
-
         if self.instance and self.instance.pk:
             self.fields.pop('quantity', None)
-
-        value = self.initial.get('valid_to') or getattr(self.instance, 'valid_to', None)
-        if value:
-            self.initial['valid_to'] = timezone.localtime(value).strftime('%Y-%m-%dT%H:%M')
 
     def _generate_code(self, reserved_codes=None):
         reserved_codes = reserved_codes or set()
@@ -209,6 +205,7 @@ class CouponAdminForm(forms.ModelForm):
         coupons = []
         generated_codes = set()
         now = timezone.now()
+        public_pool_valid_to = now + timedelta(days=3650)
 
         for _ in range(quantity):
             code = self._generate_code(generated_codes)
@@ -217,9 +214,12 @@ class CouponAdminForm(forms.ModelForm):
                 code=code,
                 discount_percent=self.cleaned_data['discount_percent'],
                 discount_amount=None,
+                min_order_amount=self.cleaned_data.get('min_order_amount') or 0,
                 valid_from=now,
-                valid_to=self.cleaned_data['valid_to'],
+                valid_to=public_pool_valid_to,
                 active=self.cleaned_data.get('active', True),
+                claimable=True,
+                claim_valid_days=self.cleaned_data.get('claim_valid_days') or 3,
             ))
 
         Coupon.objects.bulk_create(coupons)
@@ -228,14 +228,17 @@ class CouponAdminForm(forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
         discount_percent = cleaned.get('discount_percent')
-        valid_to = cleaned.get('valid_to')
+        min_order_amount = cleaned.get('min_order_amount')
+        claim_valid_days = cleaned.get('claim_valid_days')
 
         if not discount_percent:
             self.add_error('discount_percent', 'Vui lòng nhập phần trăm giảm.')
         if discount_percent and discount_percent > 99:
             self.add_error('discount_percent', 'Phần trăm giảm phải nhỏ hơn 100.')
-        if valid_to and valid_to <= timezone.now():
-            self.add_error('valid_to', 'Ngày hết hạn phải ở tương lai.')
+        if min_order_amount is not None and min_order_amount < 0:
+            self.add_error('min_order_amount', 'Giá trị đơn hàng tối thiểu không được âm.')
+        if claim_valid_days is not None and claim_valid_days < 1:
+            self.add_error('claim_valid_days', 'Số ngày hiệu lực phải lớn hơn 0.')
 
         return cleaned
 
@@ -245,6 +248,8 @@ class CouponAdminForm(forms.ModelForm):
         if not instance.pk:
             instance.code = self._generate_code()
             instance.valid_from = timezone.now()
+            instance.valid_to = timezone.now() + timedelta(days=3650)
+            instance.claimable = True
         if commit:
             instance.save()
         return instance

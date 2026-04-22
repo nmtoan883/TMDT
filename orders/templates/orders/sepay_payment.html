@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load money_tags %}
 
 {% block title %}Thanh toán SePay - Đơn hàng #{{ order.id }}{% endblock %}
 
@@ -71,7 +72,7 @@
                             <div class="mb-3">
                                 <div class="text-muted small mb-1">Số tiền</div>
                                 <div class="input-group mb-2">
-                                    <input id="amount" type="text" class="form-control fw-bold text-success" value="{{ order.get_total_cost|floatformat:0 }} VND" readonly>
+                                    <input id="amount" type="text" class="form-control fw-bold text-success" value="{{ order.get_total_cost|vnd }}" readonly>
                                     <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('amount', this)"><i class="fas fa-copy"></i></button>
                                 </div>
                             </div>

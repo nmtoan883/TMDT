@@ -57,6 +57,7 @@ def cart_detail(request):
     for item in cart_items:
         item['line_total_value'] = int(item['total_price'])
         item['promotion_discount_value'] = int(item.get('promotion_discount', 0))
+        item['coupon_eligible_total_value'] = 0 if item.get('coupon_excluded') else int(item['total_price_after_promotion'])
         if str(item['product'].id) in selected_product_ids:
             selected_items.append(item)
 
@@ -67,6 +68,7 @@ def cart_detail(request):
         'coupon': coupon,
         'coupon_discount_percent': coupon.discount_percent if coupon else 0,
         'coupon_discount_amount': int(coupon.discount_amount or 0) if coupon else 0,
+        'coupon_min_order_amount': int(coupon.min_order_amount or 0) if coupon else 0,
         'selected_product_ids': selected_product_ids,
         'selected_items': selected_items,
         'selected_count': sum(item['quantity'] for item in selected_items),

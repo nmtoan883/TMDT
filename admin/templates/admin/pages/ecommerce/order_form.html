@@ -1,4 +1,4 @@
-{% load static %}
+{% load static money_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,14 +49,14 @@
                 <span class="badge bg-warning text-dark align-self-start mb-2">Chưa thanh toán</span>
               {% endif %}
               <div>Phương thức: <strong>{{ obj.get_payment_method_display }}</strong></div>
-              <div>Tạm tính: <strong>{{ obj.items_total|floatformat:0 }} VND</strong></div>
+              <div>Tạm tính: <strong>{{ obj.items_total|vnd }}</strong></div>
               {% if obj.discount_total %}
-              <div>Khuyến mãi: <strong class="text-success">-{{ obj.discount_total|floatformat:0 }} VND</strong></div>
+              <div>Khuyến mãi: <strong class="text-success">-{{ obj.discount_total|vnd }}</strong></div>
               {% endif %}
               {% if obj.shipping_fee %}
-              <div>Phí COD: <strong>{{ obj.shipping_fee|floatformat:0 }} VND</strong></div>
+              <div>Phí COD: <strong>{{ obj.shipping_fee|vnd }}</strong></div>
               {% endif %}
-              <div>Tổng tiền: <strong class="text-danger">{{ obj.get_total_cost|floatformat:0 }} VND</strong></div>
+              <div>Tổng tiền: <strong class="text-danger">{{ obj.get_total_cost|vnd }}</strong></div>
               <div class="text-muted small mt-2">Đơn SePay cần thanh toán trước khi xác nhận. Đơn COD có thể xác nhận ngay và thu tiền khi giao.</div>
             </div>
           </div>
@@ -68,9 +68,9 @@
                 <div class="d-flex justify-content-between gap-3 border-bottom py-2">
                   <div>
                     <div class="fw-semibold">{{ line.product.name }}</div>
-                    <div class="text-muted small">{{ line.price|floatformat:0 }} VND x {{ line.quantity }}</div>
+                    <div class="text-muted small">{{ line.price|vnd }} x {{ line.quantity }}</div>
                   </div>
-                  <strong>{{ line.get_cost|floatformat:0 }} VND</strong>
+                  <strong>{{ line.get_cost|vnd }}</strong>
                 </div>
               {% empty %}
                 <div class="text-muted">Chưa có mặt hàng.</div>
@@ -143,7 +143,7 @@
                 </div>
                 <div class="col-12 col-md-4">
                   <div class="text-muted small">Phí COD</div>
-                  <div class="fw-bold">{{ obj.shipping_fee|floatformat:0 }} VND</div>
+                  <div class="fw-bold">{{ obj.shipping_fee|vnd }}</div>
                 </div>
                 <div class="col-12 col-md-8">
                   <div class="text-muted small">Ghi chú xử lý</div>

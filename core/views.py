@@ -2,13 +2,14 @@ from django.utils import timezone
 from datetime import timedelta
 from promotions.models import Promotion
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Case, When, Value, IntegerField
 from django.db.models import CharField, TextField, SlugField, ForeignKey
 from .forms import ProductForm, ReviewForm
-from .models import Banner, Category, Product, Review, Wishlist
+from .models import Banner, Category, Product, Review, UserNotification, Wishlist
 from cart.forms import CartAddProductForm
 from django.views.decorators.http import require_POST
 from django.contrib import messages
@@ -457,6 +458,7 @@ def product_detail(request, id, slug):
                 review.user = request.user
                 review.rating = rating
                 review.save()
+                messages.success(request, 'Cảm ơn bạn! Đánh giá của bạn đã được gửi thành công.')
                 return redirect(product.get_absolute_url())
             else:
                 review_form.add_error('rating', 'Vui lòng chọn số sao từ 1 đến 5')
@@ -515,6 +517,41 @@ def wishlist_list(request):
 
     return render(request, 'core/product/wishlist.html', {
     'wishlist_items': wishlist_items
+    })
+
+
+@login_required
+def notification_list(request):
+    notifications = UserNotification.objects.filter(user=request.user)
+    return render(request, 'core/notifications/list.html', {
+        'notifications': notifications,
+    })
+
+
+@login_required
+def notification_open(request, pk):
+    notification = get_object_or_404(UserNotification, pk=pk, user=request.user)
+    if not notification.is_read:
+        notification.is_read = True
+        notification.save(update_fields=['is_read'])
+    return redirect(notification.action_url or 'shop:notification_list')
+
+
+@login_required
+def notification_api(request):
+    notifications = UserNotification.objects.filter(user=request.user)[:5]
+    return JsonResponse({
+        'unread_count': UserNotification.objects.filter(user=request.user, is_read=False).count(),
+        'notifications': [
+            {
+                'id': notification.id,
+                'title': notification.title,
+                'message': notification.message,
+                'is_read': notification.is_read,
+                'url': reverse('shop:notification_open', args=[notification.id]),
+            }
+            for notification in notifications
+        ],
     })
 
 

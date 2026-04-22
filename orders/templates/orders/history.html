@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load money_tags %}
 
 {% block title %}Lịch sử mua hàng - E-ELECTRO{% endblock %}
 {% block breadcrumb %}
@@ -52,7 +53,7 @@
                                     {% endfor %}
                                     </ul>
                                 </td>
-                                <td><strong style="color: #D10024;">{{ order.get_total_cost|floatformat:0 }} VND</strong></td>
+                                <td><strong style="color: #D10024;">{{ order.get_total_cost|vnd }}</strong></td>
                                 <td>
                                     <span class="label label-{{ order.get_status_label_class }}" style="font-size: 11px; padding: 4px 8px;">{{ order.get_status_display }}</span>
                                 </td>

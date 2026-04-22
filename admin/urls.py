@@ -72,6 +72,7 @@ urlpatterns = [
     path('ecommerce/coupon/', views.ec_coupon_list, name='ec_coupon_list'),
     path('ecommerce/coupon/add/', views.ec_coupon_add, name='ec_coupon_add'),
     path('ecommerce/coupon/edit/<int:pk>/', views.ec_coupon_edit, name='ec_coupon_edit'),
+    path('ecommerce/coupon/<int:pk>/push-public/', views.ec_coupon_push_public, name='ec_coupon_push_public'),
     path('ecommerce/coupon/delete/<int:pk>/', views.ec_coupon_delete, name='ec_coupon_delete'),
     path('ecommerce/promotion/', views.ec_promotion_list, name='ec_promotion_list'),
     path('ecommerce/promotion/add/', views.ec_promotion_add, name='ec_promotion_add'),

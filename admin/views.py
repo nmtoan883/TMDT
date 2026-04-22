@@ -659,10 +659,13 @@ def ec_order_delete(request, pk):
 def ec_order_set_status(request, pk, new_status):
     from orders.models import Order
     from orders.services import deduct_stock_for_completed_order
+    from coupon.services import create_reward_coupon_for_order
+    from core.notifications import create_order_status_notification, create_reward_coupon_notification
     from django.core.exceptions import ValidationError
     obj = get_object_or_404(Order, pk=pk)
     allowed = [s for s, _ in Order.STATUS_CHOICES]
     if new_status in allowed:
+        old_status = obj.status
         if new_status in [Order.STATUS_CONFIRMED, Order.STATUS_PREPARING] and not obj.paid and obj.payment_method != Order.PAYMENT_COD:
             messages.error(request, 'Đơn hàng chưa thanh toán nên chưa thể xác nhận.')
             return redirect('admin:ec_order_edit', pk=pk)
@@ -676,6 +679,11 @@ def ec_order_set_status(request, pk, new_status):
         if new_status == Order.STATUS_COMPLETED and obj.payment_method == Order.PAYMENT_COD:
             obj.paid = True
         obj.save()
+        if old_status != new_status:
+            create_order_status_notification(obj, new_status)
+            if new_status == Order.STATUS_COMPLETED:
+                reward_coupon = create_reward_coupon_for_order(obj)
+                create_reward_coupon_notification(obj, reward_coupon)
         messages.success(request, f'Đơn hàng #{pk} → {obj.get_status_display()}')
     else:
         messages.error(request, 'Trạng thái không hợp lệ.')
@@ -685,7 +693,13 @@ def ec_order_set_status(request, pk, new_status):
 def ec_coupon_list(request):
     from django.core.paginator import Paginator
     from coupon.models import Coupon
-    items = Coupon.objects.all().order_by('-valid_from', '-id')
+    items = (
+        Coupon.objects
+        .select_related('assigned_user', 'claimed_from')
+        .prefetch_related('claimed_coupons__assigned_user')
+        .all()
+        .order_by('-valid_from', '-id')
+    )
     paginator = Paginator(items, 20)
     page_obj = paginator.get_page(request.GET.get('page'))
     return render(request, 'admin/pages/ecommerce/coupon_list.html', {
@@ -722,6 +736,34 @@ def ec_coupon_edit(request, pk):
     else:
         form = CouponAdminForm(instance=obj)
     return render(request, 'admin/pages/ecommerce/coupon_form.html', {'form': form, 'obj': obj})
+
+@staff_member_required
+def ec_coupon_push_public(request, pk):
+    from django.utils import timezone
+    from coupon.models import Coupon
+
+    if request.method != 'POST':
+        return redirect('admin:ec_coupon_list')
+
+    obj = get_object_or_404(Coupon, pk=pk)
+    if obj.assigned_user_id or obj.claimed_from_id or obj.claimed_coupons.exists():
+        messages.error(request, 'Mã này đã thuộc về user hoặc đã được claim, không thể đẩy lên kho chung.')
+        return redirect('admin:ec_coupon_list')
+
+    if not obj.active or not obj.claimable:
+        messages.error(request, 'Chỉ có thể đẩy mã công khai đang bật lên kho chung.')
+        return redirect('admin:ec_coupon_list')
+
+    if obj.public_batch_date and obj.public_batch_slot:
+        messages.info(request, 'Mã này đã được đẩy lên kho chung trước đó.')
+        return redirect('admin:ec_coupon_list')
+
+    obj.public_batch_date = timezone.localdate()
+    obj.public_batch_slot = 'manual'
+    obj.save(update_fields=['public_batch_date', 'public_batch_slot'])
+    messages.success(request, f'Đã đẩy mã {obj.code} lên kho voucher chung.')
+    return redirect('admin:ec_coupon_list')
+
 
 @staff_member_required
 def ec_coupon_delete(request, pk):

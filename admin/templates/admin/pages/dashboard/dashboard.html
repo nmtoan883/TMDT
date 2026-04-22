@@ -1,4 +1,4 @@
-{% load static %}
+{% load static money_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -101,8 +101,8 @@
           <div class="card card-body h-100 dash-card">
             <div class="metric-icon revenue"><i class="bi bi-cash-stack"></i></div>
             <div class="metric-label">Doanh thu đã giao</div>
-            <div class="metric-value text-success">{{ total_revenue|floatformat:0 }} VND</div>
-            <div class="metric-note">Hôm nay: {{ today_revenue|floatformat:0 }} VND</div>
+            <div class="metric-value text-success">{{ total_revenue|vnd }}</div>
+            <div class="metric-note">Hôm nay: {{ today_revenue|vnd }}</div>
           </div>
         </div>
         <div class="col-12 col-md-6 col-xl-3">
@@ -139,7 +139,7 @@
                 <h5 class="mb-1">Doanh thu theo ngày</h5>
                 <div class="text-muted small">Chỉ lấy đơn trạng thái đã giao</div>
               </div>
-              <span class="badge bg-success-subtle text-success">AOV {{ avg_order_value|floatformat:0 }} VND</span>
+              <span class="badge bg-success-subtle text-success">AOV {{ avg_order_value|vnd }}</span>
             </div>
             {% if labels != "[]" %}
               <div class="chart-box">
@@ -202,7 +202,7 @@
                       {% endif %}
                     </td>
                     <td>{{ order.get_status_display }}</td>
-                    <td><strong class="text-danger">{{ order.get_total_cost|floatformat:0 }} VND</strong></td>
+                    <td><strong class="text-danger">{{ order.get_total_cost|vnd }}</strong></td>
                     <td class="text-end">
                       <a href="{% url 'admin:ec_order_edit' pk=order.pk %}" class="btn btn-sm btn-primary">Xử lý</a>
                     </td>
@@ -268,7 +268,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     beginAtZero: true,
                     ticks: {
                         callback: function(value) {
-                            return Number(value).toLocaleString('vi-VN') + ' VND';
+                            return Number(value).toLocaleString('vi-VN') + ' đ';
                         }
                     }
                 }

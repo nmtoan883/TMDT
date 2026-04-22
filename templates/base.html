@@ -1,4 +1,5 @@
 {% load static %}
+{% load money_tags %}
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -37,6 +38,85 @@
  		  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
  		<![endif]-->
 		<link type="text/css" rel="stylesheet" href="{% static 'css/features.css' %}"/>
+		<style>
+			.notification-dropdown {
+				width: 340px;
+				max-width: calc(100vw - 24px);
+				padding: 0;
+				border: 1px solid #E4E7ED;
+				box-shadow: 0 10px 30px rgba(0,0,0,.12);
+				white-space: normal;
+				overflow-wrap: anywhere;
+				word-break: break-word;
+			}
+			.notification-dropdown .notification-head {
+				padding: 12px 14px;
+				border-bottom: 1px solid #E4E7ED;
+				font-weight: 700;
+				color: #2B2D42;
+			}
+			.notification-dropdown .notification-item {
+				display: block;
+				padding: 12px 14px;
+				border-bottom: 1px solid #f1f2f4;
+				color: #2B2D42;
+				background: #fff;
+			}
+			.notification-dropdown .notification-item:hover {
+				background: #f8f9fb;
+				color: #2B2D42;
+			}
+			.notification-dropdown .notification-item.unread {
+				background: #fff7f8;
+			}
+			.notification-dropdown .notification-title {
+				font-size: 13px;
+				font-weight: 700;
+				margin-bottom: 4px;
+				line-height: 1.35;
+				white-space: normal;
+			}
+			.notification-dropdown .notification-message {
+				font-size: 12px;
+				color: #6b7280;
+				line-height: 1.4;
+				white-space: normal;
+				overflow-wrap: anywhere;
+			}
+			.notification-list-body {
+				max-height: 320px;
+				overflow-y: auto;
+			}
+			.notification-dropdown .notification-empty {
+				padding: 22px 14px;
+				color: #8D99AE;
+				text-align: center;
+			}
+			.notification-dropdown .notification-all {
+				display: block;
+				padding: 11px 14px;
+				text-align: center;
+				font-weight: 700;
+				color: #D10024;
+			}
+			.header-ctn .notification-ctn {
+				position: relative;
+			}
+			.header-ctn .notification-ctn > a {
+				display: block;
+				text-align: center;
+				min-width: 72px;
+			}
+			#header .header-ctn {
+				white-space: nowrap;
+			}
+			#header .header-ctn > div + div {
+				margin-left: 10px;
+			}
+			#header .header-ctn > div > a {
+				width: 82px;
+			}
+		</style>
 		{% block extra_css %}{% endblock %}
     </head>
 	<body>
@@ -83,7 +163,7 @@
 						<!-- /LOGO -->
 
 						<!-- SEARCH BAR -->
-						<div class="col-md-6">
+						<div class="col-md-5">
 							<div class="header-search">
 								<form action="{% url 'shop:product_list' %}" method="get" style="position: relative;">
 									<select class="input-select">
@@ -110,7 +190,7 @@
 						<!-- /SEARCH BAR -->
 
 						<!-- ACCOUNT -->
-						<div class="col-md-3 clearfix">
+						<div class="col-md-4 clearfix">
 							<div class="header-ctn">
 								<!-- Wishlist -->
 								<div>
@@ -146,7 +226,7 @@
 												</div>
 												<div class="product-body">
 													<h3 class="product-name"><a href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a></h3>
-													<h4 class="product-price"><span class="qty">{{ item.quantity }}x</span>{{ item.price }} VNĐ</h4>
+													<h4 class="product-price"><span class="qty">{{ item.quantity }}x</span>{{ item.price|vnd }}</h4>
 												</div>
 												<form action="{% url 'cart:cart_remove' item.product.id %}" method="post" style="display:inline;">
 													{% csrf_token %}
@@ -161,7 +241,7 @@
 										</div>
 										<div class="cart-summary">
 											<small>{{ cart|length }} Item(s) selected</small>
-											<h5>SUBTOTAL: {{ cart.get_total_price }} VNĐ</h5>
+											<h5>SUBTOTAL: {{ cart.get_total_price|vnd }}</h5>
 										</div>
 										<div class="cart-btns">
 											<a href="{% url 'cart:cart_detail' %}">View Cart</a>
@@ -170,6 +250,35 @@
 									</div>
 								</div>
 								<!-- /Cart -->
+
+								{% if user.is_authenticated %}
+								<!-- Notifications -->
+								<div class="dropdown notification-ctn">
+									<a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+										<i class="fa fa-bell-o"></i>
+										<span>Thông báo</span>
+										<div id="notification-count" class="qty" {% if not unread_notification_count %}style="display:none;"{% endif %}>{{ unread_notification_count }}</div>
+									</a>
+									<div class="dropdown-menu notification-dropdown dropdown-menu-right">
+										<div class="notification-head">Thông báo của bạn</div>
+										<div id="notification-list-body" class="notification-list-body">
+											{% for notification in user_notifications %}
+												<a href="{% url 'shop:notification_open' notification.pk %}" class="notification-item {% if not notification.is_read %}unread{% endif %}">
+													<div class="notification-title">
+														{% if not notification.is_read %}<i class="fa fa-circle" style="color:#D10024;font-size:7px;margin-right:6px;"></i>{% endif %}
+														{{ notification.title }}
+													</div>
+													<div class="notification-message">{{ notification.message|truncatechars:110 }}</div>
+												</a>
+											{% empty %}
+												<div class="notification-empty">Chưa có thông báo mới.</div>
+											{% endfor %}
+										</div>
+										<a href="{% url 'shop:notification_list' %}" class="notification-all">Xem tất cả</a>
+									</div>
+								</div>
+								<!-- /Notifications -->
+								{% endif %}
 
 								<!-- Menu Toogle -->
 								<div class="menu-toggle">
@@ -390,6 +499,66 @@
 		<script src="{% static 'js/main.js' %}"></script>
 		<script src="{% static 'js/search_suggestion.js' %}"></script>
 		<script src="{% static 'js/filter.js' %}"></script>
+		{% if user.is_authenticated %}
+		<script>
+		(function () {
+			var countEl = document.getElementById('notification-count');
+			var listEl = document.getElementById('notification-list-body');
+			if (!countEl || !listEl) return;
+
+			function escapeHtml(value) {
+				return String(value || '').replace(/[&<>"']/g, function (char) {
+					return {
+						'&': '&amp;',
+						'<': '&lt;',
+						'>': '&gt;',
+						'"': '&quot;',
+						"'": '&#039;'
+					}[char];
+				});
+			}
+
+			function truncate(value, maxLength) {
+				value = String(value || '');
+				return value.length > maxLength ? value.slice(0, maxLength - 1) + '…' : value;
+			}
+
+			function renderNotifications(data) {
+				var unreadCount = Number(data.unread_count || 0);
+				countEl.textContent = unreadCount;
+				countEl.style.display = unreadCount > 0 ? '' : 'none';
+
+				if (!data.notifications || !data.notifications.length) {
+					listEl.innerHTML = '<div class="notification-empty">Chưa có thông báo mới.</div>';
+					return;
+				}
+
+				listEl.innerHTML = data.notifications.map(function (notification) {
+					var unreadDot = notification.is_read ? '' : '<i class="fa fa-circle" style="color:#D10024;font-size:7px;margin-right:6px;"></i>';
+					return [
+						'<a href="' + escapeHtml(notification.url) + '" class="notification-item ' + (notification.is_read ? '' : 'unread') + '">',
+							'<div class="notification-title">' + unreadDot + escapeHtml(notification.title) + '</div>',
+							'<div class="notification-message">' + escapeHtml(truncate(notification.message, 130)) + '</div>',
+						'</a>'
+					].join('');
+				}).join('');
+			}
+
+			function syncNotifications() {
+				fetch("{% url 'shop:notification_api' %}", { headers: { Accept: 'application/json' } })
+					.then(function (response) {
+						if (!response.ok) throw new Error('Notification sync failed');
+						return response.json();
+					})
+					.then(renderNotifications)
+					.catch(function () {});
+			}
+
+			syncNotifications();
+			setInterval(syncNotifications, 5000);
+		})();
+		</script>
+		{% endif %}
 		{% block extra_js %}{% endblock %}
 
 		<!-- LIVE CHAT / CONTACT WIDGET -->

@@ -1,4 +1,4 @@
-{% load static %}
+{% load static money_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,7 +59,7 @@
                           <span class="text-muted">Chưa có mặt hàng</span>
                         {% endfor %}
                       </td>
-                      <td><strong class="text-danger">{{ item.get_total_cost|floatformat:0 }} VND</strong></td>
+                      <td><strong class="text-danger">{{ item.get_total_cost|vnd }}</strong></td>
                       <td>
                         {% if item.paid %}
                           <span class="badge bg-success">Đã thanh toán</span>

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load money_tags %}
 {% load crispy_forms_tags %}
 
 {% block title %}{{ product.name }}{% endblock %}
@@ -61,7 +62,7 @@
 
                     <div>
                         <h3 class="product-price">
-                            {{ product.price|floatformat:0 }}₫{% if product.old_price %} <del class="product-old-price">{{ product.old_price|floatformat:0 }}₫</del>{% endif %}
+                            {{ product.price|vnd }}{% if product.old_price %} <del class="product-old-price">{{ product.old_price|vnd }}</del>{% endif %}
                         </h3>
                         <span class="product-available">{% if product.stock > 0 %}Còn {{ product.stock }} sản phẩm{% else %}Hết hàng{% endif %}</span>
                     </div>
@@ -178,6 +179,23 @@
   object-fit: cover !important;
   border-radius: 18px !important;
 }
+.review-message {
+  border: 0 !important;
+  border-left: 4px solid #16a34a !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.12) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  margin-bottom: 20px !important;
+  padding: 14px 16px !important;
+}
+.review-message.alert-success {
+  background: #ecfdf3 !important;
+  color: #166534 !important;
+}
+.review-message i {
+  margin-right: 8px !important;
+}
 
 /* Star Rating Styles - Plus/Minus Version */
 .rating-group {
@@ -293,11 +311,18 @@
   margin-right: 8px !important;
 }
 </style>
-<div class="section reviews-section">
+<div class="section reviews-section" id="reviews">
     <div class="container">
         <div class="row">
             <div class="col-md-12">
                 <h2>Đánh giá sản phẩm</h2>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert review-message alert-{{ message.tags|default:'success' }}">
+                            <i class="fa fa-check-circle"></i>{{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
                 
                 {% if user.is_authenticated %}
                     {% if can_review %}

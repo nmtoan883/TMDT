@@ -47,14 +47,17 @@
                 {% endif %}
 
                 <div class="row">
-                  <div class="{% if obj %}col-md-6{% else %}col-md-4{% endif %}">
+                  <div class="{% if obj %}col-md-4{% else %}col-md-3{% endif %}">
                     {{ form.discount_percent|as_crispy_field }}
                   </div>
-                  <div class="{% if obj %}col-md-6{% else %}col-md-4{% endif %}">
-                    {{ form.valid_to|as_crispy_field }}
+                  <div class="{% if obj %}col-md-4{% else %}col-md-3{% endif %}">
+                    {{ form.min_order_amount|as_crispy_field }}
+                  </div>
+                  <div class="{% if obj %}col-md-4{% else %}col-md-3{% endif %}">
+                    {{ form.claim_valid_days|as_crispy_field }}
                   </div>
                   {% if form.quantity %}
-                  <div class="col-md-4">
+                  <div class="col-md-3">
                     {{ form.quantity|as_crispy_field }}
                   </div>
                   {% endif %}

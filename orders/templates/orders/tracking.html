@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load money_tags %}
 {% load static %}
 
 {% block title %}Theo dõi đơn hàng - E-ELECTRO{% endblock %}
@@ -155,7 +156,7 @@
                         <div class="tracking-meta">Đặt lúc {{ order.created_at|date:"d/m/Y H:i" }}</div>
                     </div>
                     <div>
-                        <div class="tracking-total">{{ order.get_total_cost|floatformat:0 }} VND</div>
+                        <div class="tracking-total">{{ order.get_total_cost|vnd }}</div>
                         <div class="tracking-meta">{{ order.get_status_display }}</div>
                     </div>
                 </div>

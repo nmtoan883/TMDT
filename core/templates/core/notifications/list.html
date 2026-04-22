@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Thông báo{% endblock %}
+
+{% block breadcrumb %}
+<div id="breadcrumb" class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="breadcrumb-header">Thông báo</h3>
+                <ul class="breadcrumb-tree">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li class="active">Thông báo</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<style>
+    .notification-page {
+        max-width: 780px;
+        margin: 0 auto;
+    }
+    .notification-card {
+        display: block;
+        padding: 16px 18px;
+        border: 1px solid #E4E7ED;
+        border-left: 4px solid #D10024;
+        border-radius: 6px;
+        background: #fff;
+        color: #2B2D42;
+        margin-bottom: 12px;
+        transition: box-shadow .2s, transform .2s;
+    }
+    .notification-card:hover {
+        color: #2B2D42;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, .08);
+        transform: translateY(-1px);
+    }
+    .notification-card.is-read {
+        border-left-color: #8D99AE;
+        background: #fafafa;
+    }
+    .notification-title {
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    .notification-message {
+        color: #6b7280;
+        margin-bottom: 8px;
+    }
+    .notification-time {
+        color: #8D99AE;
+        font-size: 12px;
+    }
+</style>
+<div class="notification-page">
+    {% for notification in notifications %}
+        <a href="{% url 'shop:notification_open' notification.pk %}" class="notification-card {% if notification.is_read %}is-read{% endif %}">
+            <div class="notification-title">
+                {% if not notification.is_read %}<i class="fa fa-circle" style="color:#D10024;font-size:8px;margin-right:8px;"></i>{% endif %}
+                {{ notification.title }}
+            </div>
+            <div class="notification-message">{{ notification.message }}</div>
+            <div class="notification-time">{{ notification.created_at|date:"d/m/Y H:i" }}</div>
+        </a>
+    {% empty %}
+        <div class="text-center" style="padding: 70px 20px; border: 2px dashed #E4E7ED; border-radius: 6px;">
+            <i class="fa fa-bell-o" style="font-size: 46px; color: #8D99AE; margin-bottom: 12px;"></i>
+            <h4>Chưa có thông báo</h4>
+            <p style="color: #8D99AE;">Các cập nhật về đơn hàng sẽ xuất hiện tại đây.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

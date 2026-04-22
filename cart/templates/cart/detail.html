@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load money_tags %}
 
 {% block title %}Giỏ hàng{% endblock %}
 
@@ -59,12 +60,44 @@
         color: #8D99AE;
         margin-top: 5px;
     }
+    .cart-message {
+        border: 0;
+        border-left: 4px solid #8D99AE;
+        border-radius: 6px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 18px;
+        padding: 14px 16px;
+    }
+    .cart-message.alert-danger,
+    .cart-message.alert-error {
+        background: #fff1f2;
+        border-left-color: #D10024;
+        color: #9f1239;
+    }
+    .cart-message.alert-success {
+        background: #ecfdf3;
+        border-left-color: #16a34a;
+        color: #166534;
+    }
+    .cart-message.alert-warning {
+        background: #fffbeb;
+        border-left-color: #f59e0b;
+        color: #92400e;
+    }
+    .cart-message i {
+        margin-right: 8px;
+    }
 </style>
 <div class="section">
     <div class="container">
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                <div class="alert cart-message {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %}">
+                    <i class="fa {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-exclamation-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
             {% endfor %}
         {% endif %}
         {% if cart %}
@@ -96,11 +129,15 @@
                                     form="cart-checkout-form"
                                     data-line-total="{{ item.line_total_value }}"
                                     data-promotion-discount="{{ item.promotion_discount_value }}"
+                                    data-coupon-eligible-total="{{ item.coupon_eligible_total_value }}"
                                     {% if product.id|stringformat:"s" in selected_product_ids %}checked{% endif %}
                                     style="margin-top: 0;">
                                 <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" alt="{{ product.name }}" style="width: 60px; height: 60px; object-fit: contain; border: 1px solid #eee; border-radius: 4px;">
                                 <div style="display: flex; flex-direction: column; justify-content: center;">
                                     <h6 style="margin: 0 0 5px 0;">{{ product.name }}</h6>
+                                    {% if item.coupon_excluded %}
+                                    <div style="font-size: 12px; color: #D10024; margin-bottom: 5px;">Không áp dụng thêm mã giảm giá cho sản phẩm đang deal</div>
+                                    {% endif %}
                                     <form action="{% url 'cart:cart_remove' product.id %}" method="post" style="margin: 0;">
                                         {% csrf_token %}
                                         <button type="submit" style="background: none; border: none; color: #D10024; padding: 0; font-size: 13px; text-decoration: underline;">
@@ -130,8 +167,8 @@
                                     </div>
                                     <div class="cart-stock-note">Còn {{ product.stock }} sản phẩm</div>
                                 </div>
-                                <div style="flex: 1; text-align: right; color: #8D99AE; font-size: 14px;">{{ item.price|floatformat:0 }}đ</div>
-                                <div style="flex: 1; text-align: right; color: #D10024; font-weight: bold; font-size: 14px;">{{ item.total_price|floatformat:0 }}đ</div>
+                                <div style="flex: 1; text-align: right; color: #8D99AE; font-size: 14px;">{{ item.price|vnd }}</div>
+                                <div style="flex: 1; text-align: right; color: #D10024; font-weight: bold; font-size: 14px;">{{ item.total_price|vnd }}</div>
                             </div>
                         </div>
                         {% endwith %}
@@ -170,14 +207,15 @@
                         class="order-summary"
                         id="cart-live-summary"
                         data-coupon-percent="{{ coupon_discount_percent|default:0 }}"
-                        data-coupon-amount="{{ coupon_discount_amount|default:0 }}">
+                        data-coupon-amount="{{ coupon_discount_amount|default:0 }}"
+                        data-coupon-min-order-amount="{{ coupon_min_order_amount|default:0 }}">
                         <div class="order-col">
                             <div><strong>Tạm tính (<span id="selected-item-count">{{ selected_items|length }}</span> SP)</strong></div>
-                            <div id="cart-subtotal">{{ selected_total_price|floatformat:0 }} VND</div>
+                            <div id="cart-subtotal">{{ selected_total_price|vnd }}</div>
                         </div>
                         <div class="order-col" id="cart-discount-row" {% if not selected_discount %}style="display: none;"{% endif %}>
                             <div><strong>Khuyến mãi / Giảm giá</strong></div>
-                            <div style="color: #4CAF50;" id="cart-discount">-{{ selected_discount|floatformat:0 }} VND</div>
+                            <div style="color: #4CAF50;" id="cart-discount">-{{ selected_discount|vnd }}</div>
                         </div>
                         <div class="order-col">
                             <div><strong>Phí Vận Chuyển</strong></div>
@@ -185,7 +223,7 @@
                         </div>
                         <div class="order-col" style="border-top: 1px solid #E4E7ED; padding-top: 15px; margin-top: 15px;">
                             <div><strong>TỔNG TIỀN KIẾN TÍNH</strong></div>
-                            <div><strong class="order-total">{{ selected_total_price_after_discount|floatformat:0 }} VND</strong></div>
+                            <div><strong class="order-total">{{ selected_total_price_after_discount|vnd }}</strong></div>
                         </div>
                     </div>
                 </div>
@@ -221,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function formatMoney(value) {
         return new Intl.NumberFormat('vi-VN', {
             maximumFractionDigits: 0
-        }).format(Math.max(Math.round(value || 0), 0)) + ' VND';
+        }).format(Math.max(Math.round(value || 0), 0)) + ' đ';
     }
 
     function updateLiveSummary() {
@@ -239,21 +277,24 @@ document.addEventListener('DOMContentLoaded', function () {
         var selected = checkboxes.filter(function (checkbox) { return checkbox.checked; });
         var subtotal = 0;
         var promotionDiscount = 0;
+        var couponEligibleSubtotal = 0;
 
         selected.forEach(function (checkbox) {
             subtotal += parseFloat(checkbox.dataset.lineTotal || '0') || 0;
             promotionDiscount += parseFloat(checkbox.dataset.promotionDiscount || '0') || 0;
+            couponEligibleSubtotal += parseFloat(checkbox.dataset.couponEligibleTotal || '0') || 0;
         });
 
         var afterPromotion = Math.max(subtotal - promotionDiscount, 0);
         var couponPercent = parseFloat(summary.dataset.couponPercent || '0') || 0;
         var couponAmount = parseFloat(summary.dataset.couponAmount || '0') || 0;
+        var couponMinOrderAmount = parseFloat(summary.dataset.couponMinOrderAmount || '0') || 0;
         var couponDiscount = 0;
 
-        if (afterPromotion > 0 && couponPercent > 0) {
-            couponDiscount = afterPromotion * couponPercent / 100;
-        } else if (afterPromotion > 0 && couponAmount > 0) {
-            couponDiscount = Math.min(couponAmount, afterPromotion);
+        if (couponEligibleSubtotal > 0 && couponEligibleSubtotal >= couponMinOrderAmount && couponPercent > 0) {
+            couponDiscount = couponEligibleSubtotal * couponPercent / 100;
+        } else if (couponEligibleSubtotal > 0 && couponEligibleSubtotal >= couponMinOrderAmount && couponAmount > 0) {
+            couponDiscount = Math.min(couponAmount, couponEligibleSubtotal);
         }
 
         var totalDiscount = Math.min(promotionDiscount + couponDiscount, subtotal);

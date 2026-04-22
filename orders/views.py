@@ -13,6 +13,7 @@ from urllib.parse import quote_plus
 from datetime import datetime
 
 from cart.cart import Cart
+from core.notifications import create_order_created_notification
 
 from .forms import OrderCreateForm
 from .models import Order, OrderItem
@@ -21,16 +22,21 @@ from .payment.sepay import Sepay
 COD_FEE = 30000
 
 
+def _format_vnd(value):
+    return f'{int(round(value)):,}'.replace(',', '.') + ' đ'
+
+
 def _send_confirmation_email(order):
     try:
         subject = f'[ShopTech] Xác nhận đơn hàng #{order.id}'
+        order_total = _format_vnd(order.get_total_cost())
         html_message = render_to_string('orders/email_invoice.html', {
             'order': order,
             'order_items': order.items.all(),
         })
         send_mail(
             subject=subject,
-            message=f'Đơn hàng #{order.id} của bạn đã được xác nhận. Tổng tiền: {order.get_total_cost()}đ',
+            message=f'Đơn hàng #{order.id} của bạn đã được xác nhận. Tổng tiền: {order_total}',
             from_email=settings.EMAIL_HOST_USER,
             recipient_list=[order.email],
             html_message=html_message,
@@ -104,6 +110,7 @@ def order_create(request):
                     if payment_method == Order.PAYMENT_COD:
                         order.status = Order.STATUS_CONFIRMED
                     order.save()
+                    create_order_created_notification(order)
 
                     profile = getattr(request.user, 'customer_profile', None)
                     if hasattr(profile, 'address'):
