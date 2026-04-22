@@ -747,52 +747,6 @@
                     </div>
                 {% endif %}
 
-                {% if not is_editing and active_tab != 'vouchers' %}
-                    <div class="voucher-wallet">
-                        <div class="voucher-wallet-header">
-                            <div>
-                                <h3 class="voucher-wallet-title">Kho voucher chung</h3>
-                                <p class="voucher-wallet-copy">Mỗi ngày mở mã lúc 12:00 và 21:00. Bạn có thể nhận 1 voucher từ kho chung mỗi ngày.</p>
-                            </div>
-                            <a href="{% url 'accounts:dashboard' %}?tab=vouchers" class="account-btn-outline">Xem kho voucher</a>
-                        </div>
-
-                        {% if public_vouchers %}
-                            <div class="voucher-grid">
-                                {% for voucher in public_vouchers %}
-                                    <div class="voucher-card">
-                                        <div class="voucher-code">PUBLIC</div>
-                                        <div class="voucher-meta">
-                                            Giảm {% if voucher.discount_percent %}{{ voucher.discount_percent }}%{% else %}{{ voucher.discount_amount|vnd }}{% endif %}
-                                            cho đơn từ {{ voucher.min_order_amount|vnd }}
-                                        </div>
-                                        <div class="voucher-note">
-                                            Hạn dùng {{ voucher.claim_valid_days }} ngày kể từ lúc nhận.
-                                            <br>Không áp dụng cho sản phẩm đang Hot Deal hoặc Flash Sale.
-                                        </div>
-                                        <form method="post" action="{% url 'accounts:claim_voucher' voucher.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="voucher-copy-btn" {% if claimed_public_voucher_today %}disabled style="background:#8d99ae;cursor:not-allowed;"{% endif %}>
-                                                {% if claimed_public_voucher_today %}Đã nhận hôm nay{% else %}Nhận voucher{% endif %}
-                                            </button>
-                                        </form>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% elif can_claim_public_vouchers %}
-                            <div class="voucher-empty">
-                                <i class="fa fa-ticket" style="font-size: 28px; color: #d10024; margin-bottom: 10px;"></i>
-                                <div>Kho admin hiện đã hết voucher công khai để đẩy lên hôm nay.</div>
-                            </div>
-                        {% else %}
-                            <div class="voucher-empty">
-                                <i class="fa fa-clock-o" style="font-size: 28px; color: #d10024; margin-bottom: 10px;"></i>
-                                <div>Voucher công khai sẽ mở claim từ 12:00 và 21:00 mỗi ngày{% if next_public_voucher_slot_label %}; phiên gần nhất là {{ next_public_voucher_slot_label }}{% endif %}.</div>
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endif %}
-
                 {% if is_editing %}
                     <form method="post" enctype="multipart/form-data" novalidate data-address-form class="account-edit-panel">
                         {% csrf_token %}
@@ -872,49 +826,6 @@
                         </div>
                     </form>
                 {% elif active_tab == 'vouchers' %}
-                    <div class="voucher-wallet">
-                        <div class="voucher-wallet-header">
-                            <div>
-                                <h3 class="voucher-wallet-title">Kho voucher chung</h3>
-                                <p class="voucher-wallet-copy">Mỗi ngày có 2 phiên mở mã: 12:00 đẩy tối đa 50 voucher và 21:00 đẩy thêm tối đa 50 voucher. Mỗi tài khoản chỉ nhận được 1 voucher từ kho chung mỗi ngày.</p>
-                            </div>
-                        </div>
-
-                        {% if public_vouchers %}
-                            <div class="voucher-grid">
-                                {% for voucher in public_vouchers %}
-                                    <div class="voucher-card">
-                                        <div class="voucher-code">PUBLIC</div>
-                                        <div class="voucher-meta">
-                                            Giảm {% if voucher.discount_percent %}{{ voucher.discount_percent }}%{% else %}{{ voucher.discount_amount|vnd }}{% endif %}
-                                            cho đơn từ {{ voucher.min_order_amount|vnd }}
-                                        </div>
-                                        <div class="voucher-note">
-                                            Hạn dùng {{ voucher.claim_valid_days }} ngày kể từ lúc nhận.
-                                            <br>Không áp dụng cho sản phẩm đang Hot Deal hoặc Flash Sale.
-                                        </div>
-                                        <form method="post" action="{% url 'accounts:claim_voucher' voucher.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="voucher-copy-btn" {% if claimed_public_voucher_today %}disabled style="background:#8d99ae;cursor:not-allowed;"{% endif %}>
-                                                {% if claimed_public_voucher_today %}Đã nhận hôm nay{% else %}Nhận voucher{% endif %}
-                                            </button>
-                                        </form>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% elif can_claim_public_vouchers %}
-                            <div class="voucher-empty">
-                                <i class="fa fa-ticket" style="font-size: 28px; color: #d10024; margin-bottom: 10px;"></i>
-                                <div>Kho admin hiện đã hết voucher công khai để đẩy lên hôm nay.</div>
-                            </div>
-                        {% else %}
-                            <div class="voucher-empty">
-                                <i class="fa fa-clock-o" style="font-size: 28px; color: #d10024; margin-bottom: 10px;"></i>
-                                <div>Voucher công khai sẽ mở claim từ 12:00 và 21:00 mỗi ngày{% if next_public_voucher_slot_label %}; phiên gần nhất là {{ next_public_voucher_slot_label }}{% endif %}.</div>
-                            </div>
-                        {% endif %}
-                    </div>
-
                     <div class="voucher-wallet" id="voucher-wallet">
                         <div class="voucher-wallet-header">
                             <div>

@@ -16,6 +16,7 @@ urlpatterns = [
     path('notifications/', views.notification_list, name='notification_list'),
     path('notifications/api/', views.notification_api, name='notification_api'),
     path('notifications/<int:pk>/open/', views.notification_open, name='notification_open'),
+    path('vouchers/api/', views.public_voucher_api, name='public_voucher_api'),
 
     path('create/', views.product_create, name='product_create'),
     path('contact/', views.contact_view, name='contact'),

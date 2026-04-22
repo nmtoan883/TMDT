@@ -16,6 +16,27 @@ def staff_member_required(view_func=None, redirect_field_name='next', login_url=
 def index(request):
     return redirect('admin:dashboard')
 
+
+@staff_member_required
+def admin_change_password(request):
+    from django.contrib.auth import update_session_auth_hash
+    from django.contrib.auth.forms import PasswordChangeForm
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Mật khẩu admin đã được cập nhật.')
+            return redirect('admin:dashboard')
+    else:
+        form = PasswordChangeForm(user=request.user)
+
+    for field in form.fields.values():
+        field.widget.attrs.setdefault('class', 'form-control')
+
+    return render(request, 'admin/pages/accounts/change_password.html', {'form': form})
+
 @staff_member_required
 def blog_list(request):
     from blog.models import Post
@@ -400,8 +421,20 @@ def ec_policy_delete(request, pk):
 
 @staff_member_required
 def ec_product_list(request):
+    from django.core.paginator import Paginator
+    query = request.GET.get('q', '').strip()
     items = core_models.Product.objects.select_related('category').order_by('-updated', '-created')
-    return render(request, 'admin/pages/ecommerce/product_list.html', {'items': items})
+    if query:
+        items = items.filter(name__icontains=query)
+
+    paginator = Paginator(items, 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    return render(request, 'admin/pages/ecommerce/product_list.html', {
+        'items': page_obj.object_list,
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'query': query,
+    })
 
 @staff_member_required
 def ec_product_add(request):
@@ -602,15 +635,34 @@ def ec_wishlist_delete(request, pk):
 
 @staff_member_required
 def ec_order_list(request):
+    from django.core.paginator import Paginator
     from orders.models import Order
     from django.db.models import Q
+    customer_name = request.GET.get('customer_name', '').strip()
+    order_id = request.GET.get('order_id', '').strip().lstrip('#')
     items = (
         Order.objects.all()
         .filter(Q(paid=True) | Q(payment_method=Order.PAYMENT_COD))
         .prefetch_related('items__product')
         .order_by('-created_at')
     )
-    return render(request, 'admin/pages/ecommerce/order_list.html', {'items': items})
+    if customer_name:
+        items = items.filter(customer_name__icontains=customer_name)
+    if order_id:
+        try:
+            items = items.filter(id=int(order_id))
+        except ValueError:
+            order_id = ''
+
+    paginator = Paginator(items, 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    return render(request, 'admin/pages/ecommerce/order_list.html', {
+        'items': page_obj.object_list,
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'customer_name': customer_name,
+        'order_id': order_id,
+    })
 
 @staff_member_required
 def ec_order_add(request):
@@ -725,6 +777,7 @@ def ec_order_set_status(request, pk, new_status):
 def ec_coupon_list(request):
     from django.core.paginator import Paginator
     from coupon.models import Coupon
+    discount_percent = request.GET.get('discount_percent', '').strip()
     items = (
         Coupon.objects
         .select_related('assigned_user', 'claimed_from')
@@ -732,12 +785,26 @@ def ec_coupon_list(request):
         .all()
         .order_by('-valid_from', '-id')
     )
+    discount_percent_options = (
+        Coupon.objects
+        .exclude(discount_percent__isnull=True)
+        .values_list('discount_percent', flat=True)
+        .distinct()
+        .order_by('discount_percent')
+    )
+    if discount_percent:
+        try:
+            items = items.filter(discount_percent=int(discount_percent))
+        except ValueError:
+            discount_percent = ''
     paginator = Paginator(items, 20)
     page_obj = paginator.get_page(request.GET.get('page'))
     return render(request, 'admin/pages/ecommerce/coupon_list.html', {
         'items': page_obj.object_list,
         'page_obj': page_obj,
         'paginator': paginator,
+        'discount_percent': discount_percent,
+        'discount_percent_options': discount_percent_options,
     })
 
 @staff_member_required
@@ -1259,9 +1326,14 @@ def dashboard(request):
     from orders.models import Order, OrderItem
     from django.contrib.auth.models import User
     from core.models import Product
+    from django.core.paginator import Paginator
+    from django.db.models import Q
 
     orders = Order.objects.all()
     completed_orders = orders.filter(status=Order.STATUS_COMPLETED)
+    revenue_orders = completed_orders.filter(
+        Q(paid=True) | Q(payment_method=Order.PAYMENT_COD)
+    )
     active_orders = orders.filter(
         status__in=[
             Order.STATUS_CONFIRMED,
@@ -1272,7 +1344,7 @@ def dashboard(request):
     )
     admin_visible_orders = orders.filter(paid=True) | orders.filter(payment_method=Order.PAYMENT_COD)
 
-    total_revenue = completed_orders.aggregate(total=Sum('total_amount'))['total'] or 0
+    total_revenue = revenue_orders.aggregate(total=Sum('total_amount'))['total'] or 0
     total_orders = orders.count()
     completed_count = completed_orders.count()
     active_count = active_orders.count()
@@ -1284,11 +1356,12 @@ def dashboard(request):
     total_customers = User.objects.filter(is_staff=False, is_superuser=False).count()
     total_products = Product.objects.count()
     today = timezone.localdate()
-    today_revenue = completed_orders.filter(created_at__date=today).aggregate(total=Sum('total_amount'))['total'] or 0
-    avg_order_value = (total_revenue / completed_count) if completed_count else 0
+    today_revenue = revenue_orders.filter(created_at__date=today).aggregate(total=Sum('total_amount'))['total'] or 0
+    revenue_order_count = revenue_orders.count()
+    avg_order_value = (total_revenue / revenue_order_count) if revenue_order_count else 0
 
     revenue_by_day = (
-        completed_orders
+        revenue_orders
         .annotate(date=TruncDate('created_at'))
         .values('date')
         .annotate(total=Sum('total_amount'))
@@ -1297,12 +1370,15 @@ def dashboard(request):
 
     labels = [str(i['date']) for i in revenue_by_day]
     data = [float(i['total']) for i in revenue_by_day]
-    recent_orders = (
+    recent_orders_queryset = (
         admin_visible_orders
         .distinct()
         .prefetch_related('items__product')
-        .order_by('-created_at')[:8]
+        .order_by('-created_at')
     )
+    recent_orders_paginator = Paginator(recent_orders_queryset, 5)
+    recent_orders_page_obj = recent_orders_paginator.get_page(request.GET.get('order_page'))
+    recent_orders = recent_orders_page_obj.object_list
 
     status_counts = {
         row['status']: row['count']
@@ -1347,7 +1423,7 @@ def dashboard(request):
         },
     ]
     top_products = (
-        OrderItem.objects.filter(order__status=Order.STATUS_COMPLETED)
+        OrderItem.objects.filter(order__in=revenue_orders)
         .values('product__name')
         .annotate(quantity=Sum('quantity'), revenue=Sum('price'))
         .order_by('-quantity')[:5]
@@ -1368,6 +1444,7 @@ def dashboard(request):
         'total_customers': total_customers,
         'total_products': total_products,
         'recent_orders': recent_orders,
+        'recent_orders_page_obj': recent_orders_page_obj,
         'status_summary': status_summary,
         'top_products': top_products,
         'labels': json.dumps(labels),

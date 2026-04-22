@@ -3,6 +3,7 @@ import random
 import secrets
 import string
 from datetime import timedelta
+from types import SimpleNamespace
 
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -10,6 +11,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -97,6 +99,54 @@ def _get_daily_public_vouchers(user, now):
     ).order_by('public_batch_slot', 'id'))
 
 
+def _public_voucher_group_key(voucher):
+    return (
+        voucher.discount_percent,
+        voucher.discount_amount,
+    )
+
+
+def _group_public_vouchers(vouchers):
+    groups = {}
+
+    for voucher in vouchers:
+        key = _public_voucher_group_key(voucher)
+        if key not in groups:
+            groups[key] = SimpleNamespace(
+                id=voucher.id,
+                discount_percent=voucher.discount_percent,
+                discount_amount=voucher.discount_amount,
+                min_order_amount=voucher.min_order_amount,
+                claim_valid_days=voucher.claim_valid_days,
+                available_count=0,
+                claimed_today=False,
+            )
+        groups[key].available_count += 1
+
+    return list(groups.values())
+
+
+def _daily_public_voucher_slot_names(now):
+    slot_names = ['manual']
+    active_slots = _active_public_slots(now)
+    if active_slots:
+        slot_names += [slot for slot, _label in active_slots]
+    return slot_names
+
+
+def _public_voucher_group_queryset(template_coupon, now):
+    today = timezone.localdate(now)
+    return Coupon.objects.filter(
+        claimable=True,
+        assigned_user__isnull=True,
+        active=True,
+        public_batch_date=today,
+        public_batch_slot__in=_daily_public_voucher_slot_names(now),
+        discount_percent=template_coupon.discount_percent,
+        discount_amount=template_coupon.discount_amount,
+    )
+
+
 def _next_public_voucher_slot_label(now):
     current_hour = timezone.localtime(now).hour
     for _slot, hour, label in PUBLIC_VOUCHER_SLOTS:
@@ -110,14 +160,25 @@ def _today_bounds(now):
     return start, start + timedelta(days=1)
 
 
-def _has_claimed_public_voucher_today(user, now):
+def _has_claimed_public_voucher_type_today(user, voucher, now):
     start, end = _today_bounds(now)
     return Coupon.objects.filter(
         assigned_user=user,
         claimed_from__isnull=False,
         valid_from__gte=start,
         valid_from__lt=end,
+        claimed_from__discount_percent=voucher.discount_percent,
+        claimed_from__discount_amount=voucher.discount_amount,
     ).exists()
+
+
+def _annotate_public_voucher_groups_for_user(groups, user, now):
+    if not user.is_authenticated:
+        return groups
+
+    for group in groups:
+        group.claimed_today = _has_claimed_public_voucher_type_today(user, group, now)
+    return groups
 
 
 def register(request):
@@ -165,9 +226,6 @@ def dashboard(request):
         profile_form = CustomerProfileForm(instance=profile)
 
     now = timezone.now()
-    public_vouchers = _get_daily_public_vouchers(request.user, now)
-    claimed_public_voucher_today = _has_claimed_public_voucher_today(request.user, now)
-    can_claim_public_vouchers = bool(_active_public_slots(now))
     user_vouchers = Coupon.objects.filter(
         assigned_user=request.user,
         active=True,
@@ -182,10 +240,6 @@ def dashboard(request):
             'profile': profile,
             'is_editing': is_editing,
             'active_tab': active_tab,
-            'public_vouchers': public_vouchers,
-            'can_claim_public_vouchers': can_claim_public_vouchers,
-            'claimed_public_voucher_today': claimed_public_voucher_today,
-            'next_public_voucher_slot_label': _next_public_voucher_slot_label(now),
             'available_vouchers': user_vouchers.filter(valid_from__lte=now, valid_to__gte=now),
             'expired_vouchers': user_vouchers.filter(valid_to__lt=now)[:5],
         },
@@ -196,27 +250,38 @@ def dashboard(request):
 @require_POST
 def claim_voucher(request, coupon_id):
     now = timezone.now()
-    daily_coupon_ids = {coupon.id for coupon in _get_daily_public_vouchers(request.user, now)}
-    if not _active_public_slots(now) and coupon_id not in daily_coupon_ids:
-        messages.warning(request, 'Voucher công khai sẽ mở claim từ 12:00 và 21:00 mỗi ngày.')
-        return redirect(_voucher_dashboard_url())
-
-    if _has_claimed_public_voucher_today(request.user, now):
-        messages.warning(request, 'Mỗi tài khoản chỉ được nhận 1 voucher từ kho chung mỗi ngày.')
-        return redirect(_voucher_dashboard_url())
-
-    if coupon_id not in daily_coupon_ids:
-        messages.warning(request, 'Voucher này không nằm trong danh sách mở claim hôm nay.')
-        return redirect(_voucher_dashboard_url())
-
     with transaction.atomic():
-        source_coupon = get_object_or_404(
-            Coupon.objects.select_for_update(),
-            id=coupon_id,
-            claimable=True,
-            assigned_user__isnull=True,
-            active=True,
+        template_coupon = (
+            Coupon.objects.select_for_update()
+            .filter(
+                id=coupon_id,
+                assigned_user__isnull=True,
+                public_batch_date=timezone.localdate(now),
+                public_batch_slot__in=_daily_public_voucher_slot_names(now),
+            )
+            .first()
         )
+        if not template_coupon:
+            messages.warning(request, 'Voucher này không nằm trong danh sách mở claim hôm nay.')
+            return redirect(request.META.get('HTTP_REFERER') or _voucher_dashboard_url())
+
+        if _has_claimed_public_voucher_type_today(request.user, template_coupon, now):
+            messages.warning(request, 'Bạn đã nhận loại voucher này hôm nay. Hãy chọn loại voucher khác.')
+            return redirect(request.META.get('HTTP_REFERER') or _voucher_dashboard_url())
+
+        source_coupon = (
+            _public_voucher_group_queryset(template_coupon, now)
+            .select_for_update()
+            .order_by('public_batch_slot', 'id')
+            .first()
+        )
+        if not source_coupon:
+            if not _active_public_slots(now):
+                messages.warning(request, 'Voucher công khai sẽ mở claim từ 12:00 và 21:00 mỗi ngày.')
+                return redirect(request.META.get('HTTP_REFERER') or _voucher_dashboard_url())
+            messages.warning(request, 'Nhóm voucher này vừa hết mã, vui lòng chọn voucher khác.')
+            return redirect(request.META.get('HTTP_REFERER') or _voucher_dashboard_url())
+
         valid_days = source_coupon.claim_valid_days or 3
         Coupon.objects.create(
             code=_generate_claimed_coupon_code(),
@@ -235,19 +300,23 @@ def claim_voucher(request, coupon_id):
         source_coupon.save(update_fields=['active', 'claimable'])
 
     messages.success(request, f'Bạn đã nhận voucher giảm {source_coupon.discount_percent}% thành công.')
-    return redirect(_voucher_dashboard_url())
+    return redirect(request.META.get('HTTP_REFERER') or _voucher_dashboard_url())
 
 
 @login_required
 def change_password(request):
+    next_url = request.POST.get('next') or request.GET.get('next') or reverse('accounts:dashboard')
+    if not url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        next_url = reverse('accounts:dashboard')
+
     if request.method == 'POST':
         form = PasswordChangeForm(user=request.user, data=request.POST)
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)
             messages.success(request, 'Mật khẩu đã được cập nhật.')
-            return redirect('accounts:dashboard')
+            return redirect(next_url)
     else:
         form = PasswordChangeForm(user=request.user)
 
-    return render(request, 'accounts/change_password.html', {'form': form})
+    return render(request, 'accounts/change_password.html', {'form': form, 'next_url': next_url})

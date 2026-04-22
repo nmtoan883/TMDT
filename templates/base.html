@@ -559,6 +559,45 @@
 
 		<!-- LIVE CHAT / CONTACT WIDGET -->
 		<div class="floating-widget">
+			<div class="voucher-popup" id="voucherPopup">
+				<div class="voucher-popup-header">
+					<h4><i class="fa fa-ticket"></i> Voucher</h4>
+					<button onclick="toggleVoucherPopup()" class="close-btn"><i class="fa fa-times"></i></button>
+				</div>
+				<div class="voucher-popup-body" id="voucherPopupBody">
+					{% if floating_public_vouchers %}
+						{% for voucher in floating_public_vouchers %}
+							<div class="floating-voucher-card">
+								<div class="floating-voucher-code">PUBLIC</div>
+								<div class="floating-voucher-meta">
+									Giảm {% if voucher.discount_percent %}{{ voucher.discount_percent }}%{% else %}{{ voucher.discount_amount|vnd }}{% endif %}
+									cho đơn từ {{ voucher.min_order_amount|vnd }}
+								</div>
+								<div class="floating-voucher-note">
+									Còn {{ voucher.available_count }} mã. Hiệu lực {{ voucher.claim_valid_days }} ngày sau khi nhận.
+								</div>
+								{% if user.is_authenticated %}
+									<form method="post" action="{% url 'accounts:claim_voucher' voucher.id %}">
+										{% csrf_token %}
+										<button type="submit" class="floating-voucher-claim" {% if voucher.claimed_today %}disabled{% endif %}>
+											{% if voucher.claimed_today %}Đã nhận loại này{% else %}Nhận voucher{% endif %}
+										</button>
+									</form>
+								{% else %}
+									<a href="{% url 'account_login' %}" class="floating-voucher-login">Đăng nhập để nhận</a>
+								{% endif %}
+							</div>
+						{% endfor %}
+					{% elif floating_can_claim_public_vouchers %}
+						<div class="floating-voucher-empty">Kho admin hiện đã hết voucher công khai.</div>
+					{% else %}
+						<div class="floating-voucher-empty">
+							Voucher công khai sẽ mở claim{% if floating_next_public_voucher_slot_label %} lúc {{ floating_next_public_voucher_slot_label }}{% endif %}.
+						</div>
+					{% endif %}
+				</div>
+			</div>
+
 			<!-- Chat Popup Modal -->
 			<div class="chat-popup" id="chatPopup">
 				<div class="chat-header">
@@ -584,6 +623,11 @@
 				</div>
 			</div>
 
+			<button class="action-btn voucher-toggle-btn" onclick="toggleVoucherPopup()" title="Kho voucher">
+				<i class="fa fa-ticket"></i>
+				<span class="voucher-floating-count" id="voucherFloatingCount" {% if not floating_public_vouchers %}style="display:none;"{% endif %}>{{ floating_public_vouchers|length }}</span>
+			</button>
+
 			<!-- Tawk.to Embedded / Toggle Internal Chat -->
 			<button class="action-btn chat-toggle-btn" onclick="toggleChat()" title="Chat trực tiếp">
 				<i class="fa fa-comments"></i>
@@ -603,13 +647,120 @@
 		<script>
 		let chatInterval = null;
 
+		(function () {
+			var voucherBody = document.getElementById('voucherPopupBody');
+			var voucherCount = document.getElementById('voucherFloatingCount');
+			if (!voucherBody || !voucherCount) return;
+
+			function escapeHtml(value) {
+				return String(value || '').replace(/[&<>"']/g, function (char) {
+					return {
+						'&': '&amp;',
+						'<': '&lt;',
+						'>': '&gt;',
+						'"': '&quot;',
+						"'": '&#039;'
+					}[char];
+				});
+			}
+
+			function getCookie(name) {
+				var cookieValue = null;
+				if (document.cookie && document.cookie !== '') {
+					document.cookie.split(';').forEach(function (cookie) {
+						var trimmed = cookie.trim();
+						if (trimmed.substring(0, name.length + 1) === (name + '=')) {
+							cookieValue = decodeURIComponent(trimmed.substring(name.length + 1));
+						}
+					});
+				}
+				return cookieValue;
+			}
+
+			function claimUrl(id) {
+				return "{% url 'accounts:claim_voucher' 0 %}".replace('/0/', '/' + encodeURIComponent(id) + '/');
+			}
+
+			function renderVoucherCard(voucher, isAuthenticated) {
+				var action = '';
+				if (isAuthenticated) {
+					action = [
+						'<form method="post" action="' + claimUrl(voucher.id) + '">',
+							'<input type="hidden" name="csrfmiddlewaretoken" value="' + escapeHtml(getCookie('csrftoken') || '') + '">',
+							'<button type="submit" class="floating-voucher-claim" ' + (voucher.claimed_today ? 'disabled' : '') + '>',
+								voucher.claimed_today ? 'Đã nhận loại này' : 'Nhận voucher',
+							'</button>',
+						'</form>'
+					].join('');
+				} else {
+					action = '<a href="{% url 'account_login' %}" class="floating-voucher-login">Đăng nhập để nhận</a>';
+				}
+
+				return [
+					'<div class="floating-voucher-card">',
+						'<div class="floating-voucher-code">PUBLIC</div>',
+						'<div class="floating-voucher-meta">Giảm ' + escapeHtml(voucher.discount_label) + ' cho đơn từ ' + escapeHtml(voucher.min_order_amount) + '</div>',
+						'<div class="floating-voucher-note">Còn ' + Number(voucher.available_count || 0) + ' mã. Hiệu lực ' + Number(voucher.claim_valid_days || 0) + ' ngày sau khi nhận.</div>',
+						action,
+					'</div>'
+				].join('');
+			}
+
+			function renderVouchers(data) {
+				var vouchers = data.vouchers || [];
+				voucherCount.textContent = vouchers.length;
+				voucherCount.style.display = vouchers.length ? '' : 'none';
+
+				if (vouchers.length) {
+					voucherBody.innerHTML = vouchers.map(function (voucher) {
+						return renderVoucherCard(voucher, Boolean(data.is_authenticated));
+					}).join('');
+					return;
+				}
+
+				if (data.can_claim) {
+					voucherBody.innerHTML = '<div class="floating-voucher-empty">Kho admin hiện đã hết voucher công khai.</div>';
+				} else {
+					var nextSlot = data.next_slot_label ? ' lúc ' + escapeHtml(data.next_slot_label) : '';
+					voucherBody.innerHTML = '<div class="floating-voucher-empty">Voucher công khai sẽ mở claim' + nextSlot + '.</div>';
+				}
+			}
+
+			function syncVouchers() {
+				fetch("{% url 'shop:public_voucher_api' %}", { headers: { Accept: 'application/json' } })
+					.then(function (response) {
+						if (!response.ok) throw new Error('Voucher sync failed');
+						return response.json();
+					})
+					.then(renderVouchers)
+					.catch(function () {});
+			}
+
+			syncVouchers();
+			setInterval(syncVouchers, 5000);
+		})();
+
+		function toggleVoucherPopup() {
+			var voucherPop = document.getElementById('voucherPopup');
+			var chatPop = document.getElementById('chatPopup');
+			if (voucherPop.style.display === 'flex') {
+				voucherPop.style.display = 'none';
+			} else {
+				voucherPop.style.display = 'flex';
+				if (chatPop) chatPop.style.display = 'none';
+				if (chatInterval) clearInterval(chatInterval);
+			}
+		}
+
 		function toggleChat() {
 			var chatPop = document.getElementById('chatPopup');
+			var voucherPop = document.getElementById('voucherPopup');
 			if (chatPop.style.display === 'flex') {
 				chatPop.style.display = 'none';
 				if (chatInterval) clearInterval(chatInterval);
 			} else {
 				chatPop.style.display = 'flex';
+				if (voucherPop) voucherPop.style.display = 'none';
 				// Check if user is authenticated
 				if (document.getElementById('chatInput')) {
 					document.getElementById('chatInput').focus();

@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db.models import Q, Case, When, Value, IntegerField, Avg
 from django.db.models import CharField, TextField, SlugField, ForeignKey
 from .forms import ProductForm, ReviewForm
@@ -234,25 +235,6 @@ def _apply_display_pricing(products):
 
 def _build_product_list_context(request, base_products, category=None, query=None, sort=None):
     categories = Category.objects.all()
-    latest_products = list(
-        (
-        Product.objects.filter(available=True)
-        .select_related('category')
-        .prefetch_related('hotdeal_campaigns')
-        .order_by('-created')[:12]
-        )
-    )
-    _apply_display_pricing(latest_products)
-
-    top_selling_products = list(
-        (
-        Product.objects.filter(available=True)
-        .select_related('category')
-        .prefetch_related('hotdeal_campaigns')
-        .order_by('-stock', '-created')[:12]       
-        )
-    )
-    _apply_display_pricing(top_selling_products)
     hotdeal_products = _get_hotdeal_products()
     _apply_display_pricing(hotdeal_products)
     hotdeal_countdown = _build_hotdeal_countdown(hotdeal_products)
@@ -361,7 +343,11 @@ def _build_product_list_context(request, base_products, category=None, query=Non
     elif sort == 'newest':
         products = products.order_by('-created')
 
-    products = list(products)
+    pagination_params = request.GET.copy()
+    pagination_params.pop('page', None)
+    paginator = Paginator(products, 12)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    products = list(page_obj.object_list)
     _apply_display_pricing(products)
 
     home_banners = Banner.objects.filter(is_active=True)
@@ -371,15 +357,11 @@ def _build_product_list_context(request, base_products, category=None, query=Non
         'categories': categories,
         'home_banners': home_banners,
         'products': products,
-        'latest_products': latest_products,
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'pagination_querystring': pagination_params.urlencode(),
         'hotdeal_products': hotdeal_products,
         'hotdeal_countdown': hotdeal_countdown,
-        'top_selling_products': top_selling_products,
-        'top_selling_columns': [
-            top_selling_products[0:3],
-            top_selling_products[3:6],
-            top_selling_products[6:9],
-        ],
         'latest_promotions': latest_promotions,
         'query': query,
         'sort': sort,
@@ -562,6 +544,43 @@ def notification_api(request):
                 'url': reverse('shop:notification_open', args=[notification.id]),
             }
             for notification in notifications
+        ],
+    })
+
+
+@require_GET
+def public_voucher_api(request):
+    from accounts.views import (
+        _active_public_slots,
+        _annotate_public_voucher_groups_for_user,
+        _get_daily_public_vouchers,
+        _group_public_vouchers,
+        _next_public_voucher_slot_label,
+    )
+
+    def money_text(value):
+        if not value:
+            return '0 đ'
+        return f'{int(value):,}'.replace(',', '.') + ' đ'
+
+    now = timezone.now()
+    voucher_groups = _group_public_vouchers(_get_daily_public_vouchers(request.user, now))
+    voucher_groups = _annotate_public_voucher_groups_for_user(voucher_groups, request.user, now)
+
+    return JsonResponse({
+        'is_authenticated': request.user.is_authenticated,
+        'can_claim': bool(_active_public_slots(now)),
+        'next_slot_label': _next_public_voucher_slot_label(now),
+        'vouchers': [
+            {
+                'id': voucher.id,
+                'discount_label': f'{voucher.discount_percent}%' if voucher.discount_percent else money_text(voucher.discount_amount),
+                'min_order_amount': money_text(voucher.min_order_amount),
+                'claim_valid_days': voucher.claim_valid_days,
+                'available_count': voucher.available_count,
+                'claimed_today': voucher.claimed_today,
+            }
+            for voucher in voucher_groups
         ],
     })
 

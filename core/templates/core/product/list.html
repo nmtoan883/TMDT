@@ -368,89 +368,19 @@
     </div>
 </div>
 
+<!-- Sản phẩm -->
 <div class="section">
     <div class="container">
         <div class="row">
             <div class="col-md-12">
                 <div class="section-title">
-                    <h3 class="title">Sản phẩm nổi bật</h3>
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="row">
-                    <div class="products-tabs">
-                        <div id="tab2" class="tab-pane fade in active">
-                            <div class="products-slick" data-nav="#slick-nav-2">
-                                {% for product in top_selling_products %}
-                                <div class="product">
-                                    <div class="product-img">
-                                        {% if product.image %}
-                                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
-                                        {% else %}
-                                        <img src="{% static 'img/product01.png' %}" alt="{{ product.name }}">
-                                        {% endif %}
-                                        <div class="product-label">
-                                            {% if product.old_price %}
-                                            <span class="sale">SALE</span>
-                                            {% endif %}
-                                            {% if forloop.counter <= 4 %}
-                                            <span class="new">HOT</span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="product-body">
-                                        <p class="product-category">{{ product.category.name }}</p>
-                                        <h3 class="product-name"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
-                                        <h4 class="product-price">{{ product.price|vnd }}{% if product.old_price %} <del class="product-old-price">{{ product.old_price|vnd }}</del>{% endif %}</h4>
-                                        <div class="product-rating">
-                                            {% for i in "12345" %}
-                                            <i class="fa fa-star"></i>
-                                            {% endfor %}
-                                        </div>
-                                        <div class="product-btns">
-                                        </div>
-                                    </div>
-                                    <div class="add-to-cart">
-                                        <form action="{% url 'cart:cart_add' product.id %}" method="post">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="quantity" value="1">
-                                            <button type="submit" class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> Thêm vào giỏ</button>
-                                        </form>
-                                    </div>
-                                </div>
-                                {% empty %}
-                                <div class="product">
-                                    <div class="product-body" style="padding: 30px;">
-                                        <h3 class="product-name">Chưa có sản phẩm nổi bật.</h3>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            <div id="slick-nav-2" class="products-slick-nav"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- GỢI Ý HÔM NAY -->
-<div class="section">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="section-title">
-                    <h3 class="title sugg-title" >GỢI Ý HÔM NAY</h3>
+                    <h3 class="title sugg-title" >Sản Phẩm</h3>
                 </div>
             </div>
             
             <div class="col-md-12">
                 <div class="row tiki-flex-grid">
-                    {% for product in latest_products %}
+                    {% for product in products %}
                     <div class="col-md-3 col-sm-6 col-xs-6">
                         <div class="product">
                             <div class="product-img">
@@ -463,7 +393,9 @@
                                     {% if product.old_price %}
                                     <span class="sale">SALE</span>
                                     {% endif %}
-                                    <span class="new">MỚI</span>
+                                    {% if product.is_hotdeal %}
+                                    <span class="new">HOT</span>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="product-body">
@@ -494,13 +426,47 @@
                     {% if forloop.counter|divisibleby:4 %}
                     <div class="clearfix visible-md visible-lg"></div>
                     {% endif %}
+                    {% empty %}
+                    <div class="col-md-12">
+                        <div class="empty-results-wrapper">
+                            <div class="empty-results-icon">
+                                <i class="fa fa-search"></i>
+                            </div>
+                            <h3 class="empty-results-title">Chưa có sản phẩm</h3>
+                            <p class="empty-results-desc">Khi admin thêm sản phẩm đang bán, chúng sẽ xuất hiện tại đây.</p>
+                        </div>
+                    </div>
                     {% endfor %}
                 </div>
             </div>
             
-            <div class="col-md-12 text-center sugg-more" >
-                <a href="{% url 'shop:product_list' %}?sort=newest" class="primary-btn">Xem thêm gợi ý</a>
+            {% if page_obj.paginator.num_pages > 1 %}
+            <div class="col-md-12 text-center sugg-more">
+                <ul class="pagination">
+                    <li class="{% if not page_obj.has_previous %}disabled{% endif %}">
+                        {% if page_obj.has_previous %}
+                        <a href="?{% if pagination_querystring %}{{ pagination_querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">Trước</a>
+                        {% else %}
+                        <span>Trước</span>
+                        {% endif %}
+                    </li>
+                    {% for page_number in page_obj.paginator.page_range %}
+                        {% if page_number == page_obj.number %}
+                        <li class="active"><span>{{ page_number }}</span></li>
+                        {% elif page_number >= page_obj.number|add:'-2' and page_number <= page_obj.number|add:'2' %}
+                        <li><a href="?{% if pagination_querystring %}{{ pagination_querystring }}&{% endif %}page={{ page_number }}">{{ page_number }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="{% if not page_obj.has_next %}disabled{% endif %}">
+                        {% if page_obj.has_next %}
+                        <a href="?{% if pagination_querystring %}{{ pagination_querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Sau</a>
+                        {% else %}
+                        <span>Sau</span>
+                        {% endif %}
+                    </li>
+                </ul>
             </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -630,7 +596,7 @@
 
             <!-- Results Count -->
             <div class="results-info-bar">
-                <div class="results-count">Tìm thấy <strong>{{ products|length }}</strong> sản phẩm</div>
+                <div class="results-count">Tìm thấy <strong>{{ page_obj.paginator.count }}</strong> sản phẩm</div>
             </div>
 
             <!-- Main Products Grid -->
@@ -675,6 +641,34 @@
                 </div>
                 {% endfor %}
             </div>
+
+            {% if page_obj.paginator.num_pages > 1 %}
+            <div class="text-center sugg-more">
+                <ul class="pagination">
+                    <li class="{% if not page_obj.has_previous %}disabled{% endif %}">
+                        {% if page_obj.has_previous %}
+                        <a href="?{% if pagination_querystring %}{{ pagination_querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">Trước</a>
+                        {% else %}
+                        <span>Trước</span>
+                        {% endif %}
+                    </li>
+                    {% for page_number in page_obj.paginator.page_range %}
+                        {% if page_number == page_obj.number %}
+                        <li class="active"><span>{{ page_number }}</span></li>
+                        {% elif page_number >= page_obj.number|add:'-2' and page_number <= page_obj.number|add:'2' %}
+                        <li><a href="?{% if pagination_querystring %}{{ pagination_querystring }}&{% endif %}page={{ page_number }}">{{ page_number }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="{% if not page_obj.has_next %}disabled{% endif %}">
+                        {% if page_obj.has_next %}
+                        <a href="?{% if pagination_querystring %}{{ pagination_querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Sau</a>
+                        {% else %}
+                        <span>Sau</span>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
         </main>
     </div>
 </div>
@@ -725,4 +719,41 @@ function updateSidebarSort(val) {
 }
 </script>
 {% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const countdownBlocks = document.querySelectorAll('[data-countdown-expires]');
+    if (!countdownBlocks.length) return;
+
+    function pad(value) {
+        return String(Math.max(value, 0)).padStart(2, '0');
+    }
+
+    function updateCountdown(block) {
+        const expiresAt = new Date(block.dataset.countdownExpires);
+        if (Number.isNaN(expiresAt.getTime())) return;
+
+        let remainingSeconds = Math.max(Math.floor((expiresAt.getTime() - Date.now()) / 1000), 0);
+        const days = Math.floor(remainingSeconds / 86400);
+        remainingSeconds %= 86400;
+        const hours = Math.floor(remainingSeconds / 3600);
+        remainingSeconds %= 3600;
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = remainingSeconds % 60;
+
+        const values = { days, hours, minutes, seconds };
+        Object.keys(values).forEach(function(part) {
+            const target = block.querySelector('[data-countdown-part="' + part + '"]');
+            if (target) target.textContent = pad(values[part]);
+        });
+    }
+
+    function tick() {
+        countdownBlocks.forEach(updateCountdown);
+    }
+
+    tick();
+    setInterval(tick, 1000);
+});
+</script>
 {% endblock %}

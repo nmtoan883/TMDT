@@ -7,6 +7,7 @@ app_name = 'admin'
 urlpatterns = [
     path('login/', LoginView.as_view(template_name='admin/pages/authentication/sign-in.html', redirect_authenticated_user=True), name='login'),
     path('', views.index, name='index'),
+    path('settings/password/', views.admin_change_password, name='change_password'),
     path('blog/', views.blog_list, name='blog_list'),
     path('blog/add/', views.blog_add, name='blog_add'),
     path('blog/edit/<int:pk>/', views.blog_edit, name='blog_edit'),

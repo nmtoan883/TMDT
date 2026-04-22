@@ -33,6 +33,24 @@
         {% endif %}
 
         <div class="card card-lg card-body">
+          <form method="get" class="row g-3 align-items-end mb-4">
+            <div class="col-12 col-md-4 col-lg-3">
+              <label for="discount_percent" class="form-label">Lọc theo % giảm</label>
+              <select name="discount_percent" id="discount_percent" class="form-select">
+                <option value="">Tất cả phần trăm</option>
+                {% for percent in discount_percent_options %}
+                  <option value="{{ percent }}" {% if discount_percent == percent|stringformat:"s" %}selected{% endif %}>{{ percent }}%</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12 col-md-auto">
+              <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+              {% if discount_percent %}
+                <a href="{% url 'admin:ec_coupon_list' %}" class="btn btn-white">Xóa lọc</a>
+              {% endif %}
+            </div>
+          </form>
+
           <div class="table-responsive">
             <table class="table mb-0 table-centered table-hover align-middle">
               <thead class="table-light">
@@ -131,7 +149,7 @@
               <ul class="pagination mb-0">
                 <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
                   {% if page_obj.has_previous %}
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Trước</a>
+                    <a class="page-link" href="?{% if discount_percent %}discount_percent={{ discount_percent }}&{% endif %}page={{ page_obj.previous_page_number }}">Trước</a>
                   {% else %}
                     <span class="page-link">Trước</span>
                   {% endif %}
@@ -140,12 +158,12 @@
                   {% if page_number == page_obj.number %}
                     <li class="page-item active"><span class="page-link">{{ page_number }}</span></li>
                   {% elif page_number >= page_obj.number|add:'-2' and page_number <= page_obj.number|add:'2' %}
-                    <li class="page-item"><a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a></li>
+                    <li class="page-item"><a class="page-link" href="?{% if discount_percent %}discount_percent={{ discount_percent }}&{% endif %}page={{ page_number }}">{{ page_number }}</a></li>
                   {% endif %}
                 {% endfor %}
                 <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
                   {% if page_obj.has_next %}
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Sau</a>
+                    <a class="page-link" href="?{% if discount_percent %}discount_percent={{ discount_percent }}&{% endif %}page={{ page_obj.next_page_number }}">Sau</a>
                   {% else %}
                     <span class="page-link">Sau</span>
                   {% endif %}

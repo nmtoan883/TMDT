@@ -33,6 +33,28 @@
           {% endfor %}
         {% endif %}
 
+        <form method="get" class="card card-body mb-4">
+          <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-8 col-lg-6">
+              <label for="productSearchInput" class="form-label">Tìm kiếm theo tên sản phẩm</label>
+              <input
+                type="search"
+                id="productSearchInput"
+                name="q"
+                class="form-control"
+                value="{{ query }}"
+                placeholder="Nhập tên sản phẩm..."
+              >
+            </div>
+            <div class="col-12 col-md-auto">
+              <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+              {% if query %}
+                <a href="{% url 'admin:ec_product_list' %}" class="btn btn-white ms-2">Xóa lọc</a>
+              {% endif %}
+            </div>
+          </div>
+        </form>
+
         <div class="row">
           <div class="col-12">
             <div class="card card-lg card-body p-0">
@@ -91,6 +113,39 @@
                 </table>
               </div>
             </div>
+
+            {% if page_obj.paginator.num_pages > 1 %}
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mt-4">
+              <div class="text-muted small">
+                Hiển thị {{ page_obj.start_index }}-{{ page_obj.end_index }} / {{ page_obj.paginator.count }} sản phẩm
+              </div>
+              <nav aria-label="Phân trang sản phẩm">
+                <ul class="pagination mb-0">
+                  <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                    {% if page_obj.has_previous %}
+                      <a class="page-link" href="?{% if query %}q={{ query|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">Trước</a>
+                    {% else %}
+                      <span class="page-link">Trước</span>
+                    {% endif %}
+                  </li>
+                  {% for page_number in page_obj.paginator.page_range %}
+                    {% if page_number == page_obj.number %}
+                      <li class="page-item active"><span class="page-link">{{ page_number }}</span></li>
+                    {% elif page_number >= page_obj.number|add:'-2' and page_number <= page_obj.number|add:'2' %}
+                      <li class="page-item"><a class="page-link" href="?{% if query %}q={{ query|urlencode }}&{% endif %}page={{ page_number }}">{{ page_number }}</a></li>
+                    {% endif %}
+                  {% endfor %}
+                  <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                    {% if page_obj.has_next %}
+                      <a class="page-link" href="?{% if query %}q={{ query|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">Sau</a>
+                    {% else %}
+                      <span class="page-link">Sau</span>
+                    {% endif %}
+                  </li>
+                </ul>
+              </nav>
+            </div>
+            {% endif %}
           </div>
         </div>
       </div>

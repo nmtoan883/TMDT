@@ -88,7 +88,6 @@
         <div class="row align-items-center g-4">
           <div class="col-12 col-lg-8">
             <h3 class="fw-bold">Tổng quan kinh doanh</h3>
-            <p>Doanh thu chỉ tính từ đơn đã giao thành công. Đơn SePay chưa thanh toán không đưa vào vận hành.</p>
           </div>
           <div class="col-12 col-lg-4 text-lg-end">
             <a href="{% url 'admin:ec_order_list' %}" class="btn btn-light">Xem đơn hàng</a>
@@ -215,6 +214,38 @@
                 </tbody>
               </table>
             </div>
+            {% if recent_orders_page_obj.paginator.num_pages > 1 %}
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-3">
+                <div class="text-muted small">
+                  Hiển thị {{ recent_orders_page_obj.start_index }}-{{ recent_orders_page_obj.end_index }} / {{ recent_orders_page_obj.paginator.count }} đơn hàng
+                </div>
+                <nav aria-label="Phân trang đơn mới cần theo dõi">
+                  <ul class="pagination mb-0">
+                    <li class="page-item {% if not recent_orders_page_obj.has_previous %}disabled{% endif %}">
+                      {% if recent_orders_page_obj.has_previous %}
+                        <a class="page-link" href="?order_page={{ recent_orders_page_obj.previous_page_number }}">Trước</a>
+                      {% else %}
+                        <span class="page-link">Trước</span>
+                      {% endif %}
+                    </li>
+                    {% for page_number in recent_orders_page_obj.paginator.page_range %}
+                      {% if page_number == recent_orders_page_obj.number %}
+                        <li class="page-item active"><span class="page-link">{{ page_number }}</span></li>
+                      {% elif page_number >= recent_orders_page_obj.number|add:'-2' and page_number <= recent_orders_page_obj.number|add:'2' %}
+                        <li class="page-item"><a class="page-link" href="?order_page={{ page_number }}">{{ page_number }}</a></li>
+                      {% endif %}
+                    {% endfor %}
+                    <li class="page-item {% if not recent_orders_page_obj.has_next %}disabled{% endif %}">
+                      {% if recent_orders_page_obj.has_next %}
+                        <a class="page-link" href="?order_page={{ recent_orders_page_obj.next_page_number }}">Sau</a>
+                      {% else %}
+                        <span class="page-link">Sau</span>
+                      {% endif %}
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            {% endif %}
           </div>
         </div>
 

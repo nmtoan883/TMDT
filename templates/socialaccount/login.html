@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Đăng nhập Google - E-Electro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script type="module" crossorigin src="/static/inapp_assets/js/main.js"></script>
+  <link rel="stylesheet" crossorigin href="/static/inapp_assets/css/main.css">
+  <style>
+    .confirm-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #161821;
+      text-decoration: none;
+    }
+    .confirm-brand:hover {
+      color: #161821;
+      text-decoration: none;
+    }
+    .confirm-brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #111827 0%, #D10024 100%);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 900;
+      box-shadow: 0 12px 28px rgba(209, 0, 36, .24);
+    }
+    .confirm-brand-name {
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container d-flex align-items-center justify-content-center min-vh-100">
+    <div class="card" style="max-width: 440px; width: 100%;">
+      <div class="card-body p-5 text-center">
+        <a href="{% url 'shop:product_list' %}" class="confirm-brand mb-4">
+          <span class="confirm-brand-mark">E</span>
+          <span class="confirm-brand-name">E-Electro</span>
+        </a>
+
+        <h1 class="h4 mb-3">Đăng nhập bằng {{ provider.name }}</h1>
+        <p class="text-muted mb-4">
+          Bạn đang đăng nhập E-Electro bằng tài khoản {{ provider.name }}.
+        </p>
+
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary w-100">Tiếp tục</button>
+        </form>
+
+        <a href="{% url 'account_login' %}" class="btn btn-link mt-3">Quay lại đăng nhập</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

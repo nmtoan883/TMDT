@@ -197,75 +197,56 @@
   margin-right: 8px !important;
 }
 
-/* Star Rating Styles - Plus/Minus Version */
+/* Star Rating Styles */
 .rating-group {
   margin-bottom: 20px !important;
 }
 
-.rating-control {
-  display: flex !important;
-  align-items: center !important;
-  gap: 15px !important;
-}
-
-.rating-display {
+.rating-picker {
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
 }
 
-.rating-display .stars {
-  display: flex !important;
-  gap: 5px !important;
-  font-size: 30px !important;
+.rating-star-btn {
+  border: 0 !important;
+  background: transparent !important;
+  color: #ddd !important;
+  font-size: 36px !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  padding: 0 2px !important;
+  transition: color 0.2s ease, transform 0.2s ease !important;
 }
 
-.rating-display .star {
+.rating-star-btn:hover,
+.rating-star-btn.is-active {
   color: #ffc107 !important;
 }
 
-.rating-display .star-empty {
+.rating-star-btn:hover {
+  transform: scale(1.08) !important;
+}
+
+.rating-picker:hover .rating-star-btn {
+  color: #ffc107 !important;
+}
+
+.rating-star-btn:hover ~ .rating-star-btn {
   color: #ddd !important;
 }
 
-.rating-value {
-  font-size: 24px !important;
-  font-weight: bold !important;
-  min-width: 40px !important;
-  text-align: center !important;
-  color: #D10024 !important;
-}
-
-.rating-buttons {
-  display: flex !important;
-  gap: 10px !important;
-}
-
-.rating-btn {
-  width: 45px !important;
-  height: 45px !important;
-  border: 2px solid #D10024 !important;
-  background: white !important;
-  color: #D10024 !important;
-  font-size: 20px !important;
-  font-weight: bold !important;
-  border-radius: 8px !important;
-  cursor: pointer !important;
-  transition: all 0.3s ease !important;
-  padding: 0 !important;
+.rating-summary {
   display: flex !important;
   align-items: center !important;
-  justify-content: center !important;
+  gap: 10px !important;
+  margin-top: 8px !important;
 }
 
-.rating-btn:hover {
-  background: #D10024 !important;
-  color: white !important;
-  transform: scale(1.05) !important;
-}
-
-.rating-btn:active {
-  transform: scale(0.95) !important;
+.rating-value {
+  font-size: 16px !important;
+  font-weight: bold !important;
+  color: #D10024 !important;
 }
 
 /* Quantity Control Styles */
@@ -333,19 +314,15 @@
                                 
                                 <div class="form-row rating-group">
                                     <label>Đánh giá sao</label>
-                                    <div class="rating-control">
-                                        <button type="button" class="rating-btn" id="rating-minus">−</button>
-                                        <div class="rating-display">
-                                            <div class="stars" id="rating-stars">
-                                                <span class="star-empty">★</span>
-                                                <span class="star-empty">★</span>
-                                                <span class="star-empty">★</span>
-                                                <span class="star-empty">★</span>
-                                                <span class="star-empty">★</span>
-                                            </div>
-                                            <div class="rating-value" id="rating-value">0</div>
-                                        </div>
-                                        <button type="button" class="rating-btn" id="rating-plus">+</button>
+                                    <div class="rating-picker" id="rating-stars" aria-label="Chọn số sao đánh giá">
+                                        <button type="button" class="rating-star-btn" data-rating="1" aria-label="1 sao">★</button>
+                                        <button type="button" class="rating-star-btn" data-rating="2" aria-label="2 sao">★</button>
+                                        <button type="button" class="rating-star-btn" data-rating="3" aria-label="3 sao">★</button>
+                                        <button type="button" class="rating-star-btn" data-rating="4" aria-label="4 sao">★</button>
+                                        <button type="button" class="rating-star-btn" data-rating="5" aria-label="5 sao">★</button>
+                                    </div>
+                                    <div class="rating-summary">
+                                        <span class="rating-value" id="rating-value">Chưa chọn sao</span>
                                     </div>
                                     <input type="hidden" id="id_rating" name="rating" value="0">
                                 </div>
@@ -411,41 +388,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const ratingInput = document.getElementById('id_rating');
     const ratingValue = document.getElementById('rating-value');
     const ratingStars = document.getElementById('rating-stars');
-    const minusBtn = document.getElementById('rating-minus');
-    const plusBtn = document.getElementById('rating-plus');
     const submitBtn = document.getElementById('submit-review');
 
-    if (ratingInput && ratingValue && ratingStars && minusBtn && plusBtn && submitBtn) {
+    if (ratingInput && ratingValue && ratingStars && submitBtn) {
+        const starButtons = ratingStars.querySelectorAll('.rating-star-btn');
+
         function updateRatingDisplay(rating) {
             ratingInput.value = rating;
-            ratingValue.textContent = rating;
+            ratingValue.textContent = rating ? rating + '/5 sao' : 'Chưa chọn sao';
 
-            const stars = ratingStars.querySelectorAll('span');
-            stars.forEach((star, index) => {
+            starButtons.forEach((star, index) => {
                 if (index < rating) {
-                    star.className = 'star';
+                    star.classList.add('is-active');
                 } else {
-                    star.className = 'star-empty';
+                    star.classList.remove('is-active');
                 }
             });
         }
 
-        minusBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            let currentRating = parseInt(ratingInput.value, 10) || 0;
-            if (currentRating > 0) {
-                currentRating--;
-                updateRatingDisplay(currentRating);
-            }
-        });
-
-        plusBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            let currentRating = parseInt(ratingInput.value, 10) || 0;
-            if (currentRating < 5) {
-                currentRating++;
-                updateRatingDisplay(currentRating);
-            }
+        starButtons.forEach((button) => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                updateRatingDisplay(parseInt(button.dataset.rating, 10) || 0);
+            });
         });
 
         submitBtn.addEventListener('click', function(e) {
