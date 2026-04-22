@@ -36,6 +36,42 @@
             {% endfor %}
         {% endif %}
 
+        <!-- Filter Form -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-body">
+                <form method="GET" action="{% url 'admin:account_list' %}" class="row g-3">
+                  <div class="col-md-4">
+                    <label class="form-label">Tìm kiếm</label>
+                    <input type="text" name="q" class="form-control" placeholder="Username, email, tên..." value="{{ q|default:'' }}">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Quyền hạn</label>
+                    <select name="role" class="form-select">
+                      <option value="">Tất cả</option>
+                      <option value="superuser" {% if role == 'superuser' %}selected{% endif %}>Root Admin</option>
+                      <option value="staff" {% if role == 'staff' %}selected{% endif %}>Nhân viên</option>
+                      <option value="customer" {% if role == 'customer' %}selected{% endif %}>Khách hàng</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select name="status" class="form-select">
+                      <option value="">Tất cả</option>
+                      <option value="active" {% if status == 'active' %}selected{% endif %}>Hoạt động</option>
+                      <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Bị khóa</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Lọc</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Table -->
         <div class="row">
           <div class="col-12">
@@ -58,7 +94,10 @@
                       <td>
                         <div class="d-flex align-items-center gap-3">
                           {% if u.customer_profile and u.customer_profile.avatar %}
-                            <img src="{{ u.customer_profile.avatar.url }}" alt="{{ u.username }}" class="rounded-circle avatar avatar-md object-fit-cover" />
+                            <img src="{{ u.customer_profile.avatar.url }}" alt="{{ u.username }}" class="rounded-circle avatar avatar-md object-fit-cover" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <div class="avatar avatar-md rounded-circle bg-primary-subtle text-primary align-items-center justify-content-center" style="display: none !important;">
+                               {{ u.username|make_list|first|upper }}
+                            </div>
                           {% else %}
                             <div class="avatar avatar-md rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
                                {{ u.username|make_list|first|upper }}

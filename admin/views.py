@@ -101,8 +101,40 @@ def blog_category_delete(request, pk):
 @staff_member_required
 def account_list(request):
     from django.contrib.auth.models import User
-    users = User.objects.all().order_by('-date_joined')
-    return render(request, 'admin/pages/accounts/list.html', {'users': users})
+    from django.db.models import Q
+
+    queryset = User.objects.all().order_by('-date_joined')
+    
+    q = request.GET.get('q', '').strip()
+    if q:
+        queryset = queryset.filter(
+            Q(username__icontains=q) | 
+            Q(email__icontains=q) |
+            Q(first_name__icontains=q) |
+            Q(last_name__icontains=q)
+        )
+        
+    role = request.GET.get('role', '')
+    if role == 'superuser':
+        queryset = queryset.filter(is_superuser=True)
+    elif role == 'staff':
+        queryset = queryset.filter(is_staff=True, is_superuser=False)
+    elif role == 'customer':
+        queryset = queryset.filter(is_staff=False, is_superuser=False)
+        
+    status = request.GET.get('status', '')
+    if status == 'active':
+        queryset = queryset.filter(is_active=True)
+    elif status == 'inactive':
+        queryset = queryset.filter(is_active=False)
+
+    context = {
+        'users': queryset,
+        'q': q,
+        'role': role,
+        'status': status,
+    }
+    return render(request, 'admin/pages/accounts/list.html', context)
 
 @staff_member_required
 def account_add(request):
@@ -1057,7 +1089,8 @@ def core_chat_list(request):
     return render(request, 'admin/pages/ecommerce/generic_list.html', {
         'model_name': 'Live Chat Session', 'headers': ['ID', 'User/Guest', 'Active?', 'Created'],
         'rows': rows, 'create_url': '/admin/sys-chat/create/',
-        'update_url_name': 'admin:core_chat_update', 'delete_url_name': 'admin:core_chat_delete'
+        'update_url_name': 'admin:core_chat_update', 'delete_url_name': 'admin:core_chat_delete',
+        'update_label': 'Chat / Trả lời'
     })
 
 @staff_member_required
@@ -1074,16 +1107,26 @@ def core_chat_create(request):
 
 @staff_member_required
 def core_chat_update(request, pk):
+    from core.models import LiveChatMessage
     obj = get_object_or_404(LiveChatSession, pk=pk)
+    
     if request.method == 'POST':
-        form = LiveChatSessionForm(request.POST, request.FILES, instance=obj)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Đã cập nhật Chat.')
-            return redirect('admin:core_chat_list')
-    else:
-        form = LiveChatSessionForm(instance=obj)
-    return render(request, 'admin/pages/ecommerce/generic_form.html', {'form': form, 'model_name': 'Live Chat', 'cancel_url': '/admin/sys-chat/'})
+        content = request.POST.get('message', '').strip()
+        if content:
+            LiveChatMessage.objects.create(
+                session=obj,
+                content=content,
+                is_admin=True
+            )
+        return redirect('admin:core_chat_update', pk=pk)
+        
+    messages_list = obj.messages.all().order_by('created_at')
+    
+    return render(request, 'admin/pages/ecommerce/chat_detail.html', {
+        'session_obj': obj,
+        'messages_list': messages_list,
+        'model_name': 'Chi tiết Chat'
+    })
 
 @staff_member_required
 def core_chat_delete(request, pk):

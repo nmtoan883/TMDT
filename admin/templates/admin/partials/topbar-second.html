@@ -122,13 +122,25 @@
       </li>
       <!-- Dropdown -->
       <li class="ms-3 dropdown">
-        <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-          <img src="/static/admin/assets/images/avatar/avatar-1.jpg" alt="" class="avatar avatar-sm rounded-circle" />
+        <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" class="d-flex align-items-center">
+          {% if request.user.customer_profile and request.user.customer_profile.avatar %}
+            <img src="{{ request.user.customer_profile.avatar.url }}" alt="avatar" class="avatar avatar-sm object-fit-cover rounded-circle" onerror="this.onerror=null; this.src='/static/admin/assets/images/avatar/avatar-1.jpg';">
+          {% else %}
+            <div class="avatar avatar-sm rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center">
+               {{ request.user.username|make_list|first|upper }}
+            </div>
+          {% endif %}
         </a>
         <div class="dropdown-menu dropdown-menu-end dropdown-menu-md p-0">
           <div>
             <div class="d-flex gap-3 align-items-center border-dashed border-bottom px-4 py-4">
-              <img src="/static/admin/assets/images/avatar/avatar-1.jpg" alt="" class="avatar avatar-md rounded-circle" />
+              {% if request.user.customer_profile and request.user.customer_profile.avatar %}
+                <img src="{{ request.user.customer_profile.avatar.url }}" alt="avatar" class="avatar avatar-md object-fit-cover rounded-circle" onerror="this.onerror=null; this.src='/static/admin/assets/images/avatar/avatar-1.jpg';">
+              {% else %}
+                <div class="avatar avatar-md rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center">
+                   {{ request.user.username|make_list|first|upper }}
+                </div>
+              {% endif %}
               <div>
                 <h4 class="mb-0 fs-5">{% if request.user.first_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}</h4>
                 <p class="mb-0 text-secondar small">@{{ request.user.username }}</p>

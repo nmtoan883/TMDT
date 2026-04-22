@@ -152,7 +152,13 @@
     <li>
       <div class="text-center py-5 upgrade-ui ">
         <div>
-          <img src="/static/admin/assets/images/avatar/avatar-1.jpg" alt="" class="avatar avatar-md rounded-circle">
+          {% if request.user.customer_profile and request.user.customer_profile.avatar %}
+            <img src="{{ request.user.customer_profile.avatar.url }}" alt="avatar" class="avatar avatar-md object-fit-cover rounded-circle" onerror="this.onerror=null; this.src='/static/admin/assets/images/avatar/avatar-1.jpg';">
+          {% else %}
+            <div class="avatar avatar-md rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center">
+               {{ request.user.username|make_list|first|upper }}
+            </div>
+          {% endif %}
           <div class="my-3">
             <h5 class="mb-1 fs-6">{% if request.user.first_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}</h5>
           </div>
@@ -596,7 +602,13 @@
       <li>
         <div class="text-center py-5 upgrade-ui ">
           <div>
-            <img src="/static/admin/assets/images/avatar/avatar-1.jpg" alt="" class="avatar avatar-md rounded-circle">
+            {% if request.user.customer_profile and request.user.customer_profile.avatar %}
+              <img src="{{ request.user.customer_profile.avatar.url }}" alt="avatar" class="avatar avatar-md object-fit-cover rounded-circle" onerror="this.onerror=null; this.src='/static/admin/assets/images/avatar/avatar-1.jpg';">
+            {% else %}
+              <div class="avatar avatar-md rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center">
+                 {{ request.user.username|make_list|first|upper }}
+              </div>
+            {% endif %}
             <div class="my-3">
               <h5 class="mb-1 fs-6">{% if request.user.first_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}</h5>
             </div>
