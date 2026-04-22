@@ -1,3 +1,4 @@
+{% load money_tags %}
 <html>
 <head>
     <meta charset="utf-8">
@@ -18,7 +19,7 @@
             </tr>
             <tr>
                 <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Tổng tiền</td>
-                <td style="padding: 8px; border: 1px solid #ddd;">{{ order.get_total_cost|floatformat:0 }} VND</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">{{ order.get_total_cost|vnd }}</td>
             </tr>
         </table>
         <p style="margin-top: 20px;">Cảm ơn bạn đã sử dụng dịch vụ.</p>

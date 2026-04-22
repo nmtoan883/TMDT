@@ -248,6 +248,40 @@ class Wishlist(models.Model):
     def __str__(self):
         return f'{self.user.username} - {self.product.name}'
 
+
+class UserNotification(models.Model):
+    TYPE_ORDER = 'order'
+    TYPE_REVIEW = 'review'
+
+    TYPE_CHOICES = [
+        (TYPE_ORDER, 'Đơn hàng'),
+        (TYPE_REVIEW, 'Đánh giá'),
+    ]
+
+    user = models.ForeignKey(User, related_name='notifications', on_delete=models.CASCADE)
+    order = models.ForeignKey(
+        'orders.Order',
+        related_name='notifications',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    notification_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=TYPE_ORDER)
+    title = models.CharField(max_length=160)
+    message = models.TextField()
+    action_url = models.CharField(max_length=255, blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'is_read', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f'{self.user.username} - {self.title}'
+
 class ContactMessage(models.Model):
     full_name = models.CharField(max_length=150)
     email = models.EmailField()

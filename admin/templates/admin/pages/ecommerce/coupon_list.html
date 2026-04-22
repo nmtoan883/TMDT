@@ -1,9 +1,10 @@
 {% load static %}
+{% load money_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   {% include 'admin/partials/head/head-meta.html' %}
-  <title>Admin - Coupon</title>
+  <title>Admin - Mã giảm giá</title>
   {% include 'admin/partials/head/head-links.html' %}
 </head>
 <body>
@@ -11,56 +12,148 @@
     {% include 'admin/partials/sidebar-collapse.html' %}
     <div id="content" class="position-relative h-100">
       {% include 'admin/partials/topbar-second.html' %}
-      
+
       <div class="custom-container">
         <div class="row align-items-center mb-4 g-4">
           <div class="col-12 col-md-8">
-            <h4 class="mb-0">Quản lý Coupon</h4>
+            <h4 class="mb-1">Mã giảm giá</h4>
+            <p class="text-muted mb-0">Tạo và quản lý key giảm giá cho khách hàng.</p>
           </div>
           <div class="col-12 col-md-4 text-md-end">
-             <a href="{% url 'admin:ec_coupon_add' %}" class="btn btn-primary d-inline-flex align-items-center gap-2">
-                 Thêm mới
-             </a>
+            <a href="{% url 'admin:ec_coupon_add' %}" class="btn btn-primary d-inline-flex align-items-center gap-2">
+              <i class="bi bi-plus-lg"></i> Tạo mã
+            </a>
           </div>
         </div>
 
         {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-success alert-dismissible fade show" role="alert">{{ message }}</div>
-            {% endfor %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'success' }} alert-dismissible fade show" role="alert">{{ message }}</div>
+          {% endfor %}
         {% endif %}
 
-        <div class="row">
-          <div class="col-12">
-            <div class="card card-lg card-body">
-              <div class="table-responsive">
-                <table class="table mb-0 table-centered table-hover text-nowrap">
-                  <thead class="table-light">
-                    <tr>
-                      <th>Thông tin - ID</th>
-                      <th>Thao tác</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for item in items %}
-                    <tr>
-                      <td>{{ item }}</td>
-                      <td>
-                        <a href="{% url 'admin:ec_coupon_edit' pk=item.pk %}" class="btn btn-sm btn-white">Sửa</a>
-                        <form action="{% url 'admin:ec_coupon_delete' pk=item.pk %}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc xoá?');">
-                           {% csrf_token %}
-                           <button type="submit" class="btn btn-sm btn-danger text-white">Xóa</button>
-                        </form>
-                      </td>
-                    </tr>
-                    {% empty %}
-                    <tr><td colspan="2">Trống.</td></tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+        <div class="card card-lg card-body">
+          <div class="table-responsive">
+            <table class="table mb-0 table-centered table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 70px;">STT</th>
+                  <th>Mã</th>
+                  <th>Giảm giá</th>
+                  <th>Đơn tối thiểu</th>
+                  <th>Claim</th>
+                  <th>Trạng thái</th>
+                  <th class="text-end">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in items %}
+                <tr>
+                  <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
+                  <td><code class="fs-6">{{ item.code }}</code></td>
+                  <td>
+                    {% if item.discount_percent %}
+                      <span class="badge bg-success">-{{ item.discount_percent }}%</span>
+                    {% elif item.discount_amount %}
+                      <span class="badge bg-info text-dark">-{{ item.discount_amount|vnd }}</span>
+                    {% else %}
+                      <span class="text-muted">Chưa cấu hình</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if item.min_order_amount %}
+                      {{ item.min_order_amount|vnd }}
+                    {% else %}
+                      <span class="text-muted">Không yêu cầu</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if item.claimable and not item.assigned_user_id %}
+                      <span class="badge bg-primary">Mã công khai</span>
+                      <div class="text-muted small">Hiệu lực {{ item.claim_valid_days }} ngày sau khi claim</div>
+                      {% if item.public_batch_date %}
+                        <div class="text-muted small">Đã đẩy: {{ item.public_batch_date|date:"d/m/Y" }} - {{ item.public_batch_slot }}</div>
+                      {% else %}
+                        <div class="text-muted small">Chưa đẩy lên kho chung</div>
+                      {% endif %}
+                    {% elif item.claimed_coupons.exists %}
+                      {% with claimed_coupon=item.claimed_coupons.first %}
+                        <span class="badge bg-success">Đã được claim</span>
+                        <div class="text-muted small">Người nhận: {{ claimed_coupon.assigned_user.username|default:"Không rõ" }}</div>
+                        <div class="text-muted small">Lúc claim: {{ claimed_coupon.valid_from|date:"d/m/Y H:i" }}</div>
+                      {% endwith %}
+                    {% elif item.claimed_from_id %}
+                      <span class="badge bg-info text-dark">Đã claim</span>
+                      <div class="text-muted small">đến {{ item.valid_to|date:"d/m/Y H:i" }}</div>
+                    {% else %}
+                      <div>{{ item.valid_from|date:"d/m/Y H:i" }}</div>
+                      <div class="text-muted small">đến {{ item.valid_to|date:"d/m/Y H:i" }}</div>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if item.claimed_coupons.exists %}
+                      <span class="badge bg-success">Đã được claim</span>
+                    {% elif item.is_valid %}
+                      <span class="badge bg-success">Đang hiệu lực</span>
+                    {% elif item.active %}
+                      <span class="badge bg-warning text-dark">Ngoài thời gian</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Đã tắt</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    <a href="{% url 'admin:ec_coupon_edit' pk=item.pk %}" class="btn btn-sm btn-white">Sửa</a>
+                    {% if item.claimable and item.active and not item.assigned_user_id and not item.claimed_from_id and not item.public_batch_date and not item.claimed_coupons.exists %}
+                    <form action="{% url 'admin:ec_coupon_push_public' pk=item.pk %}" method="POST" class="d-inline" onsubmit="return confirm('Đẩy mã này lên kho voucher chung ngay bây giờ?');">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-success">Đẩy lên kho chung</button>
+                    </form>
+                    {% endif %}
+                    <form action="{% url 'admin:ec_coupon_delete' pk=item.pk %}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc xoá mã này?');">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                    </form>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center text-muted py-5">Chưa có mã giảm giá.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
+
+          {% if page_obj.paginator.num_pages > 1 %}
+          <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mt-4">
+            <div class="text-muted small">
+              Hiển thị {{ page_obj.start_index }}-{{ page_obj.end_index }} / {{ page_obj.paginator.count }} mã
+            </div>
+            <nav aria-label="Phân trang mã giảm giá">
+              <ul class="pagination mb-0">
+                <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                  {% if page_obj.has_previous %}
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Trước</a>
+                  {% else %}
+                    <span class="page-link">Trước</span>
+                  {% endif %}
+                </li>
+                {% for page_number in page_obj.paginator.page_range %}
+                  {% if page_number == page_obj.number %}
+                    <li class="page-item active"><span class="page-link">{{ page_number }}</span></li>
+                  {% elif page_number >= page_obj.number|add:'-2' and page_number <= page_obj.number|add:'2' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a></li>
+                  {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                  {% if page_obj.has_next %}
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Sau</a>
+                  {% else %}
+                    <span class="page-link">Sau</span>
+                  {% endif %}
+                </li>
+              </ul>
+            </nav>
+          </div>
+          {% endif %}
         </div>
       </div>
     </div>

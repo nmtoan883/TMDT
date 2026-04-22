@@ -13,6 +13,7 @@ class Cart:
 
     def __init__(self, request):
         self.session = request.session
+        self.user = getattr(request, 'user', None)
         cart = self.session.get(settings.CART_SESSION_ID)
         if not cart:
             cart = self.session[settings.CART_SESSION_ID] = {}
@@ -50,7 +51,7 @@ class Cart:
         return sum(item['quantity'] for item in self.cart.values())
 
     def clear(self):
-        del self.session[settings.CART_SESSION_ID]
+        self.session.pop(settings.CART_SESSION_ID, None)
         self.session.pop(self.SELECTED_ITEMS_SESSION_KEY, None)
         self.save()
 
@@ -110,8 +111,11 @@ class Cart:
 
     def get_items(self, product_ids=None):
         product_ids = [str(pid) for pid in (product_ids or self.cart.keys()) if str(pid) in self.cart]
-        products = Product.objects.filter(id__in=product_ids)
-        cart = self.cart.copy()
+        products = Product.objects.filter(id__in=product_ids).prefetch_related('hotdeal_campaigns')
+        cart = {
+            product_id: item.copy()
+            for product_id, item in self.cart.items()
+        }
 
         for product in products:
             cart[str(product.id)]['product'] = product
@@ -126,10 +130,29 @@ class Cart:
 
             promotion = self.get_active_promotion_for_product(item['product'])
             item['promotion'] = promotion
+            item['coupon_excluded'] = self.is_coupon_excluded_item(item)
             item['promotion_discount'] = self.get_item_promotion_discount(item)
             item['total_price_after_promotion'] = item['total_price'] - item['promotion_discount']
 
             yield item
+
+    def is_coupon_excluded_item(self, item):
+        product = item['product']
+        return bool(item.get('promotion')) or bool(getattr(product, 'is_hotdeal_active', False))
+
+    def get_coupon_excluded_items(self, product_ids=None):
+        return [item for item in self.get_items(product_ids) if item.get('coupon_excluded')]
+
+    def has_coupon_excluded_items(self, product_ids=None):
+        return bool(self.get_coupon_excluded_items(product_ids))
+
+    def get_coupon_eligible_subtotal_after_promotion(self, product_ids=None):
+        total = Decimal('0')
+        for item in self.get_items(product_ids):
+            if item.get('coupon_excluded'):
+                continue
+            total += item['total_price_after_promotion']
+        return total
 
     def get_total_price(self, product_ids=None):
         items = self.get_items(product_ids) if product_ids is not None else self.cart.values()
@@ -152,19 +175,39 @@ class Cart:
         coupon_id = self.session.get('coupon_id')
         if coupon_id:
             try:
-                return Coupon.objects.get(id=coupon_id, active=True)
+                coupon = Coupon.objects.get(id=coupon_id, active=True)
             except Coupon.DoesNotExist:
                 return None
+            if coupon.is_valid():
+                if coupon.is_public_claim_template:
+                    return None
+                if coupon.assigned_user_id and (
+                    not self.user
+                    or not self.user.is_authenticated
+                    or coupon.assigned_user_id != self.user.id
+                ):
+                    return None
+                return coupon
         return None
+
+    def coupon_meets_min_order_amount(self, product_ids=None):
+        coupon = self.get_coupon()
+        if not coupon:
+            return False
+        subtotal_after_promotion = self.get_coupon_eligible_subtotal_after_promotion(product_ids)
+        return coupon.meets_min_order_amount(subtotal_after_promotion)
 
     def get_coupon_discount(self, product_ids=None):
         coupon = self.get_coupon()
         if not coupon:
             return Decimal('0')
 
-        subtotal_after_promotion = self.get_total_price_after_promotion(product_ids)
+        subtotal_after_promotion = self.get_coupon_eligible_subtotal_after_promotion(product_ids)
 
         if subtotal_after_promotion <= 0:
+            return Decimal('0')
+
+        if not coupon.meets_min_order_amount(subtotal_after_promotion):
             return Decimal('0')
 
         # Đổi tên field ở đây nếu model Coupon của bạn dùng tên khác

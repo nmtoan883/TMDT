@@ -1,5 +1,6 @@
 ﻿{% extends "base.html" %}
 {% load crispy_forms_tags %}
+{% load money_tags %}
 
 {% block title %}Tài khoản của tôi - E-ELECTRO{% endblock %}
 
@@ -513,9 +514,103 @@
     color: #d10024;
 }
 
+.voucher-wallet {
+    margin: 0 0 24px;
+    padding: 22px;
+    border: 1px solid #e4e7ed;
+    border-radius: 18px;
+    background: #fff7f8;
+}
+
+.voucher-wallet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.voucher-wallet-title {
+    margin: 0 0 6px;
+    color: #2b2d42;
+    font-size: 22px;
+}
+
+.voucher-wallet-copy {
+    color: #8d99ae;
+    margin: 0;
+}
+
+.voucher-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.voucher-card {
+    display: grid;
+    gap: 10px;
+    padding: 16px;
+    border: 1px dashed #d10024;
+    border-radius: 14px;
+    background: #fff;
+}
+
+.voucher-code {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #15161d;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: .08em;
+}
+
+.voucher-meta {
+    color: #2b2d42;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.voucher-note {
+    color: #8d99ae;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.voucher-empty {
+    padding: 22px;
+    border: 1px dashed #dfe3ec;
+    border-radius: 14px;
+    background: #fff;
+    color: #8d99ae;
+    text-align: center;
+}
+
+.voucher-copy-btn {
+    width: fit-content;
+    min-height: 36px;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 999px;
+    background: #d10024;
+    color: #fff;
+    font-weight: 700;
+}
+
+.voucher-copy-btn:hover,
+.voucher-copy-btn:focus {
+    background: #a9001d;
+}
+
 @media (max-width: 991px) {
     .account-meta-grid,
-    .account-view-grid {
+    .account-view-grid,
+    .voucher-grid {
         grid-template-columns: 1fr;
     }
 
@@ -553,7 +648,7 @@
         <div class="account-meta-grid">
             <div class="account-meta-card">
                 <span class="account-meta-label">Trạng thái</span>
-                <span class="account-meta-value">{% if is_editing %}Đang chỉnh sửa{% else %}Sẵn sàng giao hàng{% endif %}</span>
+                <span class="account-meta-value">{% if is_editing %}Đang chỉnh sửa{% elif active_tab == 'vouchers' %}Kho voucher{% else %}Sẵn sàng giao hàng{% endif %}</span>
             </div>
             <div class="account-meta-card">
                 <span class="account-meta-label">Tài khoản</span>
@@ -613,10 +708,12 @@
                 <div class="account-toolbar">
                     <div>
                         <span class="account-eyebrow">Trung tâm tài khoản</span>
-                        <h3 class="account-section-title">Dashboard</h3>
+                        <h3 class="account-section-title">{% if active_tab == 'vouchers' %}Kho voucher{% else %}Dashboard{% endif %}</h3>
                         <p class="account-section-copy">
                             {% if is_editing %}
                                 Điều chỉnh thông tin để đơn hàng và giao hàng chính xác hơn.
+                            {% elif active_tab == 'vouchers' %}
+                                Quản lý các mã giảm giá shop đã tặng cho bạn sau khi mua hàng.
                             {% else %}
                                 Xem nhanh toàn bộ thông tin tài khoản và chỉ mở chế độ sửa khi cần.
                             {% endif %}
@@ -635,10 +732,64 @@
                             <i class="fa fa-shopping-bag"></i>
                             <span>Lịch sử mua hàng</span>
                         </a>
-                        <a href="{% url 'orders:order_history' %}" class="account-quick-link">
+                        <a href="{% url 'orders:order_tracking' %}" class="account-quick-link">
                             <i class="fa fa-truck"></i>
                             <span>Theo dõi đơn hàng</span>
                         </a>
+                        <a href="{% url 'accounts:change_password' %}" class="account-quick-link">
+                            <i class="fa fa-lock"></i>
+                            <span>Đổi mật khẩu</span>
+                        </a>
+                        <a href="{% url 'accounts:dashboard' %}?tab=vouchers" class="account-quick-link">
+                            <i class="fa fa-ticket"></i>
+                            <span>Kho voucher</span>
+                        </a>
+                    </div>
+                {% endif %}
+
+                {% if not is_editing and active_tab != 'vouchers' %}
+                    <div class="voucher-wallet">
+                        <div class="voucher-wallet-header">
+                            <div>
+                                <h3 class="voucher-wallet-title">Kho voucher chung</h3>
+                                <p class="voucher-wallet-copy">Mỗi ngày mở mã lúc 12:00 và 21:00. Bạn có thể nhận 1 voucher từ kho chung mỗi ngày.</p>
+                            </div>
+                            <a href="{% url 'accounts:dashboard' %}?tab=vouchers" class="account-btn-outline">Xem kho voucher</a>
+                        </div>
+
+                        {% if public_vouchers %}
+                            <div class="voucher-grid">
+                                {% for voucher in public_vouchers %}
+                                    <div class="voucher-card">
+                                        <div class="voucher-code">PUBLIC</div>
+                                        <div class="voucher-meta">
+                                            Giảm {% if voucher.discount_percent %}{{ voucher.discount_percent }}%{% else %}{{ voucher.discount_amount|vnd }}{% endif %}
+                                            cho đơn từ {{ voucher.min_order_amount|vnd }}
+                                        </div>
+                                        <div class="voucher-note">
+                                            Hạn dùng {{ voucher.claim_valid_days }} ngày kể từ lúc nhận.
+                                            <br>Không áp dụng cho sản phẩm đang Hot Deal hoặc Flash Sale.
+                                        </div>
+                                        <form method="post" action="{% url 'accounts:claim_voucher' voucher.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="voucher-copy-btn" {% if claimed_public_voucher_today %}disabled style="background:#8d99ae;cursor:not-allowed;"{% endif %}>
+                                                {% if claimed_public_voucher_today %}Đã nhận hôm nay{% else %}Nhận voucher{% endif %}
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% elif can_claim_public_vouchers %}
+                            <div class="voucher-empty">
+                                <i class="fa fa-ticket" style="font-size: 28px; color: #d10024; margin-bottom: 10px;"></i>
+                                <div>Kho admin hiện đã hết voucher công khai để đẩy lên hôm nay.</div>
+                            </div>
+                        {% else %}
+                            <div class="voucher-empty">
+                                <i class="fa fa-clock-o" style="font-size: 28px; color: #d10024; margin-bottom: 10px;"></i>
+                                <div>Voucher công khai sẽ mở claim từ 12:00 và 21:00 mỗi ngày{% if next_public_voucher_slot_label %}; phiên gần nhất là {{ next_public_voucher_slot_label }}{% endif %}.</div>
+                            </div>
+                        {% endif %}
                     </div>
                 {% endif %}
 
@@ -720,6 +871,83 @@
                             </a>
                         </div>
                     </form>
+                {% elif active_tab == 'vouchers' %}
+                    <div class="voucher-wallet">
+                        <div class="voucher-wallet-header">
+                            <div>
+                                <h3 class="voucher-wallet-title">Kho voucher chung</h3>
+                                <p class="voucher-wallet-copy">Mỗi ngày có 2 phiên mở mã: 12:00 đẩy tối đa 50 voucher và 21:00 đẩy thêm tối đa 50 voucher. Mỗi tài khoản chỉ nhận được 1 voucher từ kho chung mỗi ngày.</p>
+                            </div>
+                        </div>
+
+                        {% if public_vouchers %}
+                            <div class="voucher-grid">
+                                {% for voucher in public_vouchers %}
+                                    <div class="voucher-card">
+                                        <div class="voucher-code">PUBLIC</div>
+                                        <div class="voucher-meta">
+                                            Giảm {% if voucher.discount_percent %}{{ voucher.discount_percent }}%{% else %}{{ voucher.discount_amount|vnd }}{% endif %}
+                                            cho đơn từ {{ voucher.min_order_amount|vnd }}
+                                        </div>
+                                        <div class="voucher-note">
+                                            Hạn dùng {{ voucher.claim_valid_days }} ngày kể từ lúc nhận.
+                                            <br>Không áp dụng cho sản phẩm đang Hot Deal hoặc Flash Sale.
+                                        </div>
+                                        <form method="post" action="{% url 'accounts:claim_voucher' voucher.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="voucher-copy-btn" {% if claimed_public_voucher_today %}disabled style="background:#8d99ae;cursor:not-allowed;"{% endif %}>
+                                                {% if claimed_public_voucher_today %}Đã nhận hôm nay{% else %}Nhận voucher{% endif %}
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% elif can_claim_public_vouchers %}
+                            <div class="voucher-empty">
+                                <i class="fa fa-ticket" style="font-size: 28px; color: #d10024; margin-bottom: 10px;"></i>
+                                <div>Kho admin hiện đã hết voucher công khai để đẩy lên hôm nay.</div>
+                            </div>
+                        {% else %}
+                            <div class="voucher-empty">
+                                <i class="fa fa-clock-o" style="font-size: 28px; color: #d10024; margin-bottom: 10px;"></i>
+                                <div>Voucher công khai sẽ mở claim từ 12:00 và 21:00 mỗi ngày{% if next_public_voucher_slot_label %}; phiên gần nhất là {{ next_public_voucher_slot_label }}{% endif %}.</div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="voucher-wallet" id="voucher-wallet">
+                        <div class="voucher-wallet-header">
+                            <div>
+                                <h3 class="voucher-wallet-title">Kho voucher của tôi</h3>
+                            </div>
+                            <a href="{% url 'accounts:dashboard' %}" class="account-btn-outline">Thông tin tài khoản</a>
+                        </div>
+
+                        {% if available_vouchers %}
+                            <div class="voucher-grid">
+                                {% for voucher in available_vouchers %}
+                                    <div class="voucher-card">
+                                        <div class="voucher-code">{{ voucher.code }}</div>
+                                        <div class="voucher-meta">
+                                            Giảm {% if voucher.discount_percent %}{{ voucher.discount_percent }}%{% else %}{{ voucher.discount_amount|vnd }}{% endif %}
+                                            cho đơn từ {{ voucher.min_order_amount|vnd }}
+                                        </div>
+                                        <div class="voucher-note">
+                                            Hết hạn: {{ voucher.valid_to|date:"d/m/Y H:i" }}
+                                            <br>Không áp dụng cho sản phẩm đang Hot Deal hoặc Flash Sale.
+                                            {% if voucher.gift_note %}<br>{{ voucher.gift_note }}{% endif %}
+                                        </div>
+                                        <button type="button" class="voucher-copy-btn" data-voucher-code="{{ voucher.code }}">Sao chép mã</button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="voucher-empty">
+                                <i class="fa fa-ticket" style="font-size: 28px; color: #d10024; margin-bottom: 10px;"></i>
+                                <div>Bạn chưa có voucher nào. Khi đơn hàng hoàn tất, shop sẽ tự tặng mã cho lần mua tiếp theo.</div>
+                            </div>
+                        {% endif %}
+                    </div>
                 {% else %}
                     <div class="account-view-grid">
                         <div class="account-view-card">
@@ -769,6 +997,27 @@
 {% block extra_js %}
 <script>
 (function () {
+    document.querySelectorAll('[data-voucher-code]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var code = button.dataset.voucherCode || '';
+            if (!code) return;
+
+            function markCopied() {
+                var originalText = button.textContent;
+                button.textContent = 'Đã sao chép';
+                setTimeout(function () {
+                    button.textContent = originalText;
+                }, 1800);
+            }
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(markCopied).catch(markCopied);
+            } else {
+                markCopied();
+            }
+        });
+    });
+
     var form = document.querySelector('[data-address-form]');
     if (!form) return;
 

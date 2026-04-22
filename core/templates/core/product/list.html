@@ -1,5 +1,6 @@
 ﻿{% extends "base.html" %}
 {% load static %}
+{% load money_tags %}
 {% block title %}{% if is_hotdeal_page %}Hot Deal{% else %}Trang chủ E-Electro{% endif %}{% endblock %}
 {% block breadcrumb %}{% endblock %}
 {% block content %}
@@ -411,7 +412,7 @@
                             <div class="product-body">
                                 <p class="product-category">{{ product.category.name }}</p>
                                 <h3 class="product-name"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
-                                <h4 class="product-price">{{ product.price|floatformat:0 }} VNĐ{% if product.old_price %} <del class="product-old-price">{{ product.old_price|floatformat:0 }} VNĐ</del>{% endif %}</h4>
+                                <h4 class="product-price">{{ product.price|vnd }}{% if product.old_price %} <del class="product-old-price">{{ product.old_price|vnd }}</del>{% endif %}</h4>
                                 <div class="product-btns">
                                     {% if user.is_authenticated %}
                                     <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" class="inline-form">
@@ -599,7 +600,7 @@
                         <div class="product-body">
                             <p class="product-category">{{ product.category.name }}</p>
                             <h3 class="product-name"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
-                            <h4 class="product-price">{{ product.price|floatformat:0 }} VNĐ{% if product.old_price %} <del class="product-old-price">{{ product.old_price|floatformat:0 }} VNĐ</del>{% endif %}</h4>
+                            <h4 class="product-price">{{ product.price|vnd }}{% if product.old_price %} <del class="product-old-price">{{ product.old_price|vnd }}</del>{% endif %}</h4>
                             {% if product.hotdeal_end %}
                             <p style="margin-top: 8px; color: #D10024; font-size: 12px;">Kết thúc: {{ product.hotdeal_end|date:"d/m/Y H:i" }}</p>
                             {% endif %}
@@ -765,7 +766,7 @@
                         <div class="product-body">
                             <p class="product-category">{{ product.category.name }}</p>
                             <h3 class="product-name"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
-                            <h4 class="product-price">{{ product.price|floatformat:0 }} VNĐ{% if product.old_price %} <del class="product-old-price">{{ product.old_price|floatformat:0 }} VNĐ</del>{% endif %}</h4>
+                            <h4 class="product-price">{{ product.price|vnd }}{% if product.old_price %} <del class="product-old-price">{{ product.old_price|vnd }}</del>{% endif %}</h4>
                             {% if product.hotdeal_end %}
                             <p style="margin-top: 8px; color: #D10024; font-size: 12px;">Kết thúc: {{ product.hotdeal_end|date:"d/m/Y H:i" }}</p>
                             {% endif %}
@@ -838,7 +839,7 @@
                                     <div class="product-body">
                                         <p class="product-category">{{ product.category.name }}</p>
                                         <h3 class="product-name"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
-                                        <h4 class="product-price">{{ product.price|floatformat:0 }} VNĐ{% if product.old_price %} <del class="product-old-price">{{ product.old_price|floatformat:0 }} VNĐ</del>{% endif %}</h4>
+                                        <h4 class="product-price">{{ product.price|vnd }}{% if product.old_price %} <del class="product-old-price">{{ product.old_price|vnd }}</del>{% endif %}</h4>
                                         <div class="product-rating">
                                             {% for i in "12345" %}
                                             <i class="fa fa-star"></i>
@@ -897,7 +898,7 @@
                             <div class="product-body">
                                 <p class="product-category">{{ product.category.name }}</p>
                                 <h3 class="product-name"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
-                                <h4 class="product-price">{{ product.price|floatformat:0 }} VNĐ{% if product.old_price %} <del class="product-old-price">{{ product.old_price|floatformat:0 }} VNĐ</del>{% endif %}</h4>
+                                <h4 class="product-price">{{ product.price|vnd }}{% if product.old_price %} <del class="product-old-price">{{ product.old_price|vnd }}</del>{% endif %}</h4>
                             </div>
                         </div>
                         {% empty %}
@@ -941,7 +942,7 @@
                             <div class="product-body">
                                 <p class="product-category">{{ product.category.name }}</p>
                                 <h3 class="product-name"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
-                                <h4 class="product-price">{{ product.price|floatformat:0 }} VNĐ{% if product.old_price %} <del class="product-old-price">{{ product.old_price|floatformat:0 }} VNĐ</del>{% endif %}</h4>
+                                <h4 class="product-price">{{ product.price|vnd }}{% if product.old_price %} <del class="product-old-price">{{ product.old_price|vnd }}</del>{% endif %}</h4>
                                 <div class="product-btns">
                                     {% if user.is_authenticated %}
                                     <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" class="inline-form">
@@ -1249,7 +1250,7 @@
                                         <div class="product-body">
                                             <p class="product-category">{{ product.category.name }}</p>
                                             <h3 class="product-name"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
-                                            <h4 class="product-price">{{ product.price|floatformat:0 }} VN{% if product.old_price %} <del class="product-old-price">{{ product.old_price|floatformat:0 }} VN</del>{% endif %}</h4>
+                                            <h4 class="product-price">{{ product.price|vnd }}{% if product.old_price %} <del class="product-old-price">{{ product.old_price|vnd }}</del>{% endif %}</h4>
                                             <div class="product-btns">
                                                 {% if user.is_authenticated %}
                                                 <form action="{% url 'shop:add_to_wishlist' product.id %}" method="post" class="inline-form">

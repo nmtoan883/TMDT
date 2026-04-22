@@ -1,7 +1,14 @@
+import secrets
+import string
+from datetime import timedelta
+
 from django import forms
 from django.utils import timezone
 from blog.models import Post
 from core.models import Banner, HotDealCampaign, Product
+from coupon.models import Coupon
+
+COUPON_CODE_LENGTH = 16
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -144,4 +151,106 @@ class HotDealCampaignAdminForm(forms.ModelForm):
             value = self.initial.get(field_name) or getattr(self.instance, field_name, None)
             if value:
                 self.initial[field_name] = timezone.localtime(value).strftime('%Y-%m-%dT%H:%M')
+
+
+class CouponAdminForm(forms.ModelForm):
+    quantity = forms.IntegerField(
+        min_value=1,
+        max_value=500,
+        initial=1,
+        label='Số lượng mã',
+        help_text='Nhập số mã cần tạo. Mỗi mã sẽ tự sinh 16 ký tự in hoa và số.',
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'min': '1',
+            'max': '500',
+            'placeholder': 'VD: 10',
+        })
+    )
+
+    class Meta:
+        model = Coupon
+        fields = ['discount_percent', 'min_order_amount', 'claim_valid_days', 'active']
+        labels = {
+            'discount_percent': 'Giảm theo phần trăm',
+            'min_order_amount': 'Giá trị đơn hàng tối thiểu',
+            'claim_valid_days': 'Số ngày hiệu lực sau khi user claim',
+            'active': 'Đang bật',
+        }
+        widgets = {
+            'discount_percent': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '99', 'placeholder': 'VD: 20'}),
+            'min_order_amount': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'step': '1000', 'placeholder': 'VD: 5000000'}),
+            'claim_valid_days': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '365', 'placeholder': 'VD: 3'}),
+            'active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields.pop('quantity', None)
+
+    def _generate_code(self, reserved_codes=None):
+        reserved_codes = reserved_codes or set()
+        alphabet = string.ascii_uppercase + string.digits
+        while True:
+            code = ''.join(secrets.choice(alphabet) for _ in range(COUPON_CODE_LENGTH))
+            if code not in reserved_codes and not Coupon.objects.filter(code=code).exists():
+                return code
+
+    def save_many(self):
+        if self.instance and self.instance.pk:
+            return [self.save()]
+
+        quantity = self.cleaned_data.get('quantity') or 1
+        coupons = []
+        generated_codes = set()
+        now = timezone.now()
+        public_pool_valid_to = now + timedelta(days=3650)
+
+        for _ in range(quantity):
+            code = self._generate_code(generated_codes)
+            generated_codes.add(code)
+            coupons.append(Coupon(
+                code=code,
+                discount_percent=self.cleaned_data['discount_percent'],
+                discount_amount=None,
+                min_order_amount=self.cleaned_data.get('min_order_amount') or 0,
+                valid_from=now,
+                valid_to=public_pool_valid_to,
+                active=self.cleaned_data.get('active', True),
+                claimable=True,
+                claim_valid_days=self.cleaned_data.get('claim_valid_days') or 3,
+            ))
+
+        Coupon.objects.bulk_create(coupons)
+        return coupons
+
+    def clean(self):
+        cleaned = super().clean()
+        discount_percent = cleaned.get('discount_percent')
+        min_order_amount = cleaned.get('min_order_amount')
+        claim_valid_days = cleaned.get('claim_valid_days')
+
+        if not discount_percent:
+            self.add_error('discount_percent', 'Vui lòng nhập phần trăm giảm.')
+        if discount_percent and discount_percent > 99:
+            self.add_error('discount_percent', 'Phần trăm giảm phải nhỏ hơn 100.')
+        if min_order_amount is not None and min_order_amount < 0:
+            self.add_error('min_order_amount', 'Giá trị đơn hàng tối thiểu không được âm.')
+        if claim_valid_days is not None and claim_valid_days < 1:
+            self.add_error('claim_valid_days', 'Số ngày hiệu lực phải lớn hơn 0.')
+
+        return cleaned
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.discount_amount = None
+        if not instance.pk:
+            instance.code = self._generate_code()
+            instance.valid_from = timezone.now()
+            instance.valid_to = timezone.now() + timedelta(days=3650)
+            instance.claimable = True
+        if commit:
+            instance.save()
+        return instance
 

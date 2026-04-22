@@ -43,6 +43,7 @@ class Order(models.Model):
         null=True,
     )
     paid = models.BooleanField(default=False)
+    stock_deducted = models.BooleanField(default=False)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default=PAYMENT_COD)
 
     customer_name = models.CharField(max_length=255)
@@ -59,23 +60,23 @@ class Order(models.Model):
     city = models.CharField(max_length=100, blank=True, null=True)
 
     total_amount = models.DecimalField(
-        max_digits=10,
+        max_digits=12,
         decimal_places=2,
         default=0
     )
 
     shipping_fee = models.DecimalField(
-        max_digits=10,
+        max_digits=12,
         decimal_places=2,
         default=0
     )
 
     PAYMENT_SEPAY = 'sepay'
-    PAYMENT_MANUAL = 'manual'
+    PAYMENT_COD = 'cod'
 
     PAYMENT_CHOICES = [
         (PAYMENT_SEPAY, 'Sepay (QR code)'),
-        (PAYMENT_MANUAL, 'Thanh toán thủ công / Admin duyệt'),
+        (PAYMENT_COD, 'Thanh toán khi nhận hàng'),
     ]
 
     payment_method = models.CharField(
@@ -101,7 +102,16 @@ class Order(models.Model):
 
     def get_total_cost(self):
         items_total = sum(item.get_cost() for item in self.items.all())
-        return items_total or self.total_amount
+        return self.total_amount or items_total
+
+    @property
+    def items_total(self):
+        return sum(item.get_cost() for item in self.items.all())
+
+    @property
+    def discount_total(self):
+        discount = self.items_total + self.shipping_fee - self.total_amount
+        return discount if discount > 0 else 0
 
 
     def get_status_label_class(self):
@@ -137,7 +147,7 @@ class OrderItem(models.Model):
     quantity = models.IntegerField(default=1)
 
     price = models.DecimalField(
-        max_digits=10,
+        max_digits=12,
         decimal_places=2
     )
 

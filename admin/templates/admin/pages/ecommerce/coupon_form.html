@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
   {% include 'admin/partials/head/head-meta.html' %}
-  <title>Admin - Coupon</title>
+  <title>Admin - Mã giảm giá</title>
   {% include 'admin/partials/head/head-links.html' %}
   {{ form.media }}
 </head>
@@ -16,21 +16,64 @@
       <div class="custom-container">
         <div class="row align-items-center mb-4 g-4">
           <div class="col-12 col-md-8">
-            <h4 class="mb-0">{% if obj %}Sửa: {{ obj }}{% else %}Soạn Coupon mới{% endif %}</h4>
+            <h4 class="mb-1">{% if obj %}Sửa mã {{ obj.code }}{% else %}Tạo mã giảm giá{% endif %}</h4>
+            <p class="text-muted mb-0">Mã sẽ được random tự động 16 ký tự gồm chữ in hoa và số.</p>
           </div>
           <div class="col-12 col-md-4 text-md-end">
-             <a href="{% url 'admin:ec_coupon_list' %}" class="btn btn-white">Trở về</a>
+            <a href="{% url 'admin:ec_coupon_list' %}" class="btn btn-white">Trở về</a>
           </div>
         </div>
-        <div class="row"><div class="col-12 col-md-8"><div class="card card-lg card-body">
-                <form method="POST" enctype="multipart/form-data">
-                  {% csrf_token %}
-                  {{ form|crispy }}
-                  <div class="mt-4 pt-3 border-top text-end">
-                    <button type="submit" class="btn btn-primary px-4">Lưu</button>
+
+        <div class="row g-4">
+          <div class="col-12">
+            <div class="card card-lg card-body">
+              <form method="POST" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                  <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                      <div>{{ error }}</div>
+                    {% endfor %}
                   </div>
-                </form>
-        </div></div></div>
+                {% endif %}
+
+                {% if obj %}
+                <div class="alert alert-light border">
+                  <div class="text-muted small">Mã giảm giá</div>
+                  <code class="fs-5">{{ obj.code }}</code>
+                  <div class="text-muted small mt-2">Bắt đầu: {{ obj.valid_from|date:"d/m/Y H:i" }}</div>
+                </div>
+                {% endif %}
+
+                <div class="row">
+                  <div class="{% if obj %}col-md-4{% else %}col-md-3{% endif %}">
+                    {{ form.discount_percent|as_crispy_field }}
+                  </div>
+                  <div class="{% if obj %}col-md-4{% else %}col-md-3{% endif %}">
+                    {{ form.min_order_amount|as_crispy_field }}
+                  </div>
+                  <div class="{% if obj %}col-md-4{% else %}col-md-3{% endif %}">
+                    {{ form.claim_valid_days|as_crispy_field }}
+                  </div>
+                  {% if form.quantity %}
+                  <div class="col-md-3">
+                    {{ form.quantity|as_crispy_field }}
+                  </div>
+                  {% endif %}
+                </div>
+                <div class="form-check mt-2">
+                  {{ form.active }}
+                  <label class="form-check-label" for="{{ form.active.id_for_label }}">Đang bật</label>
+                </div>
+
+                <div class="mt-4 pt-3 border-top text-end">
+                  <button type="submit" class="btn btn-primary px-4">Lưu mã giảm giá</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

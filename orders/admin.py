@@ -8,6 +8,7 @@ from django.utils.html import format_html
 from django.contrib import messages
 
 from .models import Product, Order, OrderItem
+from .services import deduct_stock_for_completed_order
 
 
 def _send_order_status_email(order):
@@ -120,7 +121,15 @@ class OrderAdmin(admin.ModelAdmin):
         allowed = [s for s, _ in Order.STATUS_CHOICES]
         if new_status in allowed:
             order = Order.objects.get(pk=order_id)
+            if new_status == Order.STATUS_COMPLETED:
+                try:
+                    deduct_stock_for_completed_order(order)
+                except Exception as exc:
+                    messages.error(request, str(exc))
+                    return HttpResponseRedirect(reverse('admin:orders_order_change', args=[order_id]))
             order.status = new_status
+            if new_status == Order.STATUS_COMPLETED and order.payment_method == Order.PAYMENT_COD:
+                order.paid = True
             order.save()
             _send_order_status_email(order)
             messages.success(request, f'Đơn hàng #{order_id} → {order.get_status_display()}')
@@ -229,7 +238,14 @@ class OrderAdmin(admin.ModelAdmin):
 
     def mark_as_completed(self, request, queryset):
         for order in queryset:
+            try:
+                deduct_stock_for_completed_order(order)
+            except Exception as exc:
+                self.message_user(request, f'Không thể hoàn tất đơn #{order.id}: {exc}', level=messages.ERROR)
+                continue
             order.status = Order.STATUS_COMPLETED
+            if order.payment_method == Order.PAYMENT_COD:
+                order.paid = True
             order.save()
             _send_order_status_email(order)
         self.message_user(request, f'{queryset.count()} đơn đã hoàn thành & gửi email.')
@@ -377,7 +393,14 @@ class OrderAdmin(admin.ModelAdmin):
 
     def mark_as_completed(self, request, queryset):
         for order in queryset:
+            try:
+                deduct_stock_for_completed_order(order)
+            except Exception as exc:
+                self.message_user(request, f'Không thể hoàn tất đơn #{order.id}: {exc}', level=messages.ERROR)
+                continue
             order.status = Order.STATUS_COMPLETED
+            if order.payment_method == Order.PAYMENT_COD:
+                order.paid = True
             order.save()
             _send_order_status_email(order)
         self.message_user(request, f'{queryset.count()} đơn hàng đã hoàn thành và gửi email thông báo.')

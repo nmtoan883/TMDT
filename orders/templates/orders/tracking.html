@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% load money_tags %}
+{% load static %}
+
+{% block title %}Theo dõi đơn hàng - E-ELECTRO{% endblock %}
+
+{% block breadcrumb %}
+<div id="breadcrumb" class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="breadcrumb-header">Theo dõi đơn hàng</h3>
+                <ul class="breadcrumb-tree">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li class="active">Theo dõi đơn hàng</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<style>
+.tracking-card {
+    background: #fff;
+    border: 1px solid #E4E7ED;
+    border-radius: 6px;
+    margin-bottom: 18px;
+    padding: 20px;
+}
+.tracking-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    border-bottom: 1px solid #E4E7ED;
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+}
+.tracking-code {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2B2D42;
+}
+.tracking-meta {
+    color: #8D99AE;
+    font-size: 13px;
+    margin-top: 4px;
+}
+.tracking-total {
+    color: #D10024;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: right;
+}
+.tracking-products {
+    margin: 0 0 18px;
+    padding-left: 18px;
+    color: #2B2D42;
+    line-height: 1.8;
+}
+.tracking-stepper {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin: 20px 0 22px;
+}
+.tracking-stepper::before {
+    content: '';
+    position: absolute;
+    top: 18px;
+    left: 24px;
+    right: 24px;
+    height: 3px;
+    background: #E4E7ED;
+}
+.tracking-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+.tracking-step-icon {
+    width: 38px;
+    height: 38px;
+    margin: 0 auto 8px;
+    border-radius: 50%;
+    background: #E4E7ED;
+    color: #8D99AE;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #E4E7ED;
+}
+.tracking-step.done .tracking-step-icon {
+    background: #5cb85c;
+    border-color: #5cb85c;
+    color: #fff;
+}
+.tracking-step.active .tracking-step-icon {
+    background: #D10024;
+    border-color: #D10024;
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(209, 0, 36, 0.12);
+}
+.tracking-step-label {
+    font-size: 11px;
+    color: #8D99AE;
+    line-height: 1.35;
+}
+.tracking-step.done .tracking-step-label,
+.tracking-step.active .tracking-step-label {
+    color: #2B2D42;
+    font-weight: 700;
+}
+.tracking-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+.tracking-empty {
+    text-align: center;
+    padding: 55px 20px;
+    background: #fff;
+    border: 1px dashed #D10024;
+    border-radius: 6px;
+}
+@media (max-width: 767px) {
+    .tracking-head,
+    .tracking-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .tracking-total {
+        text-align: left;
+    }
+    .tracking-step-label {
+        font-size: 10px;
+    }
+}
+</style>
+
+<div class="section">
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #E4E7ED; padding-bottom: 10px;">
+            <h4 style="margin:0; text-transform: uppercase;">Theo dõi đơn hàng</h4>
+            <a href="{% url 'orders:order_history' %}" class="primary-btn" style="background: #FFF; color: #D10024; border: 1px solid #D10024;">Lịch sử mua hàng</a>
+        </div>
+
+        {% if orders %}
+            {% for order in orders %}
+            <div class="tracking-card">
+                <div class="tracking-head">
+                    <div>
+                        <div class="tracking-code">Đơn hàng #{{ order.id }}</div>
+                        <div class="tracking-meta">Đặt lúc {{ order.created_at|date:"d/m/Y H:i" }}</div>
+                    </div>
+                    <div>
+                        <div class="tracking-total">{{ order.get_total_cost|vnd }}</div>
+                        <div class="tracking-meta">{{ order.get_status_display }}</div>
+                    </div>
+                </div>
+
+                <ul class="tracking-products">
+                    {% for item in order.items.all %}
+                        <li>{{ item.product.name }} <span style="color:#D10024">(x{{ item.quantity }})</span></li>
+                    {% endfor %}
+                </ul>
+
+                {% with s=order.status %}
+                <div class="tracking-stepper">
+                    <div class="tracking-step {% if s == 'pending' %}active{% else %}done{% endif %}">
+                        <div class="tracking-step-icon"><i class="fa fa-shopping-bag"></i></div>
+                        <div class="tracking-step-label">Đã đặt hàng</div>
+                    </div>
+                    <div class="tracking-step {% if s == 'confirmed' or s == 'processing' %}active{% elif s == 'preparing' or s == 'shipping' or s == 'completed' %}done{% endif %}">
+                        <div class="tracking-step-icon"><i class="fa fa-check-circle"></i></div>
+                        <div class="tracking-step-label">Chờ xác nhận</div>
+                    </div>
+                    <div class="tracking-step {% if s == 'preparing' %}active{% elif s == 'shipping' or s == 'completed' %}done{% endif %}">
+                        <div class="tracking-step-icon"><i class="fa fa-archive"></i></div>
+                        <div class="tracking-step-label">Chờ lấy hàng</div>
+                    </div>
+                    <div class="tracking-step {% if s == 'shipping' %}active{% elif s == 'completed' %}done{% endif %}">
+                        <div class="tracking-step-icon"><i class="fa fa-truck"></i></div>
+                        <div class="tracking-step-label">Đang giao hàng</div>
+                    </div>
+                    <div class="tracking-step {% if s == 'completed' %}done active{% endif %}">
+                        <div class="tracking-step-icon"><i class="fa fa-home"></i></div>
+                        <div class="tracking-step-label">Đã giao hàng</div>
+                    </div>
+                </div>
+                {% endwith %}
+
+                <div class="tracking-actions">
+                    {% if order.status == 'pending' and order.payment_method == 'sepay' %}
+                    <a href="{% url 'orders:order_payment' order.id %}" class="primary-btn" style="background: #28a745; border-color: #28a745;">Thanh toán ngay</a>
+                    {% endif %}
+                    <a href="{% url 'orders:order_detail' order.id %}" class="primary-btn">Xem chi tiết</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="tracking-empty">
+                <i class="fa fa-truck" style="font-size: 54px; color: #D10024; margin-bottom: 18px;"></i>
+                <h4 style="color: #333;">Bạn chưa có đơn hàng nào đang xử lý</h4>
+                <p style="color: #666; font-size: 14px;">Các đơn đang chờ thanh toán, xác nhận, lấy hàng hoặc giao hàng sẽ xuất hiện tại đây.</p>
+                <a href="{% url 'shop:product_list' %}" class="primary-btn">Tiếp tục mua sắm</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
