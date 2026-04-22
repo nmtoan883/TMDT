@@ -875,6 +875,9 @@ textarea.input {
 
 .product .product-img>img {
   width: 100%;
+  height: 200px;
+  object-fit: contain;
+  background: #fff;
 }
 
 .product .product-img .product-label {
@@ -921,6 +924,11 @@ textarea.input {
 .product .product-body .product-name {
   text-transform: uppercase;
   font-size: 14px;
+  height: 40px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .product .product-body .product-name>a {

@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q, Case, When, Value, IntegerField
+from django.db.models import Q, Case, When, Value, IntegerField, Avg
 from django.db.models import CharField, TextField, SlugField, ForeignKey
 from .forms import ProductForm, ReviewForm
 from .models import Banner, Category, Product, Review, UserNotification, Wishlist
@@ -285,6 +285,7 @@ def _build_product_list_context(request, base_products, category=None, query=Non
     selected_sale = request.GET.get('sale')
     selected_new = request.GET.get('new')
     selected_hot = request.GET.get('hot')
+    selected_rating = request.GET.get('rating')
 
     min_price_param = request.GET.get('min_price')
     max_price_param = request.GET.get('max_price')
@@ -341,6 +342,15 @@ def _build_product_list_context(request, base_products, category=None, query=Non
     if selected_hot:
         filter_q &= Q(is_hotdeal=True)
 
+    if selected_rating:
+        try:
+            rating_val = int(selected_rating)
+            # Annotate products with average rating and filter
+            products = products.annotate(avg_rating=Avg('reviews__rating'))
+            filter_q &= Q(avg_rating__gte=rating_val)
+        except (ValueError, TypeError):
+            pass
+
     products = products.filter(filter_q)
     products = products.select_related('category').prefetch_related('hotdeal_campaigns')
 
@@ -383,6 +393,7 @@ def _build_product_list_context(request, base_products, category=None, query=Non
         'rams_selected': selected_rams,
         'rom_options': ROM_OPTIONS,
         'roms_selected': selected_roms,
+        'selected_categories': selected_categories,
     }
 
 
